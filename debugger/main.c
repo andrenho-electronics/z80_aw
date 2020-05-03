@@ -4,14 +4,32 @@
 
 #include "serial.h"
 
-int main()
+void
+print_help()
+{
+    ser_printstr("h: help\r\n");
+    ser_printstr("w ADDR DATA: write byte to memory\r\n");
+    ser_printstr("r ADDR: read byte from memory\r\n");
+    ser_printstr("data format is uppercase hexa (ex. 0C AF 12)\r\n");
+}
+
+int
+main()
 {
     ser_init();
-    ser_printstr("\x1b[2J\x1b[HType 'h' for help'.");
+    ser_printstr("\x1b[2J\x1b[HType 'h' for help'.\r\n");
 
     for (;;) {
-        ser_printstr("\n\r? ");
-        ser_input();
+        unsigned data1, data2;
+        ser_printstr("? ");
+        switch (ser_input(&data1, &data2)) {
+            case 'h':
+                print_help();
+                break;
+            default:
+                ser_printstr("Syntax error.\r\n");
+                break;
+        }
     }
 }
 

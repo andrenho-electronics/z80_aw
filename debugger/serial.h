@@ -4,7 +4,7 @@
 void ser_init();
 void set_printchar(char c);
 void ser_printstr(const char* text);
-void set_input();
+char ser_input(unsigned* data1, unsigned* data2);
 
 #endif
 

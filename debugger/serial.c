@@ -2,6 +2,8 @@
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void ser_init()
 {
@@ -27,14 +29,23 @@ void ser_printstr(const char* text)
         ser_printchar(text[i]);
 }
 
-void ser_input()
+char ser_input(unsigned* data1, unsigned* data2)
 {
-    char c;
+    char buf[24] = { 0 };
+    unsigned i = 0;
     do {
         while (!( UCSRA & (1<<RXC)));  // wait for empty receive buffer
-        c = UDR;
-        ser_printchar(c);
-    } while (c != '\r');
+        if (i < sizeof buf) {
+            buf[i++] = UDR;
+            ser_printchar(buf[i-1]);
+        }
+    } while (buf[i-1] != '\r');
+    ser_printchar('\n');
+
+    char command = 0;
+    sscanf(buf, "%c %x %x", &command, data1, data2);  // TODO - do this manually if there's no space in uc
+    
+    return command;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
