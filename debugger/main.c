@@ -2,24 +2,16 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "serial.h"
+
 int main()
 {
-    // initialize UART
-
-    // set speed
-    int ubrr = 12;  // 9600 at 8 Mhz - http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php?postbitrate=38400&postclock=8
-    UBRRH = (ubrr>>8);
-    UBRRL = (ubrr);
-
-    UCSRC = (1<<URSEL) | (1<<UCSZ1) | (1<<UCSZ0);   // Async-mode 
-    UCSRB = (1<<RXEN) | (1<<TXEN);     // Enable Receiver and Transmitter
+    ser_init();
+    ser_printstr("\x1b[2J\x1b[HType 'h' for help'.");
 
     for (;;) {
-        while (!( UCSRA & (1<<UDRE))); /* Wait for empty transmit buffer*/
-        UDR = 'H';
-        while (!( UCSRA & (1<<UDRE))); /* Wait for empty transmit buffer*/
-        UDR = '!';
-        // for(;;) ;
+        ser_printstr("\n\r? ");
+        ser_input();
     }
 }
 
