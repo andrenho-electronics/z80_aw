@@ -29,7 +29,14 @@ void ser_printstr(const char* text)
         ser_printchar(text[i]);
 }
 
-char ser_input(unsigned* data1, unsigned* data2)
+void ser_printhex(unsigned value, int digits)
+{
+    char out[10];
+    snprintf(out, sizeof out, "%X\n\r", value);
+    ser_printstr(out);
+}
+
+char ser_input(unsigned* data1, unsigned* data2, int* pars)
 {
     char buf[24] = { 0 };
     unsigned i = 0;
@@ -43,7 +50,16 @@ char ser_input(unsigned* data1, unsigned* data2)
     ser_printchar('\n');
 
     char command = 0;
-    sscanf(buf, "%c %x %x", &command, data1, data2);  // TODO - do this manually if there's no space in uc
+    int n = sscanf(buf, "%c %x %x", &command, data1, data2);  // TODO - do this manually if there's no space in uc
+    *pars = n - 1;
+    if (command == 13 || command == 10)
+        return 0;
+
+    /*
+    char b[30];
+    snprintf(b, 30, "%d\n\r", command);
+    ser_printstr(b);
+    */
     
     return command;
 }
