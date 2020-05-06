@@ -21,37 +21,85 @@
 static void
 set_highZ(bool value)
 {
+    if (value) {
+        DDRA = 0; PORTA = 0;
+        DDRB = 0; PORTB = 0;
+        DDRC = 0; PORTC = 0;
+        DDRD = 0b10; PORTD = 0;  // PD1 = TX
+    } else {
+        DDRA = 0xff;
+        DDRB = 0b1111;  // TODO - PB pins 4..7
+        DDRC = 0xff;
+        DDRD = 0b11111110;  // PD0 = RX
+    }
 }
 
 static void
 set_CE(uint8_t value)
 {
+    if (value)
+        PORTA |= _BV(PA7);
+    else
+        PORTA &= ~_BV(PA7);
 }
 
 static void
 set_OE(uint8_t value)
 {
+    if (value)
+        PORTB |= _BV(PB3);
+    else
+        PORTB &= ~_BV(PB3);
 }
 
 static void
 set_WE(uint8_t value)
 {
+    if (value)
+        PORTB |= _BV(PB2);
+    else
+        PORTB &= ~_BV(PB2);
 }
 
 static void
 set_addr(uint16_t addr)
 {
+    PORTC = addr & 0xff;
+    PORTA &= ~0b111111;
+    PORTA |= ((addr >> 8) & 0b1111111);
 }
 
 static void
-set_data(uint8_t addr)
+set_data(uint8_t value)
 {
+    DDRB |= 0b00000011;
+    DDRD |= 0b11111100;
+    _delay_us(1);
+    PORTB &= ~0b00000011;
+    PORTB |= (value & 0b11);
+    PORTD &= ~0b11111100;
+    PORTD |= (value & 0b11111100);
 }
 
 static uint8_t
 get_data()
 {
-    return 0;
+    DDRB  &= ~0b00000011;
+    DDRD  &= ~0b11111100;
+    _delay_us(1);
+    PORTB &= ~0b00000011;
+    PORTD &= ~0b11111100;
+    uint8_t v = PINB & 0b11;
+    v |= (PIND & 0b11111100);
+    return v;
+}
+
+// TODO - temp
+void
+io_test()
+{
+    set_highZ(false);
+    set_OE(1);
 }
 
 void
@@ -64,6 +112,7 @@ uint8_t
 io_read(uint16_t addr)
 {
     set_highZ(false);
+    set_WE(1);
     set_addr(addr);
     set_CE(0);
     set_OE(0);
@@ -73,7 +122,7 @@ io_read(uint16_t addr)
     set_OE(1);
     _delay_us(1);
     set_highZ(true);
-    return 0;
+    return data;
 }
 
 void
@@ -81,9 +130,10 @@ io_write(uint16_t addr, uint8_t data)
 {
     // write address (WE controlled)
     set_highZ(false);
+    set_OE(1);
     set_CE(0);
-    set_WE(0);
     set_addr(addr);
+    set_WE(0);
     _delay_us(1);
     set_data(data);
     _delay_us(1);
