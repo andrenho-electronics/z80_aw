@@ -31,6 +31,8 @@ set_highZ(bool value)
         DDRB = 0b1111;  // TODO - PB pins 4..7
         DDRC = 0xff;
         DDRD = 0b11111110;  // PD0 = RX
+        PORTA |= _BV(PA7);  // CE = 1
+        PORTB |= _BV(PB3) | _BV(PB2);  // OE = WE = 1
     }
 }
 
@@ -112,7 +114,6 @@ uint8_t
 io_read(uint16_t addr)
 {
     set_highZ(false);
-    set_WE(1);
     set_addr(addr);
     set_CE(0);
     set_OE(0);
@@ -130,14 +131,13 @@ io_write(uint16_t addr, uint8_t data)
 {
     // write address (WE controlled)
     set_highZ(false);
-    set_OE(1);
     set_CE(0);
     set_addr(addr);
     set_WE(0);
-    _delay_us(1);
     set_data(data);
     _delay_us(1);
     set_WE(1);
+    _delay_us(1);
     set_CE(1);
     set_highZ(true);
 }
