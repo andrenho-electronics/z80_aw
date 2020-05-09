@@ -10,9 +10,6 @@ int
 main()
 {
     io_init();
-
-    // io_test(); for(;;);
-
     ser_init();
 
     ser_printstr("\x1b[2J\x1b[HType 'h' for help'.\r\n");

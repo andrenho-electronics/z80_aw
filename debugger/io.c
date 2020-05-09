@@ -96,14 +96,6 @@ get_data()
     return v;
 }
 
-// TODO - temp
-void
-io_test()
-{
-    set_highZ(false);
-    set_OE(1);
-}
-
 void
 io_init()
 {

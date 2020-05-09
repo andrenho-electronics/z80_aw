@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <util/delay.h>
 
 #include "io.h"
@@ -10,6 +11,7 @@
 static const char* H_HELP = "h: help\r\n";
 static const char* W_HELP = "w ADDR DATA: write byte to memory\r\n";
 static const char* R_HELP = "r ADDR: read byte from memory\r\n";
+static const char* L_HELP = "l ADDR: print 256 bytes starting from ADDR\r\n";
 static const char* U_HELP = "u SIZE: enter programming mode\r\n";
 
 static int prog_size = 0;
@@ -20,8 +22,26 @@ print_help()
     ser_printstr(H_HELP);
     ser_printstr(W_HELP);
     ser_printstr(R_HELP);
+    ser_printstr(L_HELP);
     ser_printstr(U_HELP);
     ser_printstr("data format is uppercase hexa (ex. 0C AF 12)\r\n");
+}
+
+static void
+list(uint16_t addr)
+{
+    for (uint16_t a = addr; a < (addr + 256); a += 8) {
+        char buf[80];
+        uint8_t data[8];
+        for (int i=0; i<8; ++i)
+            data[i] = io_read(a + i);
+#define CHR(i) ((data[i] >= 32 && data[i] < 127) ? data[i] : '.')
+        snprintf(buf, sizeof buf, "%08X : %02X %02X %02X %02X  %02X %02X %02X %02X  %c%c%c%c%c%c%c%c\r\n", a,
+                data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], 
+                CHR(0), CHR(1), CHR(2), CHR(3), CHR(4), CHR(5), CHR(6), CHR(7));
+#undef CRH
+        ser_printstr(buf);
+    }
 }
 
 void
@@ -53,9 +73,11 @@ repl_do()
                 else
                     ser_printstr(U_HELP);
                 return;
-            case 'l':  // TODO - remove
-                for (int i=0; i < 4; ++i)
-                    ser_printhex(io_read(i), 2);
+            case 'l':
+                if (pars == 1)
+                    list((data1 / 16) * 16);
+                else
+                    ser_printstr(L_HELP);
                 return;
             case 0:
                 return;
