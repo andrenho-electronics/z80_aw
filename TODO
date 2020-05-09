@@ -1,7 +1,7 @@
-- communicate over serial
-- read/write to IC
-- programmer mode
-- full listing
+- communicate over serial (ok)
+- read/write to IC (ok)
+- programmer mode (ok)
+- full listing (ok)
 - computer side: verifier
 - computer side: programmer
 - get CPU status

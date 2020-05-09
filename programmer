@@ -1,0 +1,18 @@
+#!/usr/bin/env python3
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('-d', '--device', type=str, default='/dev/ttyUSB0', help='USB device (default: /dev/ttyUSB0)')
+parser.add_argument('-t', '--test', type=int, help='Test memory (write and verify the whole memory), passing the number of bytes to test')
+args = parser.parse_args()
+
+print('Loading serial library...')
+import serial
+
+ser = serial.Serial(args.device, 38400)
+
+#
+# run tests
+#
+if args.test != None:
+    pass

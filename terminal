@@ -1,0 +1,5 @@
+#!/bin/sh
+
+echo 'Press Ctrl+A and then Shift+K to exit.'
+sleep 2
+sudo screen /dev/ttyUSB0 38400
