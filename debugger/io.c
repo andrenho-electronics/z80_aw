@@ -114,16 +114,17 @@ uint8_t
 io_read(uint16_t addr)
 {
     set_highZ(false);
-    set_addr(addr);
     set_CE(0);
+    set_addr(addr);
     set_OE(0);
     _delay_us(1);
     uint8_t data = get_data();
-    set_CE(1);
     set_OE(1);
     _delay_us(1);
+    set_CE(1);
     set_highZ(true);
     return data;
+    _delay_us(50);
 }
 
 void
@@ -140,6 +141,7 @@ io_write(uint16_t addr, uint8_t data)
     _delay_us(1);
     set_CE(1);
     set_highZ(true);
+    _delay_us(50);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

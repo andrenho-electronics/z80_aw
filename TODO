@@ -1,0 +1,6 @@
+- communicate over serial
+- read/write to IC
+- programmer mode
+- full listing
+- computer side: verifier
+- computer side: programmer

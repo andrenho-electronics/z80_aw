@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include <stdlib.h>
+#include <util/delay.h>
 
 #include "io.h"
 #include "serial.h"
@@ -52,6 +53,10 @@ repl_do()
                 else
                     ser_printstr(U_HELP);
                 return;
+            case 'l':  // TODO - remove
+                for (int i=0; i < 4; ++i)
+                    ser_printhex(io_read(i), 2);
+                return;
             case 0:
                 return;
         }
@@ -59,8 +64,9 @@ repl_do()
     } else {
         for (int i = 0; i < prog_size; ++i)
             io_write(i, ser_inputhex());
-        for (int i = 0; i < prog_size; ++i)
-            ser_printhex(io_read(i), 2);
+        _delay_ms(10);
+        for (int j = 0; j < prog_size; ++j)
+            ser_printhex(io_read(j), 2);
         prog_size = 0;
     }
 }
