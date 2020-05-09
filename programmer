@@ -1,5 +1,14 @@
 #!/usr/bin/env python3
 
+# pySerial required!
+
+def run_tests(ser, nbytes):
+    pass
+
+#
+# main procedue
+#
+
 import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-d', '--device', type=str, default='/dev/ttyUSB0', help='USB device (default: /dev/ttyUSB0)')
@@ -9,10 +18,18 @@ args = parser.parse_args()
 print('Loading serial library...')
 import serial
 
-ser = serial.Serial(args.device, 38400)
+with serial.Serial(args.device, 38400, timeout=1) as ser:
+    ser.write(b'r 0\r\n')
+    ser.flush()
+    print(ser.readline())
+    print(ser.readline())
+    print(ser.readline())
 
-#
-# run tests
-#
-if args.test != None:
-    pass
+    #
+    # run tests
+    #
+    if args.test != None:
+        run_tests(ser, args.test)
+
+    ser.close()
+
