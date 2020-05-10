@@ -1,5 +1,7 @@
 #include "serial.h"
 
+#include <stdbool.h>
+
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <stdio.h>
@@ -43,24 +45,26 @@ ser_printhex(unsigned value, int digits)
 }
 
 static void
-input_buf(char* buf, size_t sz)
+input_buf(char* buf, size_t sz, bool echo)
 {
     unsigned i = 0;
     do {
         while (!( UCSRA & (1<<RXC)));  // wait for empty receive buffer
         if (i < sz) {
             buf[i++] = UDR;
-            ser_printchar(buf[i-1]);
+            if (echo)
+                ser_printchar(buf[i-1]);
         }
     } while (buf[i-1] != '\r');
-    ser_printchar('\n');
+    if (echo)
+        ser_printchar('\n');
 }
 
 char
 ser_input(unsigned* data1, unsigned* data2, int* pars)
 {
     char buf[24] = { 0 };
-    input_buf(buf, sizeof buf);
+    input_buf(buf, sizeof buf, true);
 
     char command = 0;
     int n = sscanf(buf, "%c %x %x", &command, data1, data2);  // TODO - do this manually if there's no space in uc
@@ -81,7 +85,7 @@ uint8_t
 ser_inputhex()
 {
     char buf[24] = { 0 };
-    input_buf(buf, sizeof buf);
+    input_buf(buf, sizeof buf, false);
     int data;
     sscanf(buf, "%x", &data);
     return (uint8_t) data;

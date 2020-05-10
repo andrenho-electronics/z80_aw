@@ -36,7 +36,7 @@ list(uint16_t addr)
         for (int i=0; i<8; ++i)
             data[i] = io_read(a + i);
 #define CHR(i) ((data[i] >= 32 && data[i] < 127) ? data[i] : '.')
-        snprintf(buf, sizeof buf, "%08X : %02X %02X %02X %02X  %02X %02X %02X %02X  %c%c%c%c%c%c%c%c\r\n", a,
+        snprintf(buf, sizeof buf, "%04X : %02X %02X %02X %02X  %02X %02X %02X %02X  %c%c%c%c%c%c%c%c\r\n", a,
                 data[0], data[1], data[2], data[3], data[4], data[5], data[6], data[7], 
                 CHR(0), CHR(1), CHR(2), CHR(3), CHR(4), CHR(5), CHR(6), CHR(7));
 #undef CRH
@@ -50,7 +50,7 @@ repl_do()
     int pars;
     unsigned data1, data2;
     if (prog_size == 0) {
-        ser_printstr("? ");
+        // ser_printstr("? ");
         switch (ser_input(&data1, &data2, &pars)) {
             case 'h':
                 print_help();
@@ -68,10 +68,12 @@ repl_do()
                     ser_printstr(R_HELP);
                 return;
             case 'u':
-                if (pars == 1)
+                if (pars == 1) {
                     prog_size = data1;
-                else
+                    ser_printstr("ok\r\n");
+                } else {
                     ser_printstr(U_HELP);
+                }
                 return;
             case 'l':
                 if (pars == 1)
@@ -84,11 +86,15 @@ repl_do()
         }
         ser_printstr("Syntax error.\r\n");
     } else {
-        for (int i = 0; i < prog_size; ++i)
+        for (int i = 0; i < prog_size; ++i) {
             io_write(i, ser_inputhex());
-        _delay_ms(10);
-        for (int j = 0; j < prog_size; ++j)
+            _delay_ms(1);
+        }
+        _delay_ms(100);
+        for (int j = 0; j < prog_size; ++j) {
             ser_printhex(io_read(j), 2);
+            _delay_us(100);
+        }
         prog_size = 0;
     }
 }
