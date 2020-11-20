@@ -1,8 +1,11 @@
-- communicate over serial (ok)
-- read/write to IC (ok)
-- programmer mode (ok)
-- full listing (ok)
-- computer side: verifier
-- computer side: programmer
-- get CPU status
-- advance CPU step
+- serial interface
+- read parallel to serial
+- write serial to parallel
+- read/write data and addr buses
+- read/write to RAM
+- read CPU status
+- clock cycle
+- keep cycling
+- full debugger
+- add ROM/SDCARD to project
+- add keyboard/screen
