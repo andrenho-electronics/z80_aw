@@ -1,12 +1,12 @@
 PROJECT=z80_debugger
-OBJECTS=main.o
+OBJECTS=main.o serial.o repl.o io.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -b 300
 FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m
 MCU=atmega16
 F_CPU=8000000UL   # running at 8 Mhz
 
 CXX=avr-g++
-CPPFLAGS=-Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU}
+CPPFLAGS=-std=c++17 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU}
 
 ${PROJECT}.hex: ${PROJECT}.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
