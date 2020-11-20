@@ -72,6 +72,10 @@ IO::read_parallel() const
     }
 
     return parallel;
+
+#undef SERIAL_IN
+#undef LOAD
+#undef CLOCK
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

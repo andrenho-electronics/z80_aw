@@ -1,9 +1,10 @@
 PROJECT=z80_debugger
 OBJECTS=main.o serial.o repl.o io.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -b 300
-FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m
+#FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
+FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal
 MCU=atmega16
-F_CPU=8000000UL   # running at 8 Mhz
+F_CPU=16000000UL   # running at 8 Mhz
 
 CXX=avr-g++
 CPPFLAGS=-std=c++17 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU}
