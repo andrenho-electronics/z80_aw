@@ -39,9 +39,10 @@ Repl::print_help() const
 void
 Repl::print_cpu_status() const
 {
-    Status status = io.get_status();
+    Status status = io.read_status();
     serial.print("ADDR = "); serial.printhex(status.addr, 4); serial.puts();
     serial.print("DATA = "); serial.printhex(status.data, 2); serial.puts();
+    serial.print("REG  = "); serial.printhex(status.reg, 2); serial.puts();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
