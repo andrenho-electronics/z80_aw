@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <string.h>
 
 IO::IO()
 {
@@ -34,7 +35,7 @@ IO::read_status() const
     set_state(IO::State::Input);
     status.data = PINC;
     status.addr = read_addr();
-    status.reg = read_parallel();
+    status.flags = read_parallel();
     set_state(IO::State::HighImpedance);
 
     return status;
@@ -46,7 +47,7 @@ IO::read_addr() const
     return (uint16_t) PINA | ((uint16_t) ((PINB << 5) | (PIND >> 3)) << 8);
 }
 
-uint8_t
+CpuFlagsOut
 IO::read_parallel() const
 {
 #define SERIAL_IN PORTB4
@@ -71,7 +72,9 @@ IO::read_parallel() const
         PORTB |= _BV(CLOCK);
     }
 
-    return parallel;
+    CpuFlagsOut cfo;
+    memcpy(&cfo, &parallel, 1);
+    return cfo;
 
 #undef SERIAL_IN
 #undef LOAD
