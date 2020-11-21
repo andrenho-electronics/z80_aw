@@ -39,7 +39,7 @@ public:
 
     void write_data(uint8_t data) const;
     void write_addr(uint16_t addr) const;
-    void write_flags(CpuFlagsOut flags) const;
+    void write_flags(CpuFlagsIn flags) const;
 
 private:
     void        set_high_impedance() const;

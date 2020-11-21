@@ -8,7 +8,10 @@ int main()
     Serial serial;
     Repl   repl(serial, io);
 
-    io.write_addr(0xabcd);
+    CpuFlagIn cfi;
+    uint8_t f = 0xf1;
+    memcpy(&cfi, &f, 1);
+    io.write_flags(cfi);
 
     while (1)
         ;//repl.execute();

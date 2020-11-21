@@ -96,9 +96,12 @@ IO::write_addr(uint16_t data) const
 }
 
 void
-IO::write_flags(CpuFlagsOut flags) const
+IO::write_flags(CpuFlagsIn flags) const
 {
-    // TODO
+    uint8_t f = 0;
+    memcpy(&f, &flags, 1);
+
+    // ...
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
