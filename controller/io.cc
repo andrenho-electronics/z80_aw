@@ -95,4 +95,10 @@ IO::write_addr(uint16_t data) const
     PORTB |= data >> 13;
 }
 
+void
+IO::write_flags(CpuFlagsOut flags) const
+{
+    // TODO
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab

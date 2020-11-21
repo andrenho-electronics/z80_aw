@@ -13,6 +13,17 @@ struct CpuFlagsOut {
     bool rd     : 1;
 };
 
+struct CpuFlagsIn {
+    bool int_   : 1;
+    bool nmi    : 1;
+    bool reset  : 1;
+    bool busreq : 1;
+    bool wait   : 1;
+    bool wr     : 1;
+    bool rd     : 1;
+    bool mreq   : 1;
+};
+
 struct Status {
     uint16_t    addr;
     uint8_t     data;
@@ -28,6 +39,7 @@ public:
 
     void write_data(uint8_t data) const;
     void write_addr(uint16_t addr) const;
+    void write_flags(CpuFlagsOut flags) const;
 
 private:
     void        set_high_impedance() const;
