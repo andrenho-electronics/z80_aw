@@ -20,6 +20,7 @@ IO::set_high_impedance() const
     PORTB = 0x0;
     PORTC = 0x0;
     PORTD = 0x0;
+    disable_flags_output();
 }
 
 Status
@@ -98,10 +99,47 @@ IO::write_addr(uint16_t data) const
 void
 IO::write_flags(CpuFlagsIn flags) const
 {
+#define SERIAL_OUT    PORTB5
+#define CLOCK         PORTB7
+#define OUTPUT_ENABLE PORTD2
+
     uint8_t f = 0;
     memcpy(&f, &flags, 1);
 
-    // ...
+    DDRB |= _BV(SERIAL_OUT) | _BV(CLOCK);
+    DDRD |= _BV(OUTPUT_ENABLE);
+    PORTD |= _BV(OUTPUT_ENABLE);   // output is disabled
+    PORTB &= ~_BV(CLOCK);          // clock is low
+
+    // send bits
+    for (int i = 7; i >= 0; --i) {
+        if (f & (1 << i))
+            PORTB |= _BV(SERIAL_OUT);
+        else
+            PORTB &= ~_BV(SERIAL_OUT);
+        PORTB |= _BV(CLOCK);
+        PORTB &= ~_BV(CLOCK);
+    }
+
+    // enable output
+    PORTD &= ~_BV(OUTPUT_ENABLE);
+
+    // back to input (except OUTPUT_ENABLE)
+    DDRB &= ~(_BV(SERIAL_OUT) | _BV(CLOCK));
+
+#undef SERIAL_OUT
+#undef CLEAR
+#undef CLOCK
+#undef OUTPUT_ENABLE
+}
+
+void
+IO::disable_flags_output() const
+{
+#define OUTPUT_ENABLE PORTD2
+    DDRD |= _BV(OUTPUT_ENABLE);
+    PORTD |= _BV(OUTPUT_ENABLE);   // output is disabled
+#undef OUTPUT_ENABLE
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

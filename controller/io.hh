@@ -40,9 +40,9 @@ public:
     void write_data(uint8_t data) const;
     void write_addr(uint16_t addr) const;
     void write_flags(CpuFlagsIn flags) const;
-
-private:
-    void        set_high_impedance() const;
+    
+    void set_high_impedance() const;
+    void disable_flags_output() const;
 
     uint16_t    read_addr() const;
     CpuFlagsOut read_parallel() const;
