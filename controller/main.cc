@@ -8,8 +8,10 @@ int main()
     Serial serial;
     Repl   repl(serial, io);
 
+    io.write_addr(0xabcd);
+
     while (1)
-        repl.execute();
+        ;//repl.execute();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

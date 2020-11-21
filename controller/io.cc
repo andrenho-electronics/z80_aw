@@ -6,25 +6,20 @@
 
 IO::IO()
 {
-    set_state(IO::State::HighImpedance);
+    set_high_impedance();
 }
 
 void
-IO::set_state(IO::State state) const
+IO::set_high_impedance() const
 {
-    switch (state) {
-        case IO::State::HighImpedance:
-        case IO::State::Input:
-            DDRA = 0x0;
-            DDRB = 0x0;
-            DDRC = 0x0;
-            DDRD = 0x0;
-            PORTA = 0x0;
-            PORTB = 0x0;
-            PORTC = 0x0;
-            PORTD = 0x0;
-            break;
-    }
+    DDRA = 0x0;
+    DDRB = 0x0;
+    DDRC = 0x0;
+    DDRD = 0x0;
+    PORTA = 0x0;
+    PORTB = 0x0;
+    PORTC = 0x0;
+    PORTD = 0x0;
 }
 
 Status
@@ -32,11 +27,10 @@ IO::read_status() const
 {
     Status status;
     
-    set_state(IO::State::Input);
+    set_high_impedance();
     status.data = PINC;
     status.addr = read_addr();
     status.flags = read_parallel();
-    set_state(IO::State::HighImpedance);
 
     return status;
 }
@@ -79,6 +73,26 @@ IO::read_parallel() const
 #undef SERIAL_IN
 #undef LOAD
 #undef CLOCK
+}
+
+void
+IO::write_data(uint8_t data) const
+{
+    DDRC = 0xff;
+    PORTC = data;
+}
+
+void
+IO::write_addr(uint16_t data) const
+{
+    DDRA = 0xff;
+    DDRD |= 0b11111000;
+    DDRB |= 0b00000111;
+    PORTA = data & 0xff;
+    PORTD &= ~0b11111000;
+    PORTD |= ((data >> 8) & 0b11111) << 3;
+    PORTB &= ~0b111;
+    PORTB |= data >> 13;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -26,9 +26,11 @@ public:
 
     Status read_status() const;
 
+    void write_data(uint8_t data) const;
+    void write_addr(uint16_t addr) const;
+
 private:
-    enum class State { Input, Output, HighImpedance };
-    void   set_state(State state) const;
+    void        set_high_impedance() const;
 
     uint16_t    read_addr() const;
     CpuFlagsOut read_parallel() const;
