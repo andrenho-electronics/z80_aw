@@ -15,11 +15,16 @@ Computer::read_ram(uint16_t addr) const
     clear_bus();
     io.write_addr(addr);
 
-    // set WE & MREQ
+    // set MREQ
     CpuFlagsIn flags;
     flags.mreq = false;
-    flags.rd = false;
+    flags.rd = true;
     flags.wr = true;
+    io.write_flags(flags);
+    waitk();
+
+    // set RD
+    flags.rd = false;
     io.write_flags(flags);
 
     // read data
