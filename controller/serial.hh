@@ -18,6 +18,8 @@ public:
     void printhex(uint16_t value, uint8_t sz) const;
 };
 
+void waitk();
+
 #endif
 
 // vim:ts=4:sts=4:sw=4:expandtab

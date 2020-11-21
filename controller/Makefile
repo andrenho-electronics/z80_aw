@@ -1,5 +1,5 @@
 PROJECT=z80_debugger
-OBJECTS=main.o serial.o repl.o io.o
+OBJECTS=main.o serial.o repl.o io.o computer.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -b 300
 #FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal

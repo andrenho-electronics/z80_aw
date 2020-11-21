@@ -29,11 +29,18 @@ IO::read_status() const
     Status status;
     
     set_high_impedance();
-    status.data = PINC;
+    status.data = read_data();
     status.addr = read_addr();
     status.flags = read_parallel();
 
     return status;
+}
+
+uint8_t
+IO::read_data() const
+{
+    DDRC = 0x0;
+    return PINC;
 }
 
 uint16_t

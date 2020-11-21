@@ -44,6 +44,7 @@ public:
     void set_high_impedance() const;
     void disable_flags_output() const;
 
+    uint8_t     read_data() const;
     uint16_t    read_addr() const;
     CpuFlagsOut read_parallel() const;
 };

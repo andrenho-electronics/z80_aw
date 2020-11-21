@@ -2,6 +2,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/io.h>
+#include <util/delay.h>
 
 static char hex(uint8_t v)
 {
@@ -19,6 +20,10 @@ Serial::Serial()
     // set config
     UCSRC = (1<<URSEL) | (1<<UCSZ1) | (1<<UCSZ0);   // Async-mode 
     UCSRB = (1<<RXEN) | (1<<TXEN);     // Enable Receiver and Transmitter
+
+    // clear screen
+    putc('\x1b'); putc('['); putc('2'); putc('J');
+    putc('\x1b'); putc('['); putc('H');
 }
 
 void
@@ -72,6 +77,16 @@ Serial::printhex(uint16_t value, uint8_t sz) const
 {
     for (uint16_t i = sz; i > 0; --i)
         putc(hex((value >> ((i-1) * 4)) & 0xf));
+}
+
+void
+waitk()
+{
+    while (!( UCSRA & (1<<UDRE))); // Wait for empty transmit buffer
+    UDR = '?';
+    while (!( UCSRA & (1<<RXC)));  // wait for empty receive buffer
+    volatile char c = UDR;
+    _delay_ms(100);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
