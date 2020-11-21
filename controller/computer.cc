@@ -48,8 +48,12 @@ Computer::write_ram(uint16_t addr, uint8_t data) const
     // set WE & MREQ
     CpuFlagsIn flags;
     flags.mreq = false;
-    flags.wr = false;
+    flags.wr = true;
     flags.rd = true;
+    io.write_flags(flags);
+    waitk();
+
+    flags.wr = false;
     io.write_flags(flags);
     waitk();
     
