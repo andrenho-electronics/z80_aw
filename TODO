@@ -1,10 +1,10 @@
 - serial interface (ok)
 - read data and addr buses (ok)
-- read parallel to serial
-  - move to 16 Mhz
-  - use struct
-- write serial to parallel
+- read parallel to serial (ok)
+  - move to 16 Mhz (ok)
+  - use struct (ok)
 - write data and addr buses
+- write serial to parallel
 - read/write to RAM
 - read CPU status
 - clock cycle
