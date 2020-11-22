@@ -2,4 +2,7 @@
 
 Connecting to the debugger: FTDI driver must be installed
 
-   $ screen /dev/ttyUSB0 38400
+   $ ./terminal
+
+![Boards](image/boards.jpg)
+![Pins](image/pins.jpg)
