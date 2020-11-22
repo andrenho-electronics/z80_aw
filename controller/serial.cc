@@ -77,9 +77,15 @@ Serial::printhex(uint16_t value, uint8_t sz) const
 }
 
 void
+Serial::printbit(bool value) const
+{
+    print(value ? "\u001b[32m1" : "\u001b[31m0");
+    print("\u001b[0m");
+}
+
+void
 Serial::clear_screen() const
 {
-    // clear screen
     putc('\x1b'); putc('['); putc('2'); putc('J');
     putc('\x1b'); putc('['); putc('H');
 }

@@ -16,6 +16,8 @@ private:
     Serial const& serial;
     IO     const& io;
 
+    uint16_t cycle = 0;
+
     void print_input() const;
 };
 

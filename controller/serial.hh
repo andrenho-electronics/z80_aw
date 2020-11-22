@@ -16,6 +16,7 @@ public:
 
     void print(const char* text) const;
     void printhex(uint16_t value, uint8_t sz) const;
+    void printbit(bool value) const;
 
     void clear_screen() const;
 };
