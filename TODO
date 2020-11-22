@@ -1,14 +1,14 @@
-- serial interface (ok)
-- read data and addr buses (ok)
-- read parallel to serial (ok)
-  - move to 16 Mhz (ok)
-  - use struct (ok)
-- write data and addr buses (ok)
-- write serial to parallel
-- read/write to RAM
-- read CPU status
+- serial interface
+- set high impedance
+- read data & output pins from Z80
+- read address
+- write data & input pins to Z80
+- write address
+- build circuit
+
+- read/write ROM
+- read/write RAM
 - clock cycle
-- keep cycling
+- step
+- keep cycle
 - full debugger
-- add ROM/SDCARD to project
-- add keyboard/screen
