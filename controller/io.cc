@@ -12,15 +12,16 @@ IO::IO()
 void
 IO::set_high_impedance() const
 {
+#define OUTPUT_ENABLE PORTD2
     DDRA = 0x0;
     DDRB = 0x0;
     DDRC = 0x0;
-    DDRD = 0x0;
+    DDRD = _BV(OUTPUT_ENABLE);
     PORTA = 0x0;
     PORTB = 0x0;
     PORTC = 0x0;
-    PORTD = 0x0;
-    disable_flags_output();
+    PORTD = _BV(OUTPUT_ENABLE);  // disable parallel output
+#undef OUTPUT_ENABLE
 }
 
 Status
@@ -137,15 +138,6 @@ IO::write_flags(CpuFlagsIn flags) const
 #undef SERIAL_OUT
 #undef CLEAR
 #undef CLOCK
-#undef OUTPUT_ENABLE
-}
-
-void
-IO::disable_flags_output() const
-{
-#define OUTPUT_ENABLE PORTD2
-    DDRD |= _BV(OUTPUT_ENABLE);
-    PORTD |= _BV(OUTPUT_ENABLE);   // output is disabled
 #undef OUTPUT_ENABLE
 }
 
