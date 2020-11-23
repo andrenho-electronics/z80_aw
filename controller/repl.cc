@@ -21,6 +21,7 @@ Repl::welcome() const
 void
 Repl::execute()
 {
+    io.set_high_impedance();
     print_input();
 
     while (true) {

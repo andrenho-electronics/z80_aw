@@ -1,9 +1,79 @@
 #include "io.hh"
 
+#include <avr/io.h>
+#include <util/delay.h>
+
+#define OE_595  _BV(PORTB0)
+#define Z80_CLK _BV(PORTB3)
+#define MREQ    _BV(PORTA0)
+#define WR      _BV(PORTA2)
+#define RD      _BV(PORTA1)
+#define M1      _BV(PORTD4)
+#define IORQ    _BV(PORTD2)
+#define HALT    _BV(PORTA4)
+#define BUSACK  _BV(PORTD3)
+#define PL_165  _BV(PORTB1)
+#define MISO    _BV(PORTB6)
+#define SCK     _BV(PORTB7)
+
+void
+IO::set_high_impedance() const
+{
+    DDRA  = 0x0;
+    PORTA = 0x0;
+    DDRB  = OE_595 | Z80_CLK;   // OE port of 595 and Z80 clock needs to be held high
+    PORTB = OE_595 | Z80_CLK;
+    DDRC  = 0x0;
+    PORTC = 0x0;
+    DDRD  = 0x0;
+    PORTD = 0x0;
+}
+
 Inputs
 IO::read_inputs() const
 {
-    return { 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    Inputs in;
+    in.data = read_data();
+    in.addr = read_addr();
+    in.mreq = PINA & MREQ;
+    in.wr = PINA & WR;
+    in.rd = PINA & RD;
+    in.m1 = PIND & M1;
+    in.iorq = PIND & IORQ;
+    in.halt = PINA & HALT;
+    in.busack = PIND & BUSACK;
+    return in;
+}
+
+uint8_t
+IO::read_data() const
+{
+    DDRC = 0x0;
+    return PINC;
+}
+
+uint16_t
+IO::read_addr() const
+{
+    DDRB |= PL_165 | SCK;  // outputs
+    DDRB &= ~MISO;         // inputs
+    PORTB |= SCK | PL_165;
+
+    // load 165 with data
+    PORTB &= ~PL_165;
+    PORTB |= PL_165;
+
+    // read bits
+    uint16_t addr = 0;
+    for (int i = 15; i >= 0; --i) {
+        addr <<= 1;
+        addr |= (PINB >> PORTB6) & 1;
+        PORTB &= ~SCK;  // clock cycle
+        PORTB |= SCK;
+    }
+    
+    DDRB &= ~PL_165 & ~SCK;
+    return addr;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

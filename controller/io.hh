@@ -17,7 +17,12 @@ struct Inputs {
 
 class IO {
 public:
+    void   set_high_impedance() const;
     Inputs read_inputs() const;
+
+private:
+    uint8_t  read_data() const;
+    uint16_t read_addr() const;
 };
 
 #endif
