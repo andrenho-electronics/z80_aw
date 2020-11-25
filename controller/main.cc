@@ -2,13 +2,22 @@
 #include "serial.hh"
 #include "repl.hh"
 
+#include <util/delay.h>
+
 int main()
 {
     IO       io;
     Serial   serial;
     Repl     repl(serial, io);
 
+    serial.init();
+
     repl.welcome();
+    io.set_addr(0xABCD);
+    _delay_ms(1000);
+    
+    //io.set_addr(0x1234);
+    //io.set_addr(0x1111);
 
     while (1)
         repl.execute();

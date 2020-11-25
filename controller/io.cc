@@ -3,7 +3,10 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include "serial.hh"
+
 #define OE_595  _BV(PORTB0)
+#define SER_595 _BV(PORTB2)
 #define Z80_CLK _BV(PORTB3)
 #define MREQ    _BV(PORTA0)
 #define WR      _BV(PORTA2)
@@ -14,6 +17,7 @@
 #define BUSACK  _BV(PORTD3)
 #define PL_165  _BV(PORTB1)
 #define MISO    _BV(PORTB6)
+#define MOSI    _BV(PORTB5)
 #define SCK     _BV(PORTB7)
 
 void
@@ -72,8 +76,38 @@ IO::read_addr() const
         PORTB |= SCK;
     }
     
+    // restore ports
     DDRB &= ~PL_165 & ~SCK;
     return addr;
+}
+
+void
+IO::set_addr(uint16_t addr) const
+{
+    // set ports for output
+    DDRB |= SER_595 | SCK | OE_595;
+    PORTB |= SCK | OE_595;
+
+    // send bits
+    for (int i = 0; i < 16; ++i) {
+        // feed data
+        if (addr & (1 << i))
+            PORTB |= SER_595;
+        else
+            PORTB &= ~SER_595;
+        // cycle clock
+        PORTB &= ~SCK;
+        PORTB |= SCK;
+    }
+
+        PORTB &= ~SCK;
+        PORTB |= SCK;
+    
+    // activate output
+    PORTB &= ~OE_595;
+
+    // restore ports
+    DDRB &= ~SER_595; // & ~SCK;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -6,7 +6,7 @@
 
 class Serial {
 public:
-    Serial();
+    void init();
 
     void putc(char c) const;
     char getc() const;

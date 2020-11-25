@@ -10,7 +10,8 @@ static char hex(uint8_t v)
     return v < 10 ? v + '0' : v - 10 + 'A';
 }
 
-Serial::Serial()
+void
+Serial::init()
 {
     // set baud rate
     // int ubrr = 12;  // 38400 at 8 Mhz - http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php?postbitrate=38400&postclock=8
