@@ -81,7 +81,7 @@ IO::read_addr() const
     // restore ports
     DDRB &= ~PL_165;
     DDRD &= ~SER_CLK;
-    return addr;
+    return (addr << 8) | (addr >> 8);
 }
 
 void
