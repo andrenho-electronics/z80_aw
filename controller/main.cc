@@ -11,13 +11,12 @@ int main()
     Repl     repl(serial, io);
 
     serial.init();
-
     repl.welcome();
-    io.set_addr(0xABCD);
-    _delay_ms(1000);
-    
-    //io.set_addr(0x1234);
-    //io.set_addr(0x1111);
+
+    for (uint16_t i = 0; i < 0xffff; ++i) {
+        io.set_addr(i);
+        _delay_ms(10);
+    }
 
     while (1)
         repl.execute();

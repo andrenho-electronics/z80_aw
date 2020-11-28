@@ -94,7 +94,7 @@ IO::set_addr(uint16_t addr) const
     PORTD |= SER_CLK;
 
     // send bits
-    for (int i = 0; i < 16; ++i) {
+    for (int i = 15; i >= 0; --i) {
         // feed data
         if (addr & (1 << i))
             PORTB |= SER_595;
