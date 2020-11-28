@@ -1,10 +1,13 @@
-- serial interface
-- set high impedance
+- serial interface (ok)
+- set high impedance (ok)
 - read data & output pins from Z80
 - read address
 - write data & input pins to Z80
 - write address
 - build circuit
+
+Fix:
+- move from SCK to PD7
 
 - read/write ROM
 - read/write RAM
