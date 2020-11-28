@@ -1,5 +1,7 @@
 #include "repl.hh"
 
+#include <util/delay.h>
+
 #define BUFSZ 256
 
 Repl::Repl(Serial const& serial, IO const& io) 
@@ -13,9 +15,16 @@ Repl::welcome() const
     serial.clear_screen();
     serial.puts("Welcome to Z80 controller.");
     serial.puts();
-    serial.puts("Keys: [C]ycle");
+    print_instructions();
+}
+
+void
+Repl::print_instructions() const
+{
+    serial.puts("Keys: [H]elp [C]ycle");
+    serial.puts("      Tests: [A]ddr");
     serial.puts();
-    serial.puts("CYCLE    DATA ADDR MREQ WR RD M1 IORQ HALT BUSACK");
+    serial.puts("CYCLE    DATA ADDR MREQ WR RD M1 IORQ HALT BUSACK\a");
 }
 
 void
@@ -26,9 +35,14 @@ Repl::execute()
 
     while (true) {
         switch (serial.getc()) {
+            case 'A': case 'a':
+                test_addr();
+                break;
             case 'C': case 'c':
                 ++cycle;
                 return;
+            case 'H': case 'h': case '?':
+                print_instructions();
             default:
                 serial.putc('\a');
         }
@@ -59,6 +73,31 @@ Repl::print_input() const
     serial.print("     ");
     serial.printbit(in.busack);
     serial.puts();
+}
+
+void
+Repl::test_addr() const
+{
+    bool ok = true;
+    for (uint32_t i = 0; i <= 0xfff0; i += 0x20) {
+        serial.printhex(i, 4);
+        serial.print("  ");
+        for (uint8_t j = 0; j < 32; ++j) {
+            uint16_t val = i + j;
+            io.set_addr(val);
+            if (io.read_addr() != val) {
+                serial.printbit(0);
+                ok = false;
+            } else {
+                serial.putc('.');
+            }
+        }
+        serial.puts();
+    }
+    io.set_high_impedance();
+    serial.puts(ok ? "Addr test ok." : "Some tests failed.");
+    serial.puts();
+    print_instructions();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

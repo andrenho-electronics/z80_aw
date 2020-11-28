@@ -18,7 +18,10 @@ private:
 
     uint16_t cycle = 0;
 
+    void print_instructions() const;
     void print_input() const;
+
+    void test_addr() const;
 };
 
 #endif

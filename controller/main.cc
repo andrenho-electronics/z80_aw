@@ -13,11 +13,6 @@ int main()
     serial.init();
     repl.welcome();
 
-    for (uint16_t i = 0; i < 0xffff; ++i) {
-        io.set_addr(i);
-        _delay_ms(10);
-    }
-
     while (1)
         repl.execute();
 }
