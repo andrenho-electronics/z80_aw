@@ -18,7 +18,7 @@
 #define PL_165  _BV(PORTB1)
 #define MISO    _BV(PORTB6)
 #define MOSI    _BV(PORTB5)
-#define SCK     _BV(PORTB7)
+#define SER_CLK _BV(PORTD7)
 
 void
 IO::set_high_impedance() const
@@ -59,9 +59,11 @@ IO::read_data() const
 uint16_t
 IO::read_addr() const
 {
-    DDRB |= PL_165 | SCK;  // outputs
-    DDRB &= ~MISO;         // inputs
-    PORTB |= SCK | PL_165;
+    DDRB |= PL_165;   // outputs
+    DDRD |= SER_CLK;
+    DDRB &= ~MISO;    // inputs
+    PORTB |= PL_165;
+    PORTD |= SER_CLK;
 
     // load 165 with data
     PORTB &= ~PL_165;
@@ -72,12 +74,13 @@ IO::read_addr() const
     for (int i = 15; i >= 0; --i) {
         addr <<= 1;
         addr |= (PINB >> PORTB6) & 1;
-        PORTB &= ~SCK;  // clock cycle
-        PORTB |= SCK;
+        PORTD &= ~SER_CLK;  // clock cycle
+        PORTD |= SER_CLK;
     }
     
     // restore ports
-    DDRB &= ~PL_165 & ~SCK;
+    DDRB &= ~PL_165;
+    DDRD &= ~SER_CLK;
     return addr;
 }
 
@@ -85,8 +88,10 @@ void
 IO::set_addr(uint16_t addr) const
 {
     // set ports for output
-    DDRB |= SER_595 | SCK | OE_595;
-    PORTB |= SCK | OE_595;
+    DDRB |= SER_595 | OE_595;
+    DDRD |= SER_CLK;
+    PORTB |= OE_595;
+    PORTD |= SER_CLK;
 
     // send bits
     for (int i = 0; i < 16; ++i) {
@@ -96,18 +101,18 @@ IO::set_addr(uint16_t addr) const
         else
             PORTB &= ~SER_595;
         // cycle clock
-        PORTB &= ~SCK;
-        PORTB |= SCK;
+        PORTD &= ~SER_CLK;
+        PORTD |= SER_CLK;
     }
 
-        PORTB &= ~SCK;
-        PORTB |= SCK;
+    PORTD &= ~SER_CLK;
+    PORTD |= SER_CLK;
     
     // activate output
     PORTB &= ~OE_595;
 
     // restore ports
-    DDRB &= ~SER_595; // & ~SCK;
+    DDRB &= ~SER_595;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
