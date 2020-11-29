@@ -12,6 +12,9 @@ int main()
 
     serial.init();
     repl.welcome();
+    serial.printhex(io.read_rom(0), 2); serial.puts();
+    io.set_rom(0, 0x12);
+    serial.printhex(io.read_rom(0), 2); serial.puts();
 
     while (1)
         repl.execute();

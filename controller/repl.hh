@@ -22,6 +22,7 @@ private:
     void print_input() const;
 
     void test_addr() const;
+    void test_rom() const;
 };
 
 #endif

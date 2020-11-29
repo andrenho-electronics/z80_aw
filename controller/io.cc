@@ -2,6 +2,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include <avr/cpufunc.h>
 
 #include "serial.hh"
 
@@ -23,8 +24,8 @@
 void
 IO::set_high_impedance() const
 {
-    DDRA  = 0x0;
-    PORTA = 0x0;
+    DDRA  = MREQ;
+    PORTA = MREQ;
     DDRB  = OE_595 | Z80_CLK;   // OE port of 595 and Z80 clock needs to be held high
     PORTB = OE_595 | Z80_CLK;
     DDRC  = 0x0;
@@ -54,6 +55,13 @@ IO::read_data() const
 {
     DDRC = 0x0;
     return PINC;
+}
+
+void
+IO::set_data(uint8_t data) const
+{
+    DDRC = 0xff;
+    PORTC = data;
 }
 
 uint16_t
@@ -113,6 +121,36 @@ IO::set_addr(uint16_t addr) const
 
     // restore ports
     DDRB &= ~SER_595;
+}
+
+void
+IO::set_rom(uint16_t addr, uint8_t data) const
+{
+    DDRA = MREQ | WR | RD;
+    PORTA = MREQ | WR | RD;
+
+    set_addr(addr);
+    set_data(data);
+    _NOP(); _NOP(); _NOP();  // wait 150 ns
+
+    set_high_impedance();
+}
+
+uint8_t
+IO::read_rom(uint16_t addr) const
+{
+    DDRA = MREQ | WR | RD;
+    PORTA = MREQ | WR | RD;
+
+    set_addr(addr);
+    PORTA &= ~MREQ & ~RD;
+    _NOP(); _NOP(); _NOP();  // wait 150 ns
+
+    uint8_t data = read_data();
+    
+    set_high_impedance();
+
+    return data;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

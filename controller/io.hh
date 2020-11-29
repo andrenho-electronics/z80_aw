@@ -20,11 +20,16 @@ public:
     Inputs   read_inputs() const;
     
     void     set_high_impedance() const;
+
     void     set_addr(uint16_t) const;
     uint16_t read_addr() const;
 
+    void     set_rom(uint16_t addr, uint8_t data) const;
+    uint8_t  read_rom(uint16_t addr) const;
+
 private:
     uint8_t  read_data() const;
+    void     set_data(uint8_t data) const;
 };
 
 #endif
