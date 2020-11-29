@@ -122,6 +122,7 @@ Repl::test_rom() const
                 uint16_t val = i + j + k;
                 io.set_rom(val, val % 0xff);
                 _delay_ms(12);
+                io.set_data(0);
                 if (io.read_mem(val) != (val % 0xff)) {
                     serial.printbit(0);
                     ok = false;
