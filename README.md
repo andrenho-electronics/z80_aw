@@ -66,6 +66,9 @@ Pinage:
 
 ## Controller
 
+![Controller schematic](image/z80_controller.png)
+![Controller](image/z80_controller.jpg)
+
 Connecting to the debugger: FTDI driver must be installed
 
    $ ./terminal
