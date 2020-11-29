@@ -23,6 +23,8 @@ private:
 
     void test_addr() const;
     void test_rom() const;
+
+    void read_memory() const;
 };
 
 #endif

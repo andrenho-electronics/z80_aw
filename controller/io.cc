@@ -145,7 +145,7 @@ IO::set_rom(uint16_t addr, uint8_t data) const
 }
 
 uint8_t
-IO::read_rom(uint16_t addr) const
+IO::read_mem(uint16_t addr) const
 {
     DDRA = MREQ | WR | RD;
     DDRC = 0;

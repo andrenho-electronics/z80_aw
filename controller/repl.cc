@@ -21,7 +21,7 @@ Repl::welcome() const
 void
 Repl::print_instructions() const
 {
-    serial.puts("Keys: [H]elp [C]ycle");
+    serial.puts("Keys: [H]elp / [C]ycle / [R]ead memory");
     serial.puts("      Tests: [A]ddr / R[O]M");
     serial.puts();
     serial.puts("CYCLE    DATA ADDR MREQ WR RD M1 IORQ HALT BUSACK\a");
@@ -43,9 +43,13 @@ Repl::execute()
                 break;
             case 'C': case 'c':
                 ++cycle;
-                return;
+                break;
+            case 'R': case 'r':
+                read_memory();
+                break;
             case 'H': case 'h': case '?':
                 print_instructions();
+                break;
             default:
                 serial.putc('\a');
         }
@@ -113,7 +117,7 @@ Repl::test_rom() const
         for (uint8_t j = 0; j < 32; ++j) {
             uint16_t val = i + j;
             io.set_rom(val, val % 0xff);
-            if (io.read_rom(val) != (val % 0xff)) {
+            if (io.read_mem(val) != (val % 0xff)) {
                 serial.printbit(0);
                 ok = false;
             } else {
@@ -126,6 +130,23 @@ Repl::test_rom() const
     serial.puts(ok ? "Addr test ok." : "Some tests failed.");
     serial.puts();
     print_instructions();
+}
+
+void
+Repl::read_memory() const
+{
+    serial.print("Read memory location (in hex)? ");
+    uint16_t addr = serial.gethex() / 0x100 * 0x100;
+    for (int a = addr; a < (addr + 0x100); a += 0x10) {
+        serial.printhex(a, 4);
+        serial.print("  ");
+        for (int b = 0; b < 0x10; ++b) {
+            uint8_t v = io.read_mem(a + b);
+            serial.printhex(v, 2);
+            serial.print(" ");
+        }
+        serial.puts();
+    }
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

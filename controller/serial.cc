@@ -5,6 +5,8 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
+#include <stdlib.h>
+
 static char hex(uint8_t v)
 {
     return v < 10 ? v + '0' : v - 10 + 'A';
@@ -89,6 +91,14 @@ Serial::clear_screen() const
 {
     putc('\x1b'); putc('['); putc('2'); putc('J');
     putc('\x1b'); putc('['); putc('H');
+}
+
+uint16_t
+Serial::gethex() const
+{
+    char buf[6];
+    getline(buf, sizeof buf, true);
+    return strtoul(buf, NULL, 16);
 }
 
 void

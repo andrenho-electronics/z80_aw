@@ -19,6 +19,8 @@ public:
     void printbit(bool value) const;
 
     void clear_screen() const;
+
+    uint16_t gethex() const;
 };
 
 void waitk(char c='?');

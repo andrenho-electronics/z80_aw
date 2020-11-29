@@ -25,10 +25,10 @@ public:
     uint16_t read_addr() const;
 
     void     set_rom(uint16_t addr, uint8_t data) const;
-    uint8_t  read_rom(uint16_t addr) const;
+    uint8_t  read_mem(uint16_t addr) const;
 
-    void     set_data(uint8_t data) const;
 private:
+    void     set_data(uint8_t data) const;
     uint8_t  read_data() const;
 };
 
