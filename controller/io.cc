@@ -130,12 +130,11 @@ IO::set_rom(uint16_t addr, uint8_t data) const
     PORTA = MREQ | WR | RD;
     _NOP(); _NOP(); _NOP();
 
-    set_addr(addr);
     set_data(data);
 
     PORTA &= ~MREQ;
-    _NOP(); _NOP(); _NOP();
     PORTA &= ~WR;
+    _NOP(); _NOP(); _NOP();
     _NOP(); _NOP(); _NOP();
     PORTA |= MREQ;
     _NOP(); _NOP(); _NOP();
