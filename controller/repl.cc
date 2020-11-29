@@ -21,7 +21,7 @@ Repl::welcome() const
 void
 Repl::print_instructions() const
 {
-    serial.puts("Keys: [H]elp / [C]ycle / [R]ead memory / [S]et memory");
+    serial.puts("Keys: [H]elp / [C]ycle / [R]ead memory / [W]rite memory");
     serial.puts("      Tests: [A]ddr / R[O]M");
     serial.puts();
     serial.puts("CYCLE    DATA ADDR MREQ WR RD M1 IORQ HALT BUSACK\a");
@@ -43,11 +43,11 @@ Repl::execute()
                 break;
             case 'C': case 'c':
                 ++cycle;
-                break;
+                return;
             case 'R': case 'r':
                 read_memory();
                 break;
-            case 'S': case 's':
+            case 'W': case 'w':
                 set_memory();
                 break;
             case 'H': case 'h': case '?':
@@ -114,20 +114,23 @@ void
 Repl::test_rom() const
 {
     bool ok = true;
-    for (uint32_t i = 0; i <= 0xf0; i += 0x20) {
-        serial.printhex(i, 4);
-        serial.print("  ");
-        for (uint8_t j = 0; j < 32; ++j) {
-            uint16_t val = i + j;
-            io.set_rom(val, val % 0xff);
-            if (io.read_mem(val) != (val % 0xff)) {
-                serial.printbit(0);
-                ok = false;
-            } else {
-                serial.putc('.');
+    for (uint32_t k = 0; k < 0x8000; k += 0x7f00) {
+        for (uint32_t i = 0; i <= 0xf0; i += 0x20) {
+            serial.printhex(i + k, 4);
+            serial.print("  ");
+            for (uint8_t j = 0; j < 32; ++j) {
+                uint16_t val = i + j + k;
+                io.set_rom(val, val % 0xff);
+                _delay_ms(12);
+                if (io.read_mem(val) != (val % 0xff)) {
+                    serial.printbit(0);
+                    ok = false;
+                } else {
+                    serial.putc('.');
+                }
             }
+            serial.puts();
         }
-        serial.puts();
     }
     io.set_high_impedance();
     serial.puts(ok ? "Addr test ok." : "Some tests failed.");
