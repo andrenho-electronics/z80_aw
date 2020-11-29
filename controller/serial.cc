@@ -92,12 +92,12 @@ Serial::clear_screen() const
 }
 
 void
-waitk()
+waitk(char c)
 {
     while (!( UCSRA & (1<<UDRE))); // Wait for empty transmit buffer
-    UDR = '?';
+    UDR = c;
     while (!( UCSRA & (1<<RXC)));  // wait for empty receive buffer
-    volatile char c = UDR;
+    volatile char x = UDR;
     _delay_ms(100);
 }
 

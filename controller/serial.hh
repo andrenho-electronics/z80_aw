@@ -21,7 +21,7 @@ public:
     void clear_screen() const;
 };
 
-void waitk();
+void waitk(char c='?');
 
 #endif
 

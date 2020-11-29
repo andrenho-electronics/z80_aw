@@ -24,8 +24,8 @@
 void
 IO::set_high_impedance() const
 {
-    DDRA  = MREQ;
-    PORTA = MREQ;
+    DDRA  = 0x0;
+    PORTA = 0x0;
     DDRB  = OE_595 | Z80_CLK;   // OE port of 595 and Z80 clock needs to be held high
     PORTB = OE_595 | Z80_CLK;
     DDRC  = 0x0;
@@ -128,27 +128,36 @@ IO::set_rom(uint16_t addr, uint8_t data) const
 {
     DDRA = MREQ | WR | RD;
     PORTA = MREQ | WR | RD;
+    _NOP(); _NOP(); _NOP();
 
     set_addr(addr);
     set_data(data);
-    _NOP(); _NOP(); _NOP();  // wait 150 ns
 
-    set_high_impedance();
+    PORTA &= ~MREQ;
+    _NOP(); _NOP(); _NOP();
+    PORTA &= ~WR;
+    _NOP(); _NOP(); _NOP();
+    PORTA |= MREQ;
+    _NOP(); _NOP(); _NOP();
+    PORTA |= WR;
+    _NOP(); _NOP(); _NOP();
+
+    DDRC = 0;
 }
 
 uint8_t
 IO::read_rom(uint16_t addr) const
 {
     DDRA = MREQ | WR | RD;
-    PORTA = MREQ | WR | RD;
+    DDRC = 0;
 
+    PORTA = MREQ | WR | RD;
+    _NOP(); _NOP(); _NOP();
     set_addr(addr);
     PORTA &= ~MREQ & ~RD;
-    _NOP(); _NOP(); _NOP();  // wait 150 ns
 
     uint8_t data = read_data();
-    
-    set_high_impedance();
+    PORTA |= MREQ | RD;
 
     return data;
 }

@@ -10,13 +10,16 @@ int main()
     Serial   serial;
     Repl     repl(serial, io);
 
+    io.set_addr(0x0);
+    io.set_high_impedance();
+
     serial.init();
     repl.welcome();
-    serial.printhex(io.read_rom(0), 2); serial.puts();
-    io.set_rom(0, 0x12);
-    serial.printhex(io.read_rom(0), 2); serial.puts();
+    io.set_rom(1, 0xab);
+    _delay_ms(20);
+    serial.printhex(io.read_rom(1), 2); serial.puts();
 
-    while (1)
+    while (1);
         repl.execute();
 }
 

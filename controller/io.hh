@@ -27,9 +27,9 @@ public:
     void     set_rom(uint16_t addr, uint8_t data) const;
     uint8_t  read_rom(uint16_t addr) const;
 
+    void     set_data(uint8_t data) const;
 private:
     uint8_t  read_data() const;
-    void     set_data(uint8_t data) const;
 };
 
 #endif
