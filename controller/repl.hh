@@ -25,6 +25,7 @@ private:
     void test_rom() const;
 
     void read_memory() const;
+    void set_memory() const;
 };
 
 #endif

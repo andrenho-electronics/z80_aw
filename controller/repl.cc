@@ -21,7 +21,7 @@ Repl::welcome() const
 void
 Repl::print_instructions() const
 {
-    serial.puts("Keys: [H]elp / [C]ycle / [R]ead memory");
+    serial.puts("Keys: [H]elp / [C]ycle / [R]ead memory / [S]et memory");
     serial.puts("      Tests: [A]ddr / R[O]M");
     serial.puts();
     serial.puts("CYCLE    DATA ADDR MREQ WR RD M1 IORQ HALT BUSACK\a");
@@ -46,6 +46,9 @@ Repl::execute()
                 break;
             case 'R': case 'r':
                 read_memory();
+                break;
+            case 'S': case 's':
+                set_memory();
                 break;
             case 'H': case 'h': case '?':
                 print_instructions();
@@ -147,6 +150,18 @@ Repl::read_memory() const
         }
         serial.puts();
     }
+}
+
+void
+Repl::set_memory() const
+{
+    serial.print("Write to which memory location (in hex)? ");
+    uint16_t addr = serial.gethex();
+    serial.print("Which data? ");
+    uint8_t data = serial.gethex();
+    io.set_rom(addr, data);
+    _delay_ms(12);
+    serial.puts("Ok.");
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
