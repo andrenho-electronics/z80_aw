@@ -87,4 +87,13 @@ serial_recv(int fd)
         return c;
 }
 
+int
+serial_recv16(int fd)
+{
+    uint16_t v = 0;
+    v |= serial_recv(fd);
+    v |= ((uint16_t) serial_recv(fd)) << 8;
+    return v;
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab

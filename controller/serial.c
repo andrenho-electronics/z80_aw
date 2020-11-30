@@ -22,6 +22,13 @@ serial_send(uint8_t byte)
     UDR = byte;
 }
 
+void
+serial_send16(uint16_t word)
+{
+    serial_send(word & 0xff);
+    serial_send(word >> 8);
+}
+
 uint8_t
 serial_recv()
 {

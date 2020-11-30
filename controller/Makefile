@@ -1,5 +1,5 @@
 PROJECT=z80_controller
-OBJECTS=main.o serial.o comm.o
+OBJECTS=main.o serial.o comm.o io.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -B 50
 #FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal

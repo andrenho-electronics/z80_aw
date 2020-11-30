@@ -1,9 +1,11 @@
-#include "serial.h"
 #include "comm.h"
+#include "io.h"
+#include "serial.h"
 
 int main()
 {
     serial_init();
+    io_set_high_impedance();
 
     while (1)
         comm_listen();

@@ -1,10 +1,23 @@
 #ifndef MESSAGES_H_
 #define MESSAGES_H_
 
+#include <stdbool.h>
+
+typedef struct {
+    bool     mreq   : 1;
+    bool     wr     : 1;
+    bool     rd     : 1;
+    bool     m1     : 1;
+    bool     iorq   : 1;
+    bool     halt   : 1;
+    bool     busack : 1;
+} Inputs;
+
 // debugger -> controller
 #define READ    0x1
 #define WRITE   0x2
 #define ENQUIRY 0x3
+#define STATUS  0x4
 
 // controller -> debugger
 #define ACK              0
