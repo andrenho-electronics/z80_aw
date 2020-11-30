@@ -9,11 +9,12 @@ Args parse_args(int argc, char* argv[])
     Args args = {
         .port = "/dev/ttyUSB0",
         .speed = 38400,
+        .debug = false,
     };
 
     int opt;
 
-    while ((opt = getopt(argc, argv, "p:s:")) != -1) {
+    while ((opt = getopt(argc, argv, "p:s:d")) != -1) {
         switch (opt) {
             case 'p':
                 args.port = optarg;
@@ -21,8 +22,11 @@ Args parse_args(int argc, char* argv[])
             case 's':
                 args.speed = strtoul(optarg, NULL, 10);
                 break;
+            case 'd':
+                args.debug = true;
+                break;
             default:
-                fprintf(stderr, "Usage: %s [-p PORT] [-s SPEED]\n", argv[0]);
+                fprintf(stderr, "Usage: %s [-p PORT] [-s SPEED] [-d]\n", argv[0]);
                 exit(EXIT_FAILURE);
         }
     }

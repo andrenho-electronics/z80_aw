@@ -13,7 +13,7 @@ void comm_listen()
             serial_send(ACK);
             break;
         default:
-            serial_send(NAK);
+            serial_send(INVALID_COMMAND);
     }
 }
 

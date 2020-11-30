@@ -8,6 +8,8 @@
 #include <termios.h>
 #include <unistd.h>
 
+bool serial_debug = false;
+
 int serial_open(const char* comfile, int speed)
 {
     int fd = open(comfile, O_RDWR | O_NOCTTY | O_SYNC);
@@ -56,7 +58,18 @@ int serial_open(const char* comfile, int speed)
 int
 serial_send(int fd, uint8_t c)
 {
+    if (serial_debug)
+        printf(" >%02X ", c);
     return write(fd, &c, 1);
+}
+
+int
+serial_send16(int fd, uint16_t data)
+{
+    uint8_t v[2] = { data & 0xff, data >> 8 };
+    if (serial_debug)
+        printf(" >%02X >%02X ", v[0], v[1]);
+    return write(fd, v, 2);
 }
 
 int
@@ -64,6 +77,7 @@ serial_recv(int fd)
 {
     uint8_t c;
     int n = read(fd, &c, 1);
+    printf(" <%02X ", c);
     if (n < 0)
         return n;
     else

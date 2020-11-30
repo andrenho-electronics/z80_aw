@@ -12,11 +12,46 @@ typedef struct {
 
 static void command_help(const char* line, CommLib* cl);
 static void command_enquiry(const char* line, CommLib* cl);
+static void command_read(const char* line, CommLib* cl);
+static void command_write(const char* line, CommLib* cl);
 
 static Command commands[] = {
     { "help",    command_help,    "help [FUNCTION]: show help for function" },
-    { "enquiry", command_enquiry, "enquity: check if the connection is working" },
+    { "enquiry", command_enquiry, "enquiry: check if the connection with the controller is active" },
+    { "read",    command_read,    "read ADDR: read memory location" },
+    { "write",   command_write,   "write ADDR DATA: write data to memory location" },
 };
+
+static void command_read(const char* line, CommLib* cl)
+{
+    uint16_t addr;
+    int n = sscanf(line, "%hx", &addr);
+    if (n != 1) {
+        printf("Command with invalid syntax (expected 'read ADDR').\n");
+        return;
+    }
+    
+    uint8_t data;
+    if (cl_read_memory(cl, &data, 1) == 1)
+        printf("0x%02X\n", data);
+    else
+        cl_perror(cl);
+}
+
+static void command_write(const char* line, CommLib* cl)
+{
+    uint16_t addr;
+    uint8_t data;
+    int n = sscanf(line, "%hx %hhx", &addr, &data);
+    if (n != 2) {
+        printf("Command with invalid syntax (expected 'write ADDR DATA').\n");
+        return;
+    }
+    if (cl_write_memory(cl, addr, &data, 1) == 1)
+        printf("Ok.\n");
+    else
+        cl_perror(cl);
+}
 
 static void command_help(const char* line, CommLib* _)
 {
@@ -57,9 +92,12 @@ void command_do(const char* line, CommLib* cl)
         ++nxt;
     if (n == 1) {
         for (size_t i = 0; i < sizeof commands / sizeof(Command); ++i) {
-            if (strncmp(cmd, commands[i].command, strlen(cmd)) == 0)
+            if (strncmp(cmd, commands[i].command, strlen(cmd)) == 0) {
                 commands[i].function(&line[nxt], cl);
+                return;
+            }
         }
+        printf("Syntax error.\n");
     }
 }
 

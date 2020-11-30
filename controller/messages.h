@@ -2,11 +2,15 @@
 #define MESSAGES_H_
 
 // debugger -> controller
-#define ENQUIRY 0x5
+#define READ    0x1
+#define WRITE   0x2
+#define ENQUIRY 0x3
 
 // controller -> debugger
-#define ACK 0x6
-#define NAK 0x15
+#define ACK              0
+#define NAK             -1
+#define BUS_BUSY        -2
+#define INVALID_COMMAND -3
 
 #endif
 

@@ -1,6 +1,6 @@
 EXE=z80debugger
 OBJECTS=main.o args.o commands.o
-CFLAGS=-Wall -Wextra -O2 -ggdb3 -I../commlib
+CFLAGS=-Wall -Wextra -O2 -ggdb3 -I../commlib -I../controller
 LDFLAGS=-lreadline
 
 .PHONY: all

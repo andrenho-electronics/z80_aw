@@ -7,6 +7,7 @@
 
 #include "args.h"
 #include "commands.h"
+#include "messages.h"
 
 int main(int argc, char* argv[])
 {
@@ -16,8 +17,16 @@ int main(int argc, char* argv[])
     printf("Connecting to the embedded controller... ");
     
     CommLib* cl = cl_init(args.port, args.speed);
+    if (args.debug)
+        cl_set_debug(cl, true);
     if (!cl) {
         printf("unable to connect to controller.\n");
+        return EXIT_FAILURE;
+    }
+
+    int r = cl_enquiry(cl);
+    if (r != ACK) {
+        printf("Controller did not respond to enquiry with an acknowledgment.\n");
         return EXIT_FAILURE;
     }
 
