@@ -5,9 +5,14 @@
 
 typedef struct CommLib CommLib;
 
-CommLib* cl_init(const char* comfile);
+// initialization
+CommLib* cl_init(const char* comfile, int speed);
 void     cl_free(CommLib* cl);
 
-int      cl_enquiry();
+// errors
+char*    cl_strerror(int code);
+
+// requests
+int      cl_enquiry(CommLib* cl);
 
 #endif

@@ -10,7 +10,11 @@ int main()
     printf("Welcome to the Z80-AW debugger! Type 'help' for a list of commands.\n");
     printf("Connecting to the embedded controller... ");
     
-    CommLib* cl = cl_init("/dev/ttyUSB0");  // TODO
+    CommLib* cl = cl_init("/dev/ttyUSB0", 38400);  // TODO
+    if (!cl) {
+        printf("unable to connect to controller.\n");
+        return EXIT_FAILURE;
+    }
 
     printf("ok.\n");
 
@@ -24,7 +28,7 @@ int main()
     }
 
     cl_free(cl);
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

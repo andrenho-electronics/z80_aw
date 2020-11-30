@@ -1,5 +1,5 @@
 EXE=z80debugger
-OBJECTS=main.o
+OBJECTS=main.o args.o commands.o
 CFLAGS=-Wall -Wextra -O2 -ggdb3 -I../commlib
 LDFLAGS=-lreadline
 
