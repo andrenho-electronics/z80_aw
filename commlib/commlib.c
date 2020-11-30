@@ -3,13 +3,19 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RED   \u001b[31m
+#define GREEN \u001b[32m
+#define RESET \u001b[0m
+
 typedef struct CommLib {
+    int last_error;
 } CommLib;
 
 CommLib*
 cl_init(const char* comfile, int speed)
 {
     CommLib* cl = calloc(1, sizeof(CommLib));
+    cl->last_error = 0;
     return cl;
 }
 
@@ -26,8 +32,22 @@ cl_strerror(int code)
         return strerror(code);
 
     switch (code) {
+        case NAK:
+            return "Not acknowledged.";
         default:
             return "Unknown error.";
+    }
+}
+
+void
+cl_perror(CommLib* cl)
+{
+    if (code == 0)
+        printf("No error.\n");
+    else {
+        printf(RED);
+        printf(cl_strerror(cl->last_error));
+        printf(RESET);
     }
 }
 

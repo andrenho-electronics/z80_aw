@@ -11,6 +11,7 @@ void     cl_free(CommLib* cl);
 
 // errors
 char*    cl_strerror(int code);
+void     cl_perror(CommLib* cl);
 
 // requests
 int      cl_enquiry(CommLib* cl);

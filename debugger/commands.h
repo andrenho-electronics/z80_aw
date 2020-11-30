@@ -1,7 +1,9 @@
 #ifndef COMMANDS_H_
 #define COMMANDS_H_
 
-void command_do(const char* line);
+#include "commands.h"
+
+void command_do(const char* line, CommLib* cl);
 
 #endif
 

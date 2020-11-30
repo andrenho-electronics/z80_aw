@@ -28,7 +28,7 @@ int main(int argc, char* argv[])
         if (strlen(buf) > 0)
             add_history(buf);
 
-        command_do(buf);
+        command_do(buf, cl);
         free(buf);
     }
 
