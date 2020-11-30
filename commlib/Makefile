@@ -1,5 +1,5 @@
 OBJECTS=commlib.o
-CFLAGS=-Wall -Wextra -O2 -ggdb3
+CFLAGS=-Wall -Wextra -O2 -ggdb3 -I../controller
 
 .PHONY: all
 all: commlib.a

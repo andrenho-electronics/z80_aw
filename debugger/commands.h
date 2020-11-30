@@ -2,6 +2,7 @@
 #define COMMANDS_H_
 
 #include "commands.h"
+#include "commlib.h"
 
 void command_do(const char* line, CommLib* cl);
 

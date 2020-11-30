@@ -18,7 +18,7 @@ static Command commands[] = {
     { "enquiry", command_enquiry, "enquity: check if the connection is working" },
 };
 
-static void command_help(const char* line, CommLib*)
+static void command_help(const char* line, CommLib* _)
 {
     char cmd[21];
     int n = sscanf(line, "%20s", cmd);
@@ -42,7 +42,7 @@ static void command_help(const char* line, CommLib*)
 
 static void command_enquiry(const char* line, CommLib* cl)
 {
-    if (cl_equiry(cl) == 0)
+    if (cl_enquiry(cl) == 0)
         printf("Ack.\n");
     else
         cl_perror(cl);

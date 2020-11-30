@@ -1,11 +1,14 @@
 #include "commlib.h"
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
-#define RED   \u001b[31m
-#define GREEN \u001b[32m
-#define RESET \u001b[0m
+#include "messages.h"
+
+#define RED   "\033[31m"
+#define GREEN "\033[32m"
+#define RESET "\033[0m"
 
 typedef struct CommLib {
     int last_error;
@@ -42,7 +45,7 @@ cl_strerror(int code)
 void
 cl_perror(CommLib* cl)
 {
-    if (code == 0)
+    if (cl->last_error == 0)
         printf("No error.\n");
     else {
         printf(RED);
