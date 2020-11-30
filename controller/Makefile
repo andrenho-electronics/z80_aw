@@ -1,5 +1,5 @@
 PROJECT=z80_controller
-OBJECTS=main.o
+OBJECTS=main.o serial.o comm.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -B 50
 #FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal
@@ -14,7 +14,7 @@ ${PROJECT}.hex: ${PROJECT}.elf
 	arm-linux-gnueabihf-size ${PROJECT}.hex
 
 ${PROJECT}.elf: ${OBJECTS}
-	$(CXX) -mmcu=${MCU} -o $@ $^
+	$(CC) -mmcu=${MCU} -o $@ $^
 
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}

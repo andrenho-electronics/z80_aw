@@ -2,15 +2,26 @@
 
 #include <stdlib.h>
 
+typedef struct CommLib {
+} CommLib;
+
 CommLib*
 cl_init(const char* comfile)
 {
-    return NULL;
+    CommLib* cl = calloc(1, sizeof(CommLib));
+    return cl;
 }
 
 void
-cl_destroy(CommLib* cl)
+cl_free(CommLib* cl)
 {
+    free(cl);
+}
+
+int
+cl_enquiry()
+{
+    return 0;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
