@@ -8,6 +8,9 @@
 #include <termios.h>
 #include <unistd.h>
 
+#define MAGENTA "\033[35m"
+#define RESET   "\033[0m"
+
 bool serial_debug = false;
 
 int serial_open(const char* comfile, int speed)
@@ -59,7 +62,7 @@ int
 serial_send(int fd, uint8_t c)
 {
     if (serial_debug)
-        printf(" >%02X ", c);
+        printf(MAGENTA " >%02X " RESET, c);
     return write(fd, &c, 1);
 }
 
@@ -68,7 +71,7 @@ serial_send16(int fd, uint16_t data)
 {
     uint8_t v[2] = { data & 0xff, data >> 8 };
     if (serial_debug)
-        printf(" >%02X >%02X ", v[0], v[1]);
+        printf(MAGENTA " >%02X >%02X " RESET, v[0], v[1]);
     return write(fd, v, 2);
 }
 
@@ -77,7 +80,7 @@ serial_recv(int fd)
 {
     uint8_t c;
     int n = read(fd, &c, 1);
-    printf(" <%02X ", c);
+    printf(MAGENTA " <%02X " RESET, c);
     if (n < 0)
         return n;
     else
