@@ -1,4 +1,4 @@
-OBJECTS=commlib.o
+OBJECTS=commlib.o serial.o
 CFLAGS=-Wall -Wextra -O2 -ggdb3 -I../controller
 
 .PHONY: all

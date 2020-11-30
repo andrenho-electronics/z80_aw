@@ -10,7 +10,7 @@ all: ${EXE}
 clean:
 	${RM} *.o ${EXE}
 
-${EXE}: ${OBJECTS}
-	${CC} ${CFLAGS} $^ ../commlib/commlib.a -o $@ ${LDFLAGS}
+${EXE}: ${OBJECTS} ../commlib/commlib.a
+	${CC} ${CFLAGS} $^ -o $@ ${LDFLAGS}
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:

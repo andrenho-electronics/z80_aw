@@ -11,14 +11,17 @@
 #define RESET "\033[0m"
 
 typedef struct CommLib {
+    int fd;
     int last_error;
 } CommLib;
+
 
 CommLib*
 cl_init(const char* comfile, int speed)
 {
     CommLib* cl = calloc(1, sizeof(CommLib));
     cl->last_error = 0;
+    cl->fd = open_serial(comfile, speed);
     return cl;
 }
 

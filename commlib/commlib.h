@@ -17,3 +17,5 @@ void     cl_perror(CommLib* cl);
 int      cl_enquiry(CommLib* cl);
 
 #endif
+
+// vim:ts=4:sts=4:sw=4:expandtab
