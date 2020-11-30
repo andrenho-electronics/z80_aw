@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "messages.h"
+#include "serial.h"
 
 #define RED   "\033[31m"
 #define GREEN "\033[32m"
@@ -21,7 +22,7 @@ cl_init(const char* comfile, int speed)
 {
     CommLib* cl = calloc(1, sizeof(CommLib));
     cl->last_error = 0;
-    cl->fd = open_serial(comfile, speed);
+    cl->fd = serial_open(comfile, speed);
     return cl;
 }
 
@@ -60,7 +61,11 @@ cl_perror(CommLib* cl)
 int
 cl_enquiry(CommLib* cl)
 {
-    return 0;
+    serial_send(cl->fd, ENQUIRY);
+    if (serial_recv(cl->fd) == ACK)
+        return 0;
+    else
+        return NAK;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

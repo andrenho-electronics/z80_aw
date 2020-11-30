@@ -8,11 +8,11 @@
 #include <termios.h>
 #include <unistd.h>
 
-int open_serial(const char* comfile, int speed)
+int serial_open(const char* comfile, int speed)
 {
     int fd = open(comfile, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        fprintf(stderr, "error %d opening %s: %s", errno, comfile, strerror (errno));
+        printf("error %d opening %s: %s", errno, comfile, strerror (errno));
         exit(EXIT_FAILURE);
     }
     
@@ -51,6 +51,23 @@ int open_serial(const char* comfile, int speed)
         exit(EXIT_FAILURE);
     }
     return fd;
+}
+
+int
+serial_send(int fd, uint8_t c)
+{
+    return write(fd, &c, 1);
+}
+
+int
+serial_recv(int fd)
+{
+    uint8_t c;
+    int n = read(fd, &c, 1);
+    if (n < 0)
+        return n;
+    else
+        return c;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

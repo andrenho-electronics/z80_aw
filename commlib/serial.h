@@ -1,7 +1,11 @@
 #ifndef SERIAL_H_
 #define SERIAL_H_
 
-int open_serial(const char* comfile, int speed);
+#include <stdint.h>
+
+int serial_open(const char* comfile, int speed);
+int     serial_send(int fd, uint8_t c);
+int     serial_recv(int fd);
 
 #endif
 
