@@ -1,4 +1,4 @@
-# z80_computer
+# z80_aw
 
 This project is a homemade Z80 computer. It consist of 4 boards:
 
