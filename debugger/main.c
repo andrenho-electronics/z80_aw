@@ -5,12 +5,17 @@
 
 #include "commlib.h"
 
-int main()
+#include "args.h"
+#include "commands.h"
+
+int main(int argc, char* argv[])
 {
+    Args args = parse_args(argc, argv);
+
     printf("Welcome to the Z80-AW debugger! Type 'help' for a list of commands.\n");
     printf("Connecting to the embedded controller... ");
     
-    CommLib* cl = cl_init("/dev/ttyUSB0", 38400);  // TODO
+    CommLib* cl = cl_init(args.port, args.speed);
     if (!cl) {
         printf("unable to connect to controller.\n");
         return EXIT_FAILURE;
@@ -23,7 +28,7 @@ int main()
         if (strlen(buf) > 0)
             add_history(buf);
 
-        printf("[%s]\n", buf);
+        command_do(buf);
         free(buf);
     }
 

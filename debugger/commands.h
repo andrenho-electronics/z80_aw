@@ -1,6 +1,7 @@
 #ifndef COMMANDS_H_
 #define COMMANDS_H_
 
+void command_do(const char* line);
 
 #endif
 
