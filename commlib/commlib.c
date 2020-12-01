@@ -105,13 +105,17 @@ cl_read_memory(CommLib* cl, uint16_t addr, uint8_t* buf, size_t sz)
 int
 cl_write_memory(CommLib* cl, uint16_t addr, uint8_t const* data, size_t sz)
 {
+    cl->last_error = 0;
     serial_send(cl->fd, CMD_WRITE);
     serial_send16(cl->fd, addr);
     serial_send16(cl->fd, sz);
-    for (size_t i = 0; i < sz; ++i)
+    for (size_t i = 0; i < sz; ++i) {
         serial_send(cl->fd, data[i]);
+        int e = serial_recv(cl->fd);
+        if (e != 0)
+            cl->last_error = e;
+    }
 
-    cl->last_error = serial_recv(cl->fd);
     return cl->last_error;
 }
 

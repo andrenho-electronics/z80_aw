@@ -51,9 +51,10 @@ void comm_listen()
         case CMD_WRITE: {
                 uint16_t addr = serial_recv16();
                 uint16_t sz = serial_recv16();
-                for (uint16_t i = addr; i < addr + sz; ++i)
+                for (uint16_t i = addr; i < addr + sz; ++i) {
                     io_write_memory(i, serial_recv());
-                serial_send(ACK);
+                    serial_send(ACK);
+                }
             }
             break;
         default:

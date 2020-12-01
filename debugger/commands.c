@@ -27,6 +27,7 @@ static void command_write(const char* line, CommLib* cl);
 static void command_dump(const char* line, CommLib* cl);
 static void command_status(const char* line, CommLib* cl);
 static void command_cycle(const char* line, CommLib* cl);
+static void command_upload(const char* line, CommLib* cl);
 
 static Command commands[] = {
     { "cycle",   command_cycle,   "cycle: run one Z80 cycle" },
@@ -37,6 +38,7 @@ static Command commands[] = {
     { "quit",    command_quit,    "quit: exit debugger" },
     { "read",    command_read,    "read ADDR: read memory location" },
     { "reset",   command_reset,   "reset: hold the Z80 reset line low (active) -- type 'init' to finish the initialization" },
+    { "upload",  command_upload,  "upload: upload a binary file to ROM" },
     { "status",  command_status,  "status: print current Z80 status" },
     { "write",   command_write,   "write ADDR DATA: write data to memory location" },
     { "test",    command_test,    "test TESTNAME: run tests on the controller (options: rom, ram)" },
@@ -239,6 +241,11 @@ void command_reset(const char* line, CommLib* cl)
         cl_perror(cl);
     }
     last_was_status = true;
+}
+
+void command_upload(const char* line, CommLib* cl)
+{
+    printf("Not implemented yet.\n");
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
