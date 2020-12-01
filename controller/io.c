@@ -6,6 +6,7 @@
 #define OE_595  _BV(PORTB0)
 #define SER_595 _BV(PORTB2)
 #define Z80_CLK _BV(PORTB3)
+#define Z80_RST _BV(PORTD5)
 #define MREQ    _BV(PORTA0)
 #define WR      _BV(PORTA2)
 #define RD      _BV(PORTA1)
@@ -55,11 +56,12 @@ void io_init()
 {
     DDRA  = 0x0;
     PORTA = 0x0;
-    DDRB  = OE_595 | Z80_CLK;   // OE port of 595 and Z80 clock needs to be held high
-    PORTB = OE_595 | Z80_CLK;
+    DDRB  = OE_595 | Z80_CLK;   // OE port of 595 needs to be held high (inactive)
+                                //    for ADDR lines to be in high impedance
+    PORTB = OE_595 | Z80_CLK;   // Z80 clock is initially held high
     DDRC  = 0x0;
     PORTC = 0x0;
-    DDRD  = 0x0;
+    DDRD  = Z80_RST;   // when uC is turned on, Z80_RST is held low (active)
     PORTD = 0x0;
 }
 

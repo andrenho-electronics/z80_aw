@@ -31,6 +31,7 @@ int main(int argc, char* argv[])
     }
 
     printf("ok.\n");
+    printf("Z80 reset line is being held low (active).\n");
 
     char* buf;
     char* last = NULL;
