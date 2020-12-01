@@ -51,7 +51,7 @@ static uint16_t read_addr()
     return (addr << 8) | (addr >> 8);
 }
 
-void io_set_high_impedance()
+void io_init()
 {
     DDRA  = 0x0;
     PORTA = 0x0;

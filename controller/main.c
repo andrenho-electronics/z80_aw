@@ -5,7 +5,7 @@
 int main()
 {
     serial_init();
-    io_set_high_impedance();
+    io_init();
 
     while (1)
         comm_listen();
