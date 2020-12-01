@@ -9,29 +9,35 @@
 #include "commands.h"
 #include "messages.h"
 
+#define RED     "\033[31m"
+#define GREEN   "\033[32m"
+#define MAGENTA "\033[35m"
+#define RESET   "\033[0m"
+
 int main(int argc, char* argv[])
 {
     Args args = parse_args(argc, argv);
 
-    printf("Welcome to the Z80-AW debugger! Type 'help' for a list of commands.\n");
-    printf("Connecting to the embedded controller... ");
+    printf(MAGENTA "Welcome to the Z80-AW debugger! Type 'help' for a list of commands.\n");
+    printf("Connecting to the embedded controller... " RESET);
     
     CommLib* cl = cl_init(args.port, args.speed);
     if (args.debug)
         cl_set_debug(cl, true);
     if (!cl) {
-        printf("unable to connect to controller.\n");
+        printf(RED "unable to connect to controller.\n" RESET);
         return EXIT_FAILURE;
     }
 
     int r = cl_enquiry(cl);
     if (r != ACK) {
-        printf("Controller did not respond to enquiry with an acknowledgment.\n");
+        printf(RED "Controller did not respond to enquiry with an acknowledgment.\n" RESET);
         return EXIT_FAILURE;
     }
 
-    printf("ok.\n");
-    printf("Z80 reset line is being held low (active).\n");
+    printf(MAGENTA "ok.\n" RESET);
+
+    command_reset(NULL, cl);
 
     char* buf;
     char* last = NULL;

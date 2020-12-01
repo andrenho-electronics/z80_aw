@@ -1,5 +1,6 @@
 #include "commlib.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -15,6 +16,7 @@
 typedef struct CommLib {
     int  fd;
     int  last_error;
+    bool z80_initialized;
 } CommLib;
 
 
@@ -24,6 +26,7 @@ cl_init(const char* comfile, int speed)
     CommLib* cl = calloc(1, sizeof(CommLib));
     cl->last_error = 0;
     cl->fd = serial_open(comfile, speed);
+    cl->z80_initialized = false;
     return cl;
 }
 
@@ -46,6 +49,8 @@ cl_strerror(int code)
             return "This operation cannot be completed because the bus is currently busy.";
         case INVALID_COMMAND:
             return "Command not implemented in controller.";
+        case Z80_NOT_INITIALIZED:
+            return "The Z80 was not yet initialized.";
         default:
             return "Unknown error.";
     }
@@ -74,15 +79,16 @@ cl_set_debug(CommLib* cl, bool v)
 int
 cl_enquiry(CommLib* cl)
 {
-    serial_send(cl->fd, ENQUIRY);
+    serial_send(cl->fd, CMD_ENQUIRY);
     cl->last_error = serial_recv(cl->fd);
     return cl->last_error;
 }
 
 int
-cl_read_memory(CommLib* cl, uint8_t* buf, size_t sz)
+cl_read_memory(CommLib* cl, uint16_t addr, uint8_t* buf, size_t sz)
 {
-    serial_send(cl->fd, READ);
+    serial_send(cl->fd, CMD_READ);
+    serial_send16(cl->fd, addr);
     serial_send16(cl->fd, sz);
     cl->last_error = 0;
     for (size_t i = 0; i < sz; ++i) {
@@ -99,7 +105,7 @@ cl_read_memory(CommLib* cl, uint8_t* buf, size_t sz)
 int
 cl_write_memory(CommLib* cl, uint16_t addr, uint8_t const* data, size_t sz)
 {
-    serial_send(cl->fd, WRITE);
+    serial_send(cl->fd, CMD_WRITE);
     serial_send16(cl->fd, addr);
     serial_send16(cl->fd, sz);
     for (size_t i = 0; i < sz; ++i)
@@ -113,7 +119,7 @@ int
 cl_status(CommLib* cl, CL_Status* status)
 {
     cl->last_error = 0;
-    serial_send(cl->fd, STATUS);
+    serial_send(cl->fd, CMD_STATUS);
     status->cycle = serial_recv16(cl->fd);
     status->addr = serial_recv16(cl->fd);
     status->data = serial_recv(cl->fd);
@@ -125,8 +131,32 @@ cl_status(CommLib* cl, CL_Status* status)
 int
 cl_cycle(CommLib* cl)
 {
-    serial_send(cl->fd, CYCLE);
+    if (!cl->z80_initialized) {
+        cl->last_error = Z80_NOT_INITIALIZED;
+    } else {
+        serial_send(cl->fd, CMD_CYCLE);
+        cl->last_error = serial_recv(cl->fd);
+    }
+    return cl->last_error;
+}
+
+int
+cl_init_z80(CommLib* cl)
+{
+    serial_send(cl->fd, CMD_INIT);
     cl->last_error = serial_recv(cl->fd);
+    if (cl->last_error == ACK)
+        cl->z80_initialized = true;
+    return cl->last_error;
+}
+
+int
+cl_reset_z80(CommLib* cl)
+{
+    serial_send(cl->fd, CMD_RESET);
+    cl->last_error = serial_recv(cl->fd);
+    if (cl->last_error == ACK)
+        cl->z80_initialized = false;
     return cl->last_error;
 }
 

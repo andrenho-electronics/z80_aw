@@ -5,6 +5,7 @@
 #include "commlib.h"
 
 void command_do(const char* line, CommLib* cl);
+void command_reset(const char* line, CommLib* cl);
 
 #endif
 

@@ -14,17 +14,20 @@ typedef struct {
 } Inputs;
 
 // debugger -> controller
-#define READ    0x1
-#define WRITE   0x2
-#define ENQUIRY 0x3
-#define STATUS  0x4
-#define CYCLE   0x5
+#define CMD_READ    0x1
+#define CMD_WRITE   0x2
+#define CMD_ENQUIRY 0x3
+#define CMD_STATUS  0x4
+#define CMD_CYCLE   0x5
+#define CMD_INIT    0x6
+#define CMD_RESET   0x7
 
 // controller -> debugger
-#define ACK              0
-#define NAK             -1
-#define BUS_BUSY        -2
-#define INVALID_COMMAND -3
+#define ACK                  0
+#define NAK                 -1
+#define BUS_BUSY            -2
+#define INVALID_COMMAND     -3
+#define Z80_NOT_INITIALIZED -4
 
 #endif
 

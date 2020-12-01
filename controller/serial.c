@@ -36,4 +36,13 @@ serial_recv()
     return UDR;
 }
 
+uint16_t
+serial_recv16()
+{
+    uint16_t v = 0;
+    v = serial_recv();
+    v |= ((uint16_t) serial_recv()) << 8;
+    return v;
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab

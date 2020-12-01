@@ -29,10 +29,12 @@ void     cl_perror(CommLib* cl);
 
 // requests
 int      cl_enquiry(CommLib* cl);
-int      cl_read_memory(CommLib* cl, uint8_t* buf, size_t sz);
+int      cl_read_memory(CommLib* cl, uint16_t addr, uint8_t* buf, size_t sz);
 int      cl_write_memory(CommLib* cl, uint16_t addr, uint8_t const* data, size_t sz);
 int      cl_status(CommLib* cl, CL_Status* status);
 int      cl_cycle(CommLib* cl);
+int      cl_init_z80(CommLib* cl);
+int      cl_reset_z80(CommLib* cl);
 
 #endif
 
