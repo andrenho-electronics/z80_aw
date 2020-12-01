@@ -142,6 +142,7 @@ void io_z80_reset()
 uint8_t io_read_memory(uint16_t addr)
 {
     DDRC = 0;
+    DDRA |= MREQ | WR | RD;
 
     PORTA = MREQ | WR | RD;
     _NOP(); _NOP(); _NOP();
@@ -152,6 +153,9 @@ uint8_t io_read_memory(uint16_t addr)
     uint8_t data = read_data();
     _NOP(); _NOP(); _NOP();
     PORTA |= MREQ | RD;
+
+    DDRA &= ~MREQ & ~WR & ~RD;
+    PORTB |= OE_595;  // OE port of 595 needs to be held high (inactive) for ADDR lines to be in high impedance
 
     return data;
 }
@@ -175,10 +179,12 @@ void io_write_memory(uint16_t addr, uint8_t data)
     PORTA |= WR;
     _NOP(); _NOP(); _NOP();
 
-    DDRC = 0;
-
     if (addr < 0x8000)  // ROM
         _delay_ms(10);
+
+    DDRA &= ~MREQ & ~WR & ~RD;
+    PORTB |= OE_595;   // OE port of 595 needs to be held high (inactive) for ADDR lines to be in high impedance
+    DDRC = 0;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
