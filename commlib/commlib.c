@@ -112,11 +112,22 @@ cl_write_memory(CommLib* cl, uint16_t addr, uint8_t const* data, size_t sz)
 int
 cl_status(CommLib* cl, CL_Status* status)
 {
+    cl->last_error = 0;
     serial_send(cl->fd, STATUS);
+    status->cycle = serial_recv16(cl->fd);
     status->addr = serial_recv16(cl->fd);
     status->data = serial_recv(cl->fd);
     uint8_t in = serial_recv(cl->fd);
     status->inputs = *(Inputs*)(&in);
+    return cl->last_error;
+}
+
+int
+cl_cycle(CommLib* cl)
+{
+    serial_send(cl->fd, CYCLE);
+    cl->last_error = serial_recv(cl->fd);
+    return cl->last_error;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

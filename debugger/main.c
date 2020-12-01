@@ -33,11 +33,16 @@ int main(int argc, char* argv[])
     printf("ok.\n");
 
     char* buf;
+    char* last = NULL;
     while ((buf = readline("Z80> ")) != NULL) {
-        if (strlen(buf) > 0)
+        if (strlen(buf) > 0) {
             add_history(buf);
-
-        command_do(buf, cl);
+            command_do(buf, cl);
+            free(last);
+            last = strdup(buf);
+        } else {
+            command_do(last, cl);
+        }
         free(buf);
     }
 

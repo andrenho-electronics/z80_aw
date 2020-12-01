@@ -80,7 +80,8 @@ serial_recv(int fd)
 {
     uint8_t c;
     int n = read(fd, &c, 1);
-    printf(MAGENTA " <%02X " RESET, c);
+    if (serial_debug)
+        printf(MAGENTA " <%02X " RESET, c);
     if (n < 0)
         return n;
     else

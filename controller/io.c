@@ -1,6 +1,7 @@
 #include "io.h"
 
 #include <avr/io.h>
+#include <avr/cpufunc.h>
 
 #define OE_595  _BV(PORTB0)
 #define SER_595 _BV(PORTB2)
@@ -73,6 +74,16 @@ void io_read_inputs(uint16_t* addr, uint8_t* data, Inputs* in)
     in->iorq = PIND & IORQ;
     in->halt = PINA & HALT;
     in->busack = PIND & BUSACK;
+}
+
+void io_z80_clock()
+{
+    // TODO - request bus
+    DDRD |= Z80_CLK;
+    PORTB &= ~Z80_CLK;
+    _NOP(); _NOP(); _NOP(); _NOP(); _NOP(); _NOP();  // TODO - how many?
+    PORTB |= Z80_CLK;
+    _NOP(); _NOP(); _NOP(); _NOP(); _NOP(); _NOP();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

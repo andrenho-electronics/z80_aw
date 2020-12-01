@@ -18,6 +18,7 @@ typedef struct {
 #define WRITE   0x2
 #define ENQUIRY 0x3
 #define STATUS  0x4
+#define CYCLE   0x5
 
 // controller -> debugger
 #define ACK              0
