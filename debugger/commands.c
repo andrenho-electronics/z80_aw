@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "test.h"
+
 #define RED     "\033[31m"
 #define GREEN   "\033[32m"
 #define MAGENTA "\033[35m"
@@ -19,7 +21,6 @@ bool last_was_status = false;
 
 static void command_quit(const char* line, CommLib* cl);
 static void command_init(const char* line, CommLib* cl);
-static void command_help(const char* line, CommLib* cl);
 static void command_enquiry(const char* line, CommLib* cl);
 static void command_read(const char* line, CommLib* cl);
 static void command_write(const char* line, CommLib* cl);
@@ -38,6 +39,7 @@ static Command commands[] = {
     { "reset",   command_reset,   "reset: hold the Z80 reset line low (active) -- type 'init' to finish the initialization" },
     { "status",  command_status,  "status: print current Z80 status" },
     { "write",   command_write,   "write ADDR DATA: write data to memory location" },
+    { "test",    command_test,    "test TESTNAME: run tests on the controller (options: rom, ram)" },
 };
 
 static void command_quit(const char* line, CommLib* cl)
@@ -130,7 +132,7 @@ static void command_write(const char* line, CommLib* cl)
     last_was_status = false;
 }
 
-static void command_help(const char* line, CommLib* cl)
+void command_help(const char* line, CommLib* cl)
 {
     (void) cl;
 
@@ -182,7 +184,7 @@ static void command_status(const char* line, CommLib* cl)
         else
             printf("\033[1A");
         printf("%04X     ", s.cycle);
-        if (s.inputs.mreq)   // memory bus is free
+        if (s.inputs.mreq || (s.inputs.wr && s.inputs.rd))   // memory bus is free
             printf("--   ----   ");
         else                 // memory is being accessed
             printf("%02X   %04X   ", s.data, s.addr);
@@ -237,7 +239,6 @@ void command_reset(const char* line, CommLib* cl)
         cl_perror(cl);
     }
     last_was_status = true;
-    
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

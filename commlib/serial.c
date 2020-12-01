@@ -61,8 +61,10 @@ int serial_open(const char* comfile, int speed)
 int
 serial_send(int fd, uint8_t c)
 {
-    if (serial_debug)
+    if (serial_debug) {
         printf(MAGENTA " >%02X " RESET, c);
+        fflush(stdout);
+    }
     return write(fd, &c, 1);
 }
 
@@ -70,8 +72,10 @@ int
 serial_send16(int fd, uint16_t data)
 {
     uint8_t v[2] = { data & 0xff, data >> 8 };
-    if (serial_debug)
+    if (serial_debug) {
         printf(MAGENTA " >%02X >%02X " RESET, v[0], v[1]);
+        fflush(stdout);
+    }
     return write(fd, v, 2);
 }
 
@@ -80,8 +84,10 @@ serial_recv(int fd)
 {
     uint8_t c;
     int n = read(fd, &c, 1);
-    if (serial_debug)
+    if (serial_debug) {
         printf(MAGENTA " <%02X " RESET, c);
+        fflush(stdout);
+    }
     if (n < 0)
         return n;
     else

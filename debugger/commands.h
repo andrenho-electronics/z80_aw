@@ -6,6 +6,9 @@
 
 void command_do(const char* line, CommLib* cl);
 void command_reset(const char* line, CommLib* cl);
+void command_help(const char* line, CommLib* cl);
+
+extern bool last_was_status;
 
 #endif
 
