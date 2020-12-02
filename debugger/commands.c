@@ -100,7 +100,7 @@ static void command_dump(const char* line, CommLib* cl)
     
     printf("        _0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F\n\n");
     for (uint16_t i = 0x0; i < 0x100; i += 0x10) {
-        printf("%04X    ", addr + i);
+        printf("%03X_    ", addr + i);
         for (uint16_t j = 0; j < 0x10; ++j) {
             printf("%02X ", data[i + j]);
             if (j == 7)
