@@ -240,7 +240,7 @@ void command_reset(const char* line, CommLib* cl)
     } else {
         cl_perror(cl);
     }
-    last_was_status = true;
+    last_was_status = false;
 }
 
 void command_upload(const char* line, CommLib* cl)

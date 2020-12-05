@@ -48,7 +48,8 @@ int main(int argc, char* argv[])
             free(last);
             last = strdup(buf);
         } else {
-            command_do(last, cl);
+            if (last)
+                command_do(last, cl);
         }
         free(buf);
     }
