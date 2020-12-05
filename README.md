@@ -2,16 +2,34 @@
 
 This project is a homemade Z80 computer. It consist of 4 boards:
 
-1. Motherboard
+1. Computer
 2. Controller / debugger
-3. Computer
-4. I/O
+3. Motherboard
+4. Peripherals (I/O)
+
+## Computer
+
+The computer is a Z80 processor linked to a 32k ROM memory IC, and a 32k RAM memory IC.
+
+![Controller](image/Computer.png)
+
+## Controller
+
+The controller allows provides a serial interface that allows the circuit to be controlled by a modern computer. It also allows a modern computer to server as a terminal (video and keyboard).
+
+![Controller schematic](image/Computer.png)
+![Controller](image/z80_controller.jpg)
+
+Connecting to the debugger: FTDI driver must be installed
+
+   $ ./terminal
+
 
 ## Motherboard
 
 The motherboard simply connects rows of pins.
 
-Pinage:
+Pinout:
 
 ```
  1 - A0    (address bus)
@@ -64,16 +82,4 @@ Pinage:
 48 - GND
 ```
 
-## Controller
-
-![Controller schematic](image/z80_controller.png)
-![Controller](image/z80_controller.jpg)
-
-Connecting to the debugger: FTDI driver must be installed
-
-   $ ./terminal
-
-## Original notes
-
-![Boards](image/boards.jpg)
-![Pins](image/pins.jpg)
+![Controller](image/Motherboard.png)
