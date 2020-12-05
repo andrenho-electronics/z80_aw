@@ -11,15 +11,17 @@
 
 static void test_memory(int displacement, CommLib* cl)
 {
+    uint8_t byte = 0;
+
     uint16_t addr = 0 + (displacement * 0x8000);
     for (uint16_t i = 0; i < 0x8000; i += 0x7000) {
-        for (uint16_t j = 0; j < 0x80; j += 10) {
+        for (uint16_t j = 0; j < 0x80; j += 0x10) {
             printf("%04X   ", addr + i + j);
 
             // write
             uint8_t data_w[0x10];
             for (uint8_t k = 0; k < 0x10; ++k)
-                data_w[k] = rand() & 0xFF;
+                data_w[k] = byte++;
             cl_write_memory(cl, addr + i + j, data_w, 0x10);
 
             // read

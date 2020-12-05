@@ -91,6 +91,10 @@ static void command_dump(const char* line, CommLib* cl)
         printf("Command with invalid syntax (expected 'dump PAGE').\n");
         return;
     }
+    if (addr > 0xff) {
+        printf("Page must be <= 0xFF.\n");
+        return;
+    }
 
     uint8_t data[0x100];
     if (cl_read_memory(cl, addr * 0x100, data, 0x100) != 0) {

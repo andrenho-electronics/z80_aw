@@ -136,6 +136,7 @@ void io_z80_init()
 
 void io_z80_reset()
 {
+    DDRD &= Z80_RST;
     PORTD &= ~Z80_RST;
 }
 
