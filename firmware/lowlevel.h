@@ -9,11 +9,13 @@
     P(SR_595, B, 1)     \
     P(PL_165, B, 2)     \
     P(ZCLK,   B, 3)     \
+    P(MISO,   B, 6)     \
     P(IORQ,   D, 2)     \
     P(BUSACK, D, 3)     \
     P(M1,     D, 4)     \
     P(ZRST,   D, 5)     \
     P(X1,     D, 6)     \
+    P(CLK_165,D, 7)     \
     P(MREQ,   A, 0)     \
     P(RD,     A, 1)     \
     P(WR,     A, 2)     \

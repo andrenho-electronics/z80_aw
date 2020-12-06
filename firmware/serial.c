@@ -2,6 +2,8 @@
 
 #include <avr/io.h>
 
+#include "ansi.h"
+
 void serial_init()
 {
     // set baud rate - http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php?postbitrate=38400&postclock=8
@@ -57,6 +59,22 @@ serial_printhex16(uint16_t data)
 {
     serial_printhex8(data >> 8);
     serial_printhex8(data & 0xff);
+}
+
+void
+serial_printbit(bool v)
+{
+    if (v)
+        serial_print(ANSI_GREEN "1" ANSI_RESET);
+    else
+        serial_print(ANSI_RED "0" ANSI_RESET);
+}
+
+void
+serial_spaces(int n)
+{
+    for (int i = 0; i < n; ++i)
+        serial_send(' ');
 }
 
 uint16_t

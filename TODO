@@ -1,8 +1,8 @@
 - basic serial communication (ok)
 - create low level interface (ok)
-- create bus control
+- create bus control (ok)
 - show status
-  - create state representation (current cycle, bus controller)
+  - create state representation (current cycle, bus controller) (ok)
   - show all pins
   - show who is controlling the bus
 - improve start - put CPU on reset, run one cycle, control bus
