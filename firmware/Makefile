@@ -7,14 +7,14 @@ MCU=atmega16
 F_CPU=16500000UL   # running at 16.5 Mhz
 
 CC=avr-gcc
-CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU}
+CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections
 
 ${PROJECT}.hex: ${PROJECT}.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
 	arm-linux-gnueabihf-size ${PROJECT}.hex
 
 ${PROJECT}.elf: ${OBJECTS}
-	$(CC) -mmcu=${MCU} -o $@ $^
+	$(CC) -mmcu=${MCU} -o $@ $^ -Wl,--gc-sections
 
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}

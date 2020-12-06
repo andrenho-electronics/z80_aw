@@ -1,17 +1,16 @@
 #include "serial.h"
 #include "ansi.h"
+#include "lowlevel.h"
 
 int main()
 {
     serial_init();
     serial_print(ANSI_CLRSCR);
 
+    set_OE_595(1);
+    serial_printhex8(get_OE_595());
+
     for (;;) {
-        serial_print("? ");
-        uint16_t data = serial_inputhex();
-        serial_printhex16(data);
-        serial_puts();
-        // serial_send(serial_recv());
     }
 }
 
