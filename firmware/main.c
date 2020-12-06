@@ -1,9 +1,13 @@
-#include "serial.h"
 #include "ansi.h"
-#include "lowlevel.h"
+#include "bus.h"
+#include "serial.h"
+#include "z80.h"
 
 int main()
 {
+    bus_init();
+    z80_clock_cycle();
+
     serial_init();
     serial_print(ANSI_CLRSCR);
 

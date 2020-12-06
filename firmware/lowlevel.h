@@ -16,7 +16,7 @@
     P(X1,     D, 6)     \
     P(MREQ,   A, 0)     \
     P(RD,     A, 1)     \
-    P(WE,     A, 2)     \
+    P(WR,     A, 2)     \
     P(HALT,   A, 3)     \
     P(WAIT,   A, 4)     \
     P(INT,    A, 5)     \
