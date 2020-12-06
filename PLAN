@@ -1,0 +1,52 @@
+# 
+# USER INTERFACE COMMANDS
+#
+
+# status
+status
+
+# memory
+read
+write
+dump
+test
+
+# z80 operation
+powerdown
+reset
+cycle
+step
+
+# 
+# LIBRARY
+# 
+
+# open/close port
+open(port, speed)
+close()
+
+# status
+status() -> Status
+
+# Z80 control
+z80_reset(type)    # type: POWER_DOWN, FULL
+z80_cycle()
+
+# controller control
+bus_takeover()
+bus_release()
+
+# memory operations
+memory_read(addr, count)
+memory_write(addr, data)
+
+# debugger
+dbg_list(addr)
+dbg_step()
+dbg_step_over()
+dbg_status()      # show registers, flags, etc
+dbg_add_breakpoint(addr)
+dbg_run()
+
+# runner
+run(&terminal_callback)

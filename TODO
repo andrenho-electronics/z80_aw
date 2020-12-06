@@ -1,4 +1,4 @@
-- basic serial communication, ack
+X basic serial communication
 - create low level interface
 - create bus control
 - show status
