@@ -7,9 +7,6 @@ int main()
     serial_init();
     serial_print(ANSI_CLRSCR);
 
-    set_OE_595(1);
-    serial_printhex8(get_OE_595());
-
     for (;;) {
     }
 }

@@ -1,5 +1,5 @@
-X basic serial communication
-- create low level interface
+- basic serial communication (ok)
+- create low level interface (ok)
 - create bus control
 - show status
   - create state representation (current cycle, bus controller)
