@@ -15,7 +15,7 @@ void     serial_printhex8(uint8_t data);
 void     serial_printhex16(uint16_t data);
 void     serial_printbit(bool v);
 
-uint16_t serial_inputhex();
+uint16_t serial_inputhex(unsigned num_digits);
 
 #define  serial_puts(V) serial_print(V "\r\n")
 

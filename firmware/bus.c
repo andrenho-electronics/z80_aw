@@ -40,6 +40,7 @@ void bus_mc_release()
     set_RD(X);
     set_NMI(X);
     set_WAIT(X);
+    set_OE_595(1);    // ADDR bus in high impedance
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -16,8 +16,6 @@ int main()
     serial_print(ANSI_CLRSCR);
     serial_puts("Welcome to Z80-AW debugger. Type 'h' for help.");
 
-    serial_printhex8(get_ZRST());
-
     for (;;)
         repl_exec();
 }

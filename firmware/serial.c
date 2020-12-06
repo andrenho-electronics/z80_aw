@@ -78,16 +78,16 @@ serial_spaces(int n)
 }
 
 uint16_t
-serial_inputhex()
+serial_inputhex(unsigned num_digits)
 {
-    char buf[5] = { 0, 0, 0, 0, 0 };
+    char buf[9] = { 0 };
     uint8_t current = 0;
     
     while (1) {
         uint8_t c = serial_recv();
         if (c == '\n' || c == '\r')
             break;
-        if (current < 4) {
+        if (current < num_digits) {
             if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f')) {
                 if (c >= 'a')
                     c -= 'a' - 'A';  // convert to uppercase

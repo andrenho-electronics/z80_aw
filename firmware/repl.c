@@ -1,5 +1,6 @@
 #include "repl.h"
 
+#include "memory.h"
 #include "serial.h"
 #include "z80.h"
 
@@ -65,6 +66,21 @@ static void repl_status()
 #undef Z
 }
 
+static void repl_read_memory()
+{
+    if (z80_controls_bus()) {
+        serial_puts("Z80 is in control of the bus.");
+        return;
+    }
+    serial_print("Address? ");
+    uint16_t addr = serial_inputhex(4);
+    serial_send('[');
+    serial_printhex16(addr);
+    serial_print("] = ");
+    serial_printhex8(memory_read(addr));
+    serial_puts();
+}
+
 void repl_exec()
 {
     serial_print("(z80) ");
@@ -77,6 +93,7 @@ void repl_exec()
     switch (c) {
         case 'h': repl_help(); break;
         case 's': repl_status(); break;
+        case 'r': repl_read_memory(); break;
         case 'c': 
             z80_clock_cycle();
             repl_status();
