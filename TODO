@@ -1,17 +1,29 @@
-- serial interface (ok)
-- set high impedance (ok)
-- read data & output pins from Z80
-- read address
-- write data & input pins to Z80
-- write address
-- build circuit
-
-Fix:
-- move from SCK to PD7
-
-- read/write ROM
-- read/write RAM
-- clock cycle
-- step
-- keep cycle
-- full debugger
+- basic serial communication, ack
+- create low level interface
+- create bus control
+- show status
+  - create state representation (current cycle, bus controller)
+  - show all pins
+  - show who is controlling the bus
+- improve start - put CPU on reset, run one cycle, control bus
+- memory operations:
+  - read/write single byte
+  - dump
+  - tests
+  - upload file
+- external program for file upload
+- cpu
+  - cycle
+  - step (request bus)
+- serial interface
+  - send key presses (interrupt)
+  - receive terminal changes (bus)
+- debugger
+  - show instructions
+  - show registers
+  - breakpoints
+  - step over
+- run
+  - run in debugger
+  - run without debugger
+    - serial i/o
