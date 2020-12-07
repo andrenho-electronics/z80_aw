@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+
+import os
+import serial
+import sys
+
+BELL     = bytes('\a', 'latin1')
+ENTER    = bytes('\n', 'latin1')
+UPLOAD   = bytes([128])
+DOWNLOAD = bytes([129])
+
+# get arguments
+port = '/dev/ttyUSB0'
+if len(sys.argv) > 2:
+    print('Usage: ' + sys.argv[0] + ' [SERIAL_PORT] < FILE')
+    sys.exit()
+elif len(sys.argv) == 2:
+    if sys.argv[1] == '-h':
+        print('Usage: ' + sys.argv[0] + ' [SERIAL_PORT] < FILE')
+        sys.exit()
+    else:
+        port = sys.argv[1]
+
+# open connection and get ready
+with serial.Serial(port, 38400, timeout=1) as ser:
+    ser.read_until(BELL)
+    ser.timeout = None
+    print('Controller ready! Reading file from stdin...')
+
+    contents = sys.stdin.buffer.read()
+    if len(contents) >= 32 * 1024:
+        print('File must be smaller than ROM (32k).')
+        sys.exit(1)
+
+    print('Sending UPLOAD command...')
+    ser.write(UPLOAD)
+    r = ser.read()
+    if r == b'\x00':
+        print('Writing file to controller...')
+    else:
+        print(r)
+        print('Cannot write file. Maybe the bus is busy?')
+        sys.exit(1)
+    ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
+    for byte in contents:
+        print(byte, end='')
+        print(' ', end='')
+        sys.stdout.flush()
+        ser.write(bytes([byte]))
+        ser.read()
+    print()

@@ -151,28 +151,37 @@ static void repl_dump_memory()
 
 static void repl_programatic_upload()
 {
+    if (z80_controls_bus())
+        serial_send(1);
+    else
+        serial_send(0);
     uint16_t length = serial_recv16();
-    for (uint16_t i = 0; i < length; ++i)
+    for (uint16_t i = 0; i < length; ++i) {
         memory_write(i, serial_recv());
-    serial_send(0);
+        serial_send(0);
+    }
 }
 
 static void repl_programatic_download()
 {
+    if (z80_controls_bus())
+        serial_send(1);
+    else
+        serial_send(0);
     uint16_t length = serial_recv16();
     for (uint16_t i = 0; i < length; ++i)
-        serial_send(memory_read());
+        serial_send(memory_read(i));
 }
 
 void repl_exec()
 {
-
     serial_print("(z80) \a");
 
     uint8_t c = serial_recv();
-    if (c > 32 && c < 127)
+    if ((c > 32 && c < 127) || c == 13 || c == 10) {
         serial_send(c);
-    serial_puts();
+        serial_puts();
+    }
 
     switch (c) {
         case 'h': repl_help(); break;
@@ -187,7 +196,7 @@ void repl_exec()
         case '\n': case '\r':
             break;
         case PROGRAMATIC_UPLOAD: repl_programatic_upload(); break;
-        case PROGRAMATIC_UPLOAD: repl_programatic_download(); break;
+        case PROGRAMATIC_DOWNLOAD: repl_programatic_download(); break;
         default:
             serial_puts("Invalid command. Type 'h' for help.");
             break;
