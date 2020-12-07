@@ -9,6 +9,28 @@ ENTER    = bytes('\n', 'latin1')
 UPLOAD   = bytes([128])
 DOWNLOAD = bytes([129])
 
+# Print iterations progress
+def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+    """
+    Call in a loop to create terminal progress bar
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : positive number of decimals in percent complete (Int)
+        length      - Optional  : character length of bar (Int)
+        fill        - Optional  : bar fill character (Str)
+        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
+    """
+    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
+    filledLength = int(length * iteration // total)
+    bar = fill * filledLength + '-' * (length - filledLength)
+    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
+    # Print New Line on Complete
+    if iteration == total: 
+        print()
+
 # get arguments
 port = '/dev/ttyUSB0'
 if len(sys.argv) > 2:
@@ -42,10 +64,10 @@ with serial.Serial(port, 38400, timeout=1) as ser:
         print('Cannot write file. Maybe the bus is busy?')
         sys.exit(1)
     ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
+    i = 0
     for byte in contents:
-        print(byte, end='')
-        print(' ', end='')
-        sys.stdout.flush()
+        printProgressBar(i, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
         ser.write(bytes([byte]))
         ser.read()
+        i += 1
     print()
