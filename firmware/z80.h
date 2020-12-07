@@ -17,7 +17,7 @@ bool z80_controls_bus();
 void z80_clock_cycle();
 
 extern Status   z80_last_status;
-extern uint32_t z80_cycle_number;
+extern uint16_t z80_cycle_number;
 
 #endif
 

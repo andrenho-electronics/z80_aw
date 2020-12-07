@@ -13,8 +13,14 @@ static void repl_help()
 static void repl_status()
 {
 #define Z z80_last_status
-    serial_puts("           /- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\");
-    serial_puts("ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR");
+    serial_spaces(17);
+    serial_puts("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\");
+    serial_puts("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR");
+
+    serial_print(ANSI_MAGENTA);
+    serial_printhex16(z80_cycle_number);
+    serial_print(ANSI_RESET);
+    serial_spaces(2);
 
     if (Z.addr_bus > 0)
         serial_printhex16(Z.addr_bus);
@@ -138,7 +144,7 @@ static void repl_dump_memory()
         }
         serial_spaces(2);
         for (uint16_t b = a; b < (a + 0x10); ++b)
-            serial_send((data[b] >= 32 && data[b] < 127) ? data[b] : '.');
+            serial_send(data[b] >= 32 && data[b] < 127 ? data[b] : '.');
         serial_puts();
     }
 }

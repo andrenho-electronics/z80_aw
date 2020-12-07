@@ -6,7 +6,7 @@
 #include "wait.h"
 
 Status   z80_last_status;
-uint32_t z80_cycle_number = 0;
+uint16_t z80_cycle_number = 0;
 
 static void update_status()
 {
