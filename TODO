@@ -15,16 +15,16 @@
 - external program for file upload (ok)
 - cpu
   - cycle (ok)
-  - reset
-  - step (request bus)
-- serial interface
-  - send key presses (interrupt)
-  - receive terminal changes (bus)
+  - reset (ok)
 - debugger
+  - step (request bus)
   - show instructions
   - show registers
   - breakpoints
   - step over
+- serial interface
+  - send key presses (interrupt)
+  - receive terminal changes (bus)
 - run
   - run in debugger
   - run without debugger
