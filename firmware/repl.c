@@ -149,9 +149,25 @@ static void repl_dump_memory()
     }
 }
 
+static void repl_programatic_upload()
+{
+    uint16_t length = serial_recv16();
+    for (uint16_t i = 0; i < length; ++i)
+        memory_write(i, serial_recv());
+    serial_send(0);
+}
+
+static void repl_programatic_download()
+{
+    uint16_t length = serial_recv16();
+    for (uint16_t i = 0; i < length; ++i)
+        serial_send(memory_read());
+}
+
 void repl_exec()
 {
-    serial_print("(z80) ");
+
+    serial_print("(z80) \a");
 
     uint8_t c = serial_recv();
     if (c > 32 && c < 127)
@@ -168,6 +184,10 @@ void repl_exec()
             z80_clock_cycle();
             repl_status();
             break;
+        case '\n': case '\r':
+            break;
+        case PROGRAMATIC_UPLOAD: repl_programatic_upload(); break;
+        case PROGRAMATIC_UPLOAD: repl_programatic_download(); break;
         default:
             serial_puts("Invalid command. Type 'h' for help.");
             break;

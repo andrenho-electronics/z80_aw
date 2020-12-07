@@ -31,6 +31,13 @@ serial_recv()
     return UDR;
 }
 
+uint16_t serial_recv16()
+{
+    uint16_t r = serial_recv();
+    r |= ((uint16_t) serial_recv()) << 8;
+    return r;
+}
+
 void
 serial_print(const char* s)
 {
