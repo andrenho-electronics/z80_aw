@@ -3,7 +3,7 @@
 #include "bus.h"
 #include "lowlevel.h"
 #include "memory.h"
-#include "util.h"
+#include "wait.h"
 
 Status   z80_last_status;
 uint32_t z80_cycle_number = 0;

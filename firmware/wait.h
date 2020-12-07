@@ -2,6 +2,7 @@
 #define UTIL_H_
 
 void wait();
+void waitk();
 
 #endif
 

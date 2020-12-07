@@ -2,7 +2,9 @@
 
 #include <avr/io.h>
 
+#include "bus.h"
 #include "lowlevel.h"
+#include "wait.h"
 #include "z80.h"
 
 uint16_t memory_read_addr()
@@ -15,8 +17,8 @@ uint16_t memory_read_addr()
     for (int i = 15; i >= 0; --i) {
         addr <<= 1;
         addr |= get_MISO(); // retrieve bit
-        set_CLK_165(0);     // clock cycle
-        set_CLK_165(1);
+        set_SER_CLK(0);     // clock cycle
+        set_SER_CLK(1);
     }
 
     return (addr << 8) | (addr >> 8);
@@ -30,7 +32,23 @@ uint8_t memory_read_data()
 
 static void set_addr(uint16_t addr)
 {
-    // TODO...
+    set_OE_595(1);
+    set_SER_CLK(1);
+
+    // send bits
+    for (int i = 15; i >= 0; --i) {
+        // feed data
+        if (addr & (1 << i))
+            set_SR_595(1);
+        else
+            set_SR_595(0);
+        // cycle clock
+        set_SER_CLK(0);     // clock cycle
+        set_SER_CLK(1);
+    }
+
+    // activate output
+    set_OE_595(1);
 }
 
 uint16_t memory_read(uint16_t addr)
@@ -49,6 +67,7 @@ uint16_t memory_read(uint16_t addr)
     set_MREQ(0);
     set_RD(0);
     wait();
+    waitk();
 
     uint8_t data = memory_read_data();
     wait();
@@ -56,7 +75,7 @@ uint16_t memory_read(uint16_t addr)
     set_RD(1);
     wait();
 
-    bus_mc_release();
+    bus_mc_release();  // this also put the ADDR pins in high impedance
     
     return data;
 }
