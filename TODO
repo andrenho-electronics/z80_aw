@@ -3,12 +3,13 @@
 - create bus control (ok)
 - show status
   - create state representation (current cycle, bus controller) (ok)
-  - show all pins
-  - show who is controlling the bus
-- improve start - put CPU on reset, run one cycle, control bus
+  - show all pins (ok)
+  - show who is controlling the bus (no)
+- improve start - put CPU on reset, run one cycle, control bus (ok)
 - memory operations:
-  - read/write single byte
-  - dump
+  - read single byte (ok)
+  - dump (ok)
+  - write single byte (ok)
   - tests
   - upload file
 - external program for file upload

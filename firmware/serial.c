@@ -41,8 +41,8 @@ serial_print(const char* s)
     }
 }
 
-static void
-serial_printhexdigit(uint8_t data)
+void
+serial_printhex4(uint8_t data)
 {
     serial_send(data < 0xa ? data + '0' : data - 0xa + 'A');
 }
@@ -50,8 +50,8 @@ serial_printhexdigit(uint8_t data)
 void
 serial_printhex8(uint8_t data)
 {
-    serial_printhexdigit(data >> 4);
-    serial_printhexdigit(data & 0xf);
+    serial_printhex4(data >> 4);
+    serial_printhex4(data & 0xf);
 }
 
 void

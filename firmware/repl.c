@@ -1,5 +1,6 @@
 #include "repl.h"
 
+#include "ansi.h"
 #include "memory.h"
 #include "serial.h"
 #include "z80.h"
@@ -66,35 +67,68 @@ static void repl_status()
 #undef Z
 }
 
-static void repl_read_memory()
+static bool check_bus_control()
 {
     if (z80_controls_bus()) {
         serial_puts("Z80 is in control of the bus.");
-        return;
+        return false;
     }
-    serial_print("Address? ");
-    uint16_t addr = serial_inputhex(4);
+    return true;
+}
+
+static uint8_t print_data(uint16_t addr)
+{
     serial_send('[');
     serial_printhex16(addr);
     serial_print("] = ");
-    serial_printhex8(memory_read(addr));
+    uint8_t data = memory_read(addr);
+    serial_printhex8(data);
     serial_puts();
+    return data;
+}
+
+static void repl_read_memory()
+{
+    if (!check_bus_control())
+        return;
+    serial_print("Address? ");
+    uint16_t addr = serial_inputhex(4);
+    print_data(addr);
+}
+
+static void repl_write_memory()
+{
+    if (!check_bus_control())
+        return;
+    serial_print("Address? ");
+    uint16_t addr = serial_inputhex(4);
+    serial_print("Data? ");
+    uint8_t data = serial_inputhex(2);
+    memory_write(addr, data);
+    uint8_t new_data = print_data(addr);
+    if (data != new_data)
+        serial_puts(ANSI_RED "Data write failed." ANSI_RESET);
 }
 
 static void repl_dump_memory()
 {
-    if (z80_controls_bus()) {
-        serial_puts("Z80 is in control of the bus.");
+    if (!check_bus_control())
         return;
-    }
     serial_print("Page (0x100) ? ");
     uint8_t page = serial_inputhex(2);
 
+    // read data
     uint8_t data[0x100];
     memory_read_page(page, data);
 
+    // print header
+    serial_puts(ANSI_MAGENTA "       _0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F");
+        
+    // print data
     for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
+        serial_print(ANSI_MAGENTA);
         serial_printhex16((uint16_t) page + a);
+        serial_print(ANSI_RESET);
         serial_spaces(3);
         for (uint16_t b = a; b < (a + 0x10); ++b) {
             serial_printhex8(data[b]);
@@ -120,6 +154,7 @@ void repl_exec()
         case 's': repl_status(); break;
         case 'r': repl_read_memory(); break;
         case 'd': repl_dump_memory(); break;
+        case 'w': repl_write_memory(); break;
         case 'c': 
             z80_clock_cycle();
             repl_status();

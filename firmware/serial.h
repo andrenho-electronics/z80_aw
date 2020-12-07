@@ -11,6 +11,7 @@ uint8_t  serial_recv();
 
 void     serial_spaces(int n);
 void     serial_print(const char* s);
+void     serial_printhex4(uint8_t data);
 void     serial_printhex8(uint8_t data);
 void     serial_printhex16(uint16_t data);
 void     serial_printbit(bool v);

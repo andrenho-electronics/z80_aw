@@ -1,6 +1,7 @@
 #include "memory.h"
 
 #include <avr/io.h>
+#include <util/delay.h>
 
 #include "bus.h"
 #include "lowlevel.h"
@@ -30,7 +31,7 @@ uint8_t memory_read_data()
     return PINC;
 }
 
-static void set_addr(uint16_t addr)  // TODO
+static void set_addr(uint16_t addr)
 {
     set_OE_595(1);
     set_SER_CLK(1);
@@ -52,6 +53,12 @@ static void set_addr(uint16_t addr)  // TODO
 
     // activate output
     set_OE_595(0);
+}
+
+static void set_data(uint8_t data)
+{
+    DDRC = 0xff;
+    PORTC = data;
 }
 
 uint16_t memory_read(uint16_t addr)
@@ -111,6 +118,34 @@ memory_read_page(uint8_t page, uint8_t data[0x100])
     }
 
     bus_mc_release();  // this also put the ADDR pins in high impedance
+}
+
+void memory_write(uint16_t addr, uint8_t data)
+{
+    if (z80_controls_bus())
+        return;
+
+    bus_mc_takeover();
+    set_MREQ(1);
+    set_WR(1);
+    set_RD(1);
+    wait();
+
+    set_addr(addr);
+    set_data(data);
+    wait();
+
+    set_MREQ(0);
+    set_WR(0);
+    wait();
+    set_MREQ(1);
+    set_WR(1);
+    wait();
+
+    if (addr < 0x8000)  // ROM
+        _delay_ms(10);
+
+    bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
