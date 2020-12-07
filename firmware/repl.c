@@ -81,6 +81,31 @@ static void repl_read_memory()
     serial_puts();
 }
 
+static void repl_dump_memory()
+{
+    if (z80_controls_bus()) {
+        serial_puts("Z80 is in control of the bus.");
+        return;
+    }
+    serial_print("Page (0x100) ? ");
+    uint8_t page = serial_inputhex(2);
+
+    uint8_t data[0x100];
+    memory_read_page(page, data);
+
+    for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
+        serial_printhex16((uint16_t) page + a);
+        serial_spaces(3);
+        for (uint16_t b = a; b < (a + 0x10); ++b) {
+            serial_printhex8(data[b]);
+            serial_send(' ');
+            if (b - a == 7)
+                serial_send(' ');
+        }
+        serial_puts();
+    }
+}
+
 void repl_exec()
 {
     serial_print("(z80) ");
@@ -94,6 +119,7 @@ void repl_exec()
         case 'h': repl_help(); break;
         case 's': repl_status(); break;
         case 'r': repl_read_memory(); break;
+        case 'd': repl_dump_memory(); break;
         case 'c': 
             z80_clock_cycle();
             repl_status();

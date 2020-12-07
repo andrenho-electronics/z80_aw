@@ -7,8 +7,7 @@ uint16_t memory_read_addr();
 uint8_t  memory_read_data();
 
 uint16_t memory_read(uint16_t addr);
-
-/*static*/ void set_addr(uint16_t addr);   // TODO
+void     memory_read_page(uint8_t page, uint8_t data[0x100]);
 
 #endif
 

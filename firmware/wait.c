@@ -1,12 +1,19 @@
 #include "wait.h"
 
+#include <avr/cpufunc.h>
 #include <util/delay.h>
 
 #include "serial.h"
 
 void wait()
 {
-    _delay_ms(1);
+    // _delay_ms(1);
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
+    _NOP();
 }
 
 void waitk()
