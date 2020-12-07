@@ -5,16 +5,18 @@
 #include <stdbool.h>
 
 typedef struct {
-    int  addr_bus;
-    int  data_bus;
-    bool m1, iorq, halt, busack;         // z80 output lines
-    bool wait, int_, nmi, reset, busreq; // z80 input lines
-    bool mreq, rd, wr;                   // memory lines
+    int32_t addr_bus;
+    int16_t data_bus;
+    bool    m1, iorq, halt, busack;         // z80 output lines
+    bool    wait, int_, nmi, reset, busreq; // z80 input lines
+    bool    mreq, rd, wr;                   // memory lines
 } Status;
 
 bool z80_controls_bus();
 
 void z80_clock_cycle();
+void z80_powerdown();
+void z80_init();
 
 extern Status   z80_last_status;
 extern uint16_t z80_cycle_number;

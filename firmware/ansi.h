@@ -6,5 +6,6 @@
 #define ANSI_GREEN   "\033[32m"
 #define ANSI_MAGENTA "\033[35m"
 #define ANSI_RESET   "\033[0m"
+#define ANSI_UP      "\033[1A"
 
 #endif

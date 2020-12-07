@@ -11,10 +11,11 @@
   - dump (ok)
   - write single byte (ok)
   - tests
-  - upload file
-- external program for file upload
+  - upload file (ok)
+- external program for file upload (ok)
 - cpu
-  - cycle
+  - cycle (ok)
+  - reset
   - step (request bus)
 - serial interface
   - send key presses (interrupt)

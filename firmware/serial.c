@@ -103,7 +103,7 @@ serial_inputhex(unsigned num_digits)
             }
         }
         if ((c == '\b' || c == 127) && current > 0) {
-            buf[current--] = 0;
+            buf[--current] = 0;
             serial_print("\b \b");
         }
     }

@@ -5,6 +5,8 @@
 #include "serial.h"
 #include "z80.h"
 
+static bool last_was_status = false;
+
 static void repl_help()
 {
     serial_puts("Help not implemented yet. See `repl.c`.");
@@ -13,25 +15,33 @@ static void repl_help()
 static void repl_status()
 {
 #define Z z80_last_status
-    serial_spaces(17);
-    serial_puts("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\");
-    serial_puts("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR");
+    if (!last_was_status) {
+        serial_spaces(17);
+        serial_puts("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\");
+        serial_puts("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR");
+    } else {
+        serial_print(ANSI_UP);
+    }
 
     serial_print(ANSI_MAGENTA);
     serial_printhex16(z80_cycle_number);
     serial_print(ANSI_RESET);
     serial_spaces(2);
 
-    if (Z.addr_bus > 0)
+    if (Z.addr_bus >= 0)
         serial_printhex16(Z.addr_bus);
     else
         serial_print("----");
 
     serial_spaces(2);
-    if (Z.data_bus > 0)
+    if (Z.data_bus >= 0) {
+        if (Z.wr == 0)
+            serial_print(ANSI_RED);
         serial_printhex8(Z.data_bus);
-    else
+        serial_print(ANSI_RESET);
+    } else {
         serial_print("--");
+    }
 
     serial_spaces(4);
     serial_printbit(Z.m1);
@@ -70,6 +80,8 @@ static void repl_status()
     serial_printbit(Z.wr);
 
     serial_puts();
+
+    last_was_status = true;
 #undef Z
 }
 
@@ -133,7 +145,7 @@ static void repl_dump_memory()
     // print data
     for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
         serial_print(ANSI_MAGENTA);
-        serial_printhex16((uint16_t) page + a);
+        serial_printhex16(((uint16_t) page * 0x100) + (a * 0x10));
         serial_print(ANSI_RESET);
         serial_spaces(3);
         for (uint16_t b = a; b < (a + 0x10); ++b) {
@@ -173,6 +185,20 @@ static void repl_programatic_download()
         serial_send(memory_read(i));
 }
 
+static void repl_powerdown()
+{
+    z80_powerdown();
+    serial_puts("Z80 powered down.");
+}
+
+static void repl_init_z80()
+{
+    z80_init();
+    serial_puts("Z80 (re)initialized.");
+    last_was_status = false;
+    repl_status();
+}
+
 void repl_exec()
 {
     serial_print("(z80) \a");
@@ -189,6 +215,8 @@ void repl_exec()
         case 'r': repl_read_memory(); break;
         case 'd': repl_dump_memory(); break;
         case 'w': repl_write_memory(); break;
+        case 'p': repl_powerdown(); break;
+        case 'i': repl_init_z80(); break;
         case 'c': 
             z80_clock_cycle();
             repl_status();
@@ -201,6 +229,9 @@ void repl_exec()
             serial_puts("Invalid command. Type 'h' for help.");
             break;
     }
+
+    if (c != 's' && c != 'c' && c != 'i')
+        last_was_status = false;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
