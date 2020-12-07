@@ -6,8 +6,8 @@
 
 #define LIST_OF_PORTS   \
     P(OE_595, B, 0)     \
-    P(SR_595, B, 1)     \
-    P(PL_165, B, 2)     \
+    P(PL_165, B, 1)     \
+    P(SR_595, B, 2)     \
     P(ZCLK,   B, 3)     \
     P(MISO,   B, 6)     \
     P(IORQ,   D, 2)     \
