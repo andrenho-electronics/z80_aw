@@ -27,14 +27,13 @@ uint16_t memory_read_addr()
 
 uint8_t memory_read_data()
 {
-    DDRC = 0x0;
     return PINC;
 }
 
 static void set_addr(uint16_t addr)
 {
     set_OE_595(1);
-    set_SER_CLK(1);
+    set_SER_CLK(0);
 
     // send bits
     for (int i = 15; i >= 0; --i) {
@@ -44,12 +43,12 @@ static void set_addr(uint16_t addr)
         else
             set_SR_595(0);
         // cycle clock
-        set_SER_CLK(0);     // clock cycle
         set_SER_CLK(1);
+        set_SER_CLK(0);     // clock cycle
     }
 
-    set_SER_CLK(0);     // clock cycle
     set_SER_CLK(1);
+    set_SER_CLK(0);     // clock cycle
 
     // activate output
     set_OE_595(0);
@@ -80,8 +79,8 @@ uint16_t memory_read(uint16_t addr)
 
     uint8_t data = memory_read_data();
     wait();
-    set_MREQ(1);
     set_RD(1);
+    set_MREQ(1);
     wait();
 
     bus_mc_release();  // this also put the ADDR pins in high impedance

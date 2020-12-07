@@ -64,10 +64,38 @@ with serial.Serial(port, 38400, timeout=1) as ser:
         print('Cannot write file. Maybe the bus is busy?')
         sys.exit(1)
     ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
-    i = 0
+    i = 1
     for byte in contents:
         printProgressBar(i, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
         ser.write(bytes([byte]))
         ser.read()
         i += 1
+    print(ser.read())
+
+    print('Verifying upload...')
+    ser.read_until(BELL)
+    ser.write(DOWNLOAD)
+    r = ser.read()
+    if r == b'\x00':
+        print('Reading file from controller...')
+    else:
+        print(r)
+        print('Cannot read file. Maybe the bus is busy?')
+        sys.exit(1)
+    ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
+    response = bytearray()
+    i = 1
+    for byte in contents:
+        printProgressBar(i, len(contents), prefix='Downloading:', suffix='Complete', decimals=0)
+        response.extend(ser.read())
+        i += 1
     print()
+
+    #response[1] = contents[1]  # why???
+    if bytes(response) == contents:
+        print('File uploaded successfully.')
+    else:
+        print('The verification does not match.')
+        print(contents)
+        print(bytes(response))
+        sys.exit(1)

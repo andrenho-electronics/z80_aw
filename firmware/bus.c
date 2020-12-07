@@ -11,7 +11,7 @@ void bus_init()
     // these pins will always be controlled by the MC
     set_OE_595(1);    // ADDR bus in high impedance
     set_SR_595(0);    // 595 serial waiting to begin transmitting
-    set_SER_CLK(1);   // 165/595 clock wating to begin transmitting
+    set_SER_CLK(0);   // 165/595 clock wating to begin transmitting
     set_PL_165(1);    // not load data into 165
     set_ZCLK(0);      // Z80 clock waiting to begin transmitting
     set_ZRST(0);      // Z80 start in reset mode (active)
