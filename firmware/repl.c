@@ -136,6 +136,9 @@ static void repl_dump_memory()
             if (b - a == 7)
                 serial_send(' ');
         }
+        serial_spaces(2);
+        for (uint16_t b = a; b < (a + 0x10); ++b)
+            serial_send((data[b] >= 32 && data[b] < 127) ? data[b] : '.');
         serial_puts();
     }
 }
