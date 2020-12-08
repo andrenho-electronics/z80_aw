@@ -140,13 +140,14 @@ static void repl_dump_memory()
     memory_read_page(page, data);
 
     // print header
-    serial_puts(ANSI_MAGENTA "       _0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F");
+    serial_spaces(8);
+    serial_puts(ANSI_MAGENTA "_0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F");
         
     // print data
     for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
         serial_print(ANSI_MAGENTA);
-        serial_printhex16(((uint16_t) page * 0x100) + (a * 0x10));
-        serial_print(ANSI_RESET);
+        serial_printhex16(((uint16_t) page * 0x10) + (a / 0x10));
+        serial_print("_" ANSI_RESET);
         serial_spaces(3);
         for (uint16_t b = a; b < (a + 0x10); ++b) {
             serial_printhex8(data[b]);

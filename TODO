@@ -10,12 +10,13 @@
   - read single byte (ok)
   - dump (ok)
   - write single byte (ok)
-  - tests
   - upload file (ok)
 - external program for file upload (ok)
 - cpu
   - cycle (ok)
   - reset (ok)
+- fix line A5 on first port
+- write memory tests
 - debugger
   - step (request bus)
   - show instructions
