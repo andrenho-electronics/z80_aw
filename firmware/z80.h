@@ -14,9 +14,10 @@ typedef struct {
 
 bool z80_controls_bus();
 
-void z80_clock_cycle();
 void z80_powerdown();
 void z80_init();
+void z80_clock_cycle();
+void z80_bus_request();
 
 extern Status   z80_last_status;
 extern uint16_t z80_cycle_number;

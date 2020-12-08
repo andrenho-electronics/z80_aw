@@ -217,6 +217,11 @@ void repl_exec()
         case 'w': repl_write_memory(); break;
         case 'p': repl_powerdown(); break;
         case 'i': repl_init_z80(); break;
+        case 'b':
+            z80_bus_request();
+            serial_puts("Bus requested.");
+            repl_status();
+            break;
         case 'c': 
             z80_clock_cycle();
             repl_status();
