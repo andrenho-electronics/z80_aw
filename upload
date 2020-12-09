@@ -46,7 +46,7 @@ elif len(sys.argv) == 2:
         port = sys.argv[1]
 
 # open connection and get ready
-with serial.Serial(port, 38400, timeout=1) as ser:
+with serial.Serial(port, 115200, timeout=1) as ser:
     print('Connected to controller! Reading file from stdin...')
 
     contents = sys.stdin.buffer.read()
