@@ -15,6 +15,7 @@ void bus_init()
     set_PL_165(1);    // not load data into 165
     set_ZCLK(0);      // Z80 clock waiting to begin transmitting
     set_ZRST(0);      // Z80 start in reset mode (active)
+    set_BUSREQ(1);
 
     // these pins will always be read-only
     set_IORQ(X);
@@ -22,7 +23,6 @@ void bus_init()
     set_M1(X);
     set_X1(X);
     set_HALT(X);
-    set_BUSREQ(X);
 }
 
 void bus_mc_takeover()

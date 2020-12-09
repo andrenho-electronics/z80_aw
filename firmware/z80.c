@@ -51,9 +51,10 @@ static void z80_clock()
         ++z80_cycle_number;
 }
 
-void z80_clock_cycle()
+void z80_clock_cycle(bool request_bus)
 {
     bus_mc_release();
+    set_BUSREQ(!request_bus);
     z80_clock();
 }
 
@@ -61,7 +62,7 @@ void z80_powerdown()
 {
     set_ZRST(0);
     z80_cycle_number = 0;
-    z80_clock_cycle();
+    z80_clock_cycle(false);
 }
 
 void z80_init()
@@ -73,20 +74,11 @@ void z80_init()
     wait();
 
     for (int i = 0; i < 10; ++i)
-        z80_clock_cycle();
+        z80_clock_cycle(false);
 
     set_ZRST(1);
     wait();
-    z80_clock_cycle();
-}
-
-void z80_bus_request()
-{
-    bus_mc_release();
-    set_BUSREQ(0);
-    wait();
-    z80_clock();
-    set_BUSREQ(X);
+    z80_clock_cycle(false);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

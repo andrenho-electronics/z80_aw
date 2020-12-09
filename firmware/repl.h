@@ -6,6 +6,7 @@
 #define PROGRAMATIC_WRITE    130
 
 void repl_exec();
+void repl_status();
 
 #endif
 

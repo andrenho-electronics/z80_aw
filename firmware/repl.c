@@ -1,8 +1,10 @@
 #include "repl.h"
 
 #include "ansi.h"
+#include "debugger.h"
 #include "memory.h"
 #include "serial.h"
+#include "tests.h"
 #include "z80.h"
 
 static bool last_was_status = false;
@@ -10,29 +12,33 @@ static bool last_was_status = false;
 static void repl_help()
 {
     serial_printstr(PSTR("Information:\r\n   "));
-    serial_printstr(PSTR(ANSI_MAGENTA "h" ANSI_RESET "elp  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "s" ANSI_RESET "tatus   "));
-    serial_printstr(PSTR(ANSI_MAGENTA "f" ANSI_RESET "ree RAM (controller)\r\n"));
+    serial_printstr(PSTR(ANSI_GREEN "h" ANSI_RESET "elp  "));
+    serial_printstr(PSTR(ANSI_GREEN "s" ANSI_RESET "tatus   "));
+    serial_printstr(PSTR(ANSI_GREEN "f" ANSI_RESET "ree RAM (controller)\r\n"));
     serial_printstr(PSTR("Memory:\r\n   "));
-    serial_printstr(PSTR(ANSI_MAGENTA "r" ANSI_RESET "ead memory  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "d" ANSI_RESET "ump memory  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "w" ANSI_RESET "rite to memory\r\n"));
+    serial_printstr(PSTR(ANSI_GREEN "r" ANSI_RESET "ead memory  "));
+    serial_printstr(PSTR(ANSI_GREEN "d" ANSI_RESET "ump memory  "));
+    serial_printstr(PSTR(ANSI_GREEN "w" ANSI_RESET "rite to memory\r\n"));
     serial_printstr(PSTR("Z80:\r\n   "));
-    serial_printstr(PSTR(ANSI_MAGENTA "p" ANSI_RESET "owerdown  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "i" ANSI_RESET "nitialize (reset)  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "b" ANSI_RESET "us request  "));
-    serial_printstr(PSTR(ANSI_MAGENTA "c" ANSI_RESET "ycle\r\n"));
+    serial_printstr(PSTR(ANSI_GREEN "p" ANSI_RESET "owerdown  "));
+    serial_printstr(PSTR(ANSI_GREEN "i" ANSI_RESET "nitialize (reset)  "));
+    serial_printstr(PSTR(ANSI_GREEN "b" ANSI_RESET "us request  "));
+    serial_printstr(PSTR(ANSI_GREEN "c" ANSI_RESET "ycle\r\n"));
+    serial_printstr(PSTR("Debugger:\r\n   "));
+    serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p\r\n"));
+#if ADD_TESTS
+    serial_printstr(PSTR("Tests:\r\n   "));
+    serial_printstr(PSTR("run " ANSI_GREEN "t" ANSI_RESET "ests\r\n"));
+#endif
 }
 
-static void repl_status()
+void repl_status()
 {
 #define Z z80_last_status
     if (!last_was_status) {
         serial_spaces(17);
         serial_putsstr(PSTR("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\"));
         serial_putsstr(PSTR("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR"));
-    } else {
-        serial_printstr(PSTR(ANSI_UP));
     }
 
     serial_printstr(PSTR(ANSI_MAGENTA));
@@ -246,13 +252,16 @@ void repl_exec()
         case 'p': repl_powerdown(); break;
         case 'i': repl_init_z80(); break;
         case 'f': repl_free_ram(); break;
+        case 'e': debugger_step(); break;
+#if ADD_TESTS
+        case 't': tests_run(); break;
+#endif
         case 'b':
-            z80_bus_request();
-            serial_putsstr(PSTR("Bus requested."));
+            z80_clock_cycle(true);
             repl_status();
             break;
         case 'c': 
-            z80_clock_cycle();
+            z80_clock_cycle(false);
             repl_status();
             break;
         case '\n': case '\r':
@@ -264,7 +273,7 @@ void repl_exec()
             break;
     }
 
-    if (c != 's' && c != 'c' && c != 'i')
+    if (c != 's' && c != 'c' && c != 'i' && c != 'b')
         last_was_status = false;
 }
 

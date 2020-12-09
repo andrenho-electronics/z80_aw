@@ -11,7 +11,7 @@ int main()
 {
     serial_init();
     bus_init();
-    z80_clock_cycle();
+    z80_clock_cycle(false);
 
     serial_printstr(PSTR(ANSI_CLRSCR));
     serial_putsstr(PSTR("Welcome to Z80-AW debugger. Type 'h' for help."));
