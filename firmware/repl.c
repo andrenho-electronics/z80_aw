@@ -2,6 +2,7 @@
 
 #include "ansi.h"
 #include "debugger.h"
+#include "lowlevel.h"
 #include "memory.h"
 #include "serial.h"
 #include "tests.h"
@@ -226,16 +227,12 @@ static void repl_init_z80()
 {
     z80_init();
     serial_putsstr(PSTR("Z80 (re)initialized."));
-    last_was_status = false;
-    repl_status();
 }
 
 void repl_free_ram()
 {
-    extern int __heap_start, *__brkval;
-    volatile int v;
-    int free = (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
-    serial_printint(free);
+    serial_printint(free_ram());
+    serial_printstr(PSTR(" bytes free."));
     serial_puts();
 }
 
@@ -252,7 +249,8 @@ void repl_exec()
         case 'p': repl_powerdown(); break;
         case 'i': repl_init_z80(); break;
         case 'f': repl_free_ram(); break;
-        case 'e': debugger_step(); break;
+        case 'e': debugger_step(false); break;
+        case 'E': debugger_step(true); break;
 #if ADD_TESTS
         case 't': tests_run(); break;
 #endif
@@ -264,6 +262,9 @@ void repl_exec()
             z80_clock_cycle(false);
             repl_status();
             break;
+        case 0xC:  // Ctrl+L
+            serial_printstr(PSTR(ANSI_CLRSCR));
+            break;
         case '\n': case '\r':
             break;
         case PROGRAMATIC_UPLOAD:   repl_programatic_upload(); break;
@@ -273,7 +274,10 @@ void repl_exec()
             break;
     }
 
-    if (c != 's' && c != 'c' && c != 'i' && c != 'b')
+    if (free_ram() < 200)
+        serial_printstr(PSTR("** Warning, < 200 bytes free."));
+
+    if (c != 's' && c != 'c' && c != 'b')
         last_was_status = false;
 }
 

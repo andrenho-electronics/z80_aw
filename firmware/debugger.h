@@ -1,7 +1,9 @@
 #ifndef DEBUGGER_H_
 #define DEBUGGER_H_
 
-void debugger_step();
+#include <stdbool.h>
+
+void debugger_step(bool show_cycles);
 
 #endif
 

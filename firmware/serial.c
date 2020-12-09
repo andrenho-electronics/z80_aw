@@ -40,6 +40,16 @@ uint16_t serial_recv16()
 }
 
 void
+serial_print(const char* s)
+{
+    char* p = (char *) s;
+    while (*p) {
+        serial_send(*p);
+        ++p;
+    }
+}
+
+void
 serial_printstr(PGM_P s)
 {
 	char c;

@@ -12,6 +12,7 @@ uint8_t  serial_recv();
 uint16_t serial_recv16();
 
 void     serial_spaces(int n);
+void     serial_print(const char* s);
 void     serial_printstr(PGM_P s);
 void     serial_puts();
 void     serial_putsstr(PGM_P s);

@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+unsigned int free_ram();
+
 #define LIST_OF_PORTS   \
     P(OE_595, B, 0)     \
     P(PL_165, B, 1)     \
