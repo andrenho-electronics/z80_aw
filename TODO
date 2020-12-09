@@ -15,7 +15,7 @@
 - cpu
   - cycle (ok)
   - reset (ok)
-- fix line A5 on first port
+- fix line A5 on first port (ok)
 - write memory tests
 - debugger
   - step (request bus)
