@@ -3,6 +3,7 @@
 
 #define PROGRAMATIC_UPLOAD   128
 #define PROGRAMATIC_DOWNLOAD 129
+#define PROGRAMATIC_WRITE    130
 
 void repl_exec();
 

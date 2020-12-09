@@ -18,8 +18,9 @@
 - fix line A5 on first port (ok)
 - remove bell from inputs (ok)
 - add help (ok)
-- ROM memory writing - use D4
+- ROM memory writing - use D4 (ok)
 - write memory tests
+- fix specific incorrect memory locations on upload (...)
 - debugger
   - step (request bus)
   - show instructions

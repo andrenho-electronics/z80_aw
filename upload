@@ -3,11 +3,13 @@
 import os
 import serial
 import sys
+import time
 
 BELL     = bytes('\a', 'latin1')
 ENTER    = bytes('\n', 'latin1')
 UPLOAD   = bytes([128])
 DOWNLOAD = bytes([129])
+WRITE    = bytes([130])
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -69,6 +71,7 @@ with serial.Serial(port, 38400, timeout=1) as ser:
         ser.read()
         i += 1
 
+    time.sleep(1)
     print('Verifying upload...')
     ser.write(DOWNLOAD)
     r = ser.read()
@@ -87,11 +90,17 @@ with serial.Serial(port, 38400, timeout=1) as ser:
         i += 1
     print()
 
-    #response[1] = contents[1]  # why???
     if bytes(response) == contents:
         print('File uploaded successfully.')
     else:
-        print('The verification does not match.')
-        print(contents)
-        print(bytes(response))
-        sys.exit(1)
+        print('The verification does not match. Will now rewrite incorrect bytes.')
+        for i, b in enumerate(bytes(response)):
+            if b != contents[i]:
+                print('[' + hex(i) + ']: expected ' + hex(contents[i]) + ', found ' + hex(b) + '. Rewritting...')
+                ser.write(WRITE)
+                ser.write(bytes([i & 0xff, i >> 8, contents[i]]))
+                r = ser.read()
+                if r != b'\x00':
+                    print('Invalid response from write (' + str(r) + ')')
+                    sys.exit(1)
+        print('Bytes rewritten successfully.')

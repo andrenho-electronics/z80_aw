@@ -120,7 +120,7 @@ memory_read_page(uint8_t page, uint8_t data[0x100])
     bus_mc_release();  // this also put the ADDR pins in high impedance
 }
 
-void memory_write(uint16_t addr, uint8_t data)
+void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 {
     if (z80_controls_bus())
         return;
@@ -142,8 +142,27 @@ void memory_write(uint16_t addr, uint8_t data)
     set_WR(1);
     wait();
 
-    if (addr < 0x8000)  // ROM
-        _delay_ms(10);
+    if (addr < 0x8000) {  // ROM
+        if (wait_for_completion) {
+            DDRC = 0;   // setup DATA bus for reading
+            for (;;) {
+                set_RD(0);
+                set_MREQ(0);
+                wait();
+
+                uint8_t new_data = memory_read_data();
+                wait();
+
+                if (new_data == data)
+                    break;
+            }
+            set_MREQ(1);
+            set_RD(1);
+            wait();
+        } else {
+            _delay_ms(12);
+        }
+    }
 
     bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
 }

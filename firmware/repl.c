@@ -133,7 +133,7 @@ static void repl_write_memory()
     uint16_t addr = serial_inputhex(4);
     serial_print("Data? ");
     uint8_t data = serial_inputhex(2);
-    memory_write(addr, data);
+    memory_write(addr, data, true);
     uint8_t new_data = print_data(addr);
     if (data != new_data)
         serial_puts(ANSI_RED "Data write failed." ANSI_RESET);
@@ -173,6 +173,18 @@ static void repl_dump_memory()
     }
 }
 
+static void repl_programatic_write()
+{
+    uint16_t addr = serial_recv16();
+    uint8_t data = serial_recv();
+    if (z80_controls_bus()) {
+        serial_send(1);
+    } else {
+        memory_write(addr, data, true);
+        serial_send(0);
+    }
+}
+
 static void repl_programatic_upload()
 {
     if (z80_controls_bus())
@@ -181,7 +193,7 @@ static void repl_programatic_upload()
         serial_send(0);
     uint16_t length = serial_recv16();
     for (uint16_t i = 0; i < length; ++i) {
-        memory_write(i, serial_recv());
+        memory_write(i, serial_recv(), false);
         serial_send(0);
     }
 }
@@ -234,8 +246,9 @@ void repl_exec()
             break;
         case '\n': case '\r':
             break;
-        case PROGRAMATIC_UPLOAD: repl_programatic_upload(); break;
+        case PROGRAMATIC_UPLOAD:   repl_programatic_upload(); break;
         case PROGRAMATIC_DOWNLOAD: repl_programatic_download(); break;
+        case PROGRAMATIC_WRITE:    repl_programatic_write(); break;
         default:
             break;
     }
