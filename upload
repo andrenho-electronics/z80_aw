@@ -45,9 +45,7 @@ elif len(sys.argv) == 2:
 
 # open connection and get ready
 with serial.Serial(port, 38400, timeout=1) as ser:
-    ser.read_until(BELL)
-    ser.timeout = None
-    print('Controller ready! Reading file from stdin...')
+    print('Connected to controller! Reading file from stdin...')
 
     contents = sys.stdin.buffer.read()
     if len(contents) >= 32 * 1024:
@@ -70,10 +68,8 @@ with serial.Serial(port, 38400, timeout=1) as ser:
         ser.write(bytes([byte]))
         ser.read()
         i += 1
-    print(ser.read())
 
     print('Verifying upload...')
-    ser.read_until(BELL)
     ser.write(DOWNLOAD)
     r = ser.read()
     if r == b'\x00':

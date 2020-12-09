@@ -202,13 +202,7 @@ static void repl_init_z80()
 
 void repl_exec()
 {
-    serial_print("(z80) \a");
-
     uint8_t c = serial_recv();
-    if ((c > 32 && c < 127) || c == 13 || c == 10) {
-        serial_send(c);
-        serial_puts();
-    }
 
     switch (c) {
         case 'h': repl_help(); break;
@@ -232,7 +226,6 @@ void repl_exec()
         case PROGRAMATIC_UPLOAD: repl_programatic_upload(); break;
         case PROGRAMATIC_DOWNLOAD: repl_programatic_download(); break;
         default:
-            serial_puts("Invalid command. Type 'h' for help.");
             break;
     }
 

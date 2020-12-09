@@ -17,6 +17,8 @@
   - reset (ok)
 - fix line A5 on first port (ok)
 - remove bell from inputs
+- ROM memory writing - use D4
+- add help
 - write memory tests
 - debugger
   - step (request bus)
