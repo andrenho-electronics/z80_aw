@@ -16,6 +16,7 @@
   - cycle (ok)
   - reset (ok)
 - fix line A5 on first port (ok)
+- remove bell from inputs
 - write memory tests
 - debugger
   - step (request bus)
