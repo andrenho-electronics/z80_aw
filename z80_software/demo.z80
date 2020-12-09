@@ -1,5 +1,6 @@
 	nop
 	nop
 	nop
+	jp 0xc3c3
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab
