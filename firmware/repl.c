@@ -9,18 +9,19 @@ static bool last_was_status = false;
 
 static void repl_help()
 {
-    serial_print("Information:\r\n   ");
-    serial_print(ANSI_MAGENTA "h" ANSI_RESET "elp  ");
-    serial_print(ANSI_MAGENTA "s" ANSI_RESET "tatus\r\n");
-    serial_print("Memory:\r\n   ");
-    serial_print(ANSI_MAGENTA "r" ANSI_RESET "ead memory  ");
-    serial_print(ANSI_MAGENTA "d" ANSI_RESET "ump memory  ");
-    serial_print(ANSI_MAGENTA "w" ANSI_RESET "rite to memory\r\n");
-    serial_print("Z80:\r\n   ");
-    serial_print(ANSI_MAGENTA "p" ANSI_RESET "owerdown  ");
-    serial_print(ANSI_MAGENTA "i" ANSI_RESET "nitialize (reset)  ");
-    serial_print(ANSI_MAGENTA "b" ANSI_RESET "us request  ");
-    serial_print(ANSI_MAGENTA "c" ANSI_RESET "ycle\r\n");
+    serial_printstr(PSTR("Information:\r\n   "));
+    serial_printstr(PSTR(ANSI_MAGENTA "h" ANSI_RESET "elp  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "s" ANSI_RESET "tatus   "));
+    serial_printstr(PSTR(ANSI_MAGENTA "f" ANSI_RESET "ree RAM (controller)\r\n"));
+    serial_printstr(PSTR("Memory:\r\n   "));
+    serial_printstr(PSTR(ANSI_MAGENTA "r" ANSI_RESET "ead memory  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "d" ANSI_RESET "ump memory  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "w" ANSI_RESET "rite to memory\r\n"));
+    serial_printstr(PSTR("Z80:\r\n   "));
+    serial_printstr(PSTR(ANSI_MAGENTA "p" ANSI_RESET "owerdown  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "i" ANSI_RESET "nitialize (reset)  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "b" ANSI_RESET "us request  "));
+    serial_printstr(PSTR(ANSI_MAGENTA "c" ANSI_RESET "ycle\r\n"));
 }
 
 static void repl_status()
@@ -28,30 +29,30 @@ static void repl_status()
 #define Z z80_last_status
     if (!last_was_status) {
         serial_spaces(17);
-        serial_puts("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\");
-        serial_puts("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR");
+        serial_putsstr(PSTR("/- Z80 outputs --\\  /----- Z80 inputs -----\\  / memory \\"));
+        serial_putsstr(PSTR("CYCLE ADDR DATA  M1 IORQ HALT BUSAK  WAIT INT NMI RSET BUSREQ  MREQ RD WR"));
     } else {
-        serial_print(ANSI_UP);
+        serial_printstr(PSTR(ANSI_UP));
     }
 
-    serial_print(ANSI_MAGENTA);
+    serial_printstr(PSTR(ANSI_MAGENTA));
     serial_printhex16(z80_cycle_number);
-    serial_print(ANSI_RESET);
+    serial_printstr(PSTR(ANSI_RESET));
     serial_spaces(2);
 
     if (Z.addr_bus >= 0)
         serial_printhex16(Z.addr_bus);
     else
-        serial_print("----");
+        serial_printstr(PSTR("----"));
 
     serial_spaces(2);
     if (Z.data_bus >= 0) {
         if (Z.wr == 0)
-            serial_print(ANSI_RED);
+            serial_printstr(PSTR(ANSI_RED));
         serial_printhex8(Z.data_bus);
-        serial_print(ANSI_RESET);
+        serial_printstr(PSTR(ANSI_RESET));
     } else {
-        serial_print("--");
+        serial_printstr(PSTR("--"));
     }
 
     serial_spaces(4);
@@ -99,7 +100,7 @@ static void repl_status()
 static bool check_bus_control()
 {
     if (z80_controls_bus()) {
-        serial_puts("Z80 is in control of the bus.");
+        serial_putsstr(PSTR("Z80 is in control of the bus."));
         return false;
     }
     return true;
@@ -109,7 +110,7 @@ static uint8_t print_data(uint16_t addr)
 {
     serial_send('[');
     serial_printhex16(addr);
-    serial_print("] = ");
+    serial_printstr(PSTR("] = "));
     uint8_t data = memory_read(addr);
     serial_printhex8(data);
     serial_puts();
@@ -120,7 +121,7 @@ static void repl_read_memory()
 {
     if (!check_bus_control())
         return;
-    serial_print("Address? ");
+    serial_printstr(PSTR("Address? "));
     uint16_t addr = serial_inputhex(4);
     print_data(addr);
 }
@@ -129,21 +130,21 @@ static void repl_write_memory()
 {
     if (!check_bus_control())
         return;
-    serial_print("Address? ");
+    serial_printstr(PSTR("Address? "));
     uint16_t addr = serial_inputhex(4);
-    serial_print("Data? ");
+    serial_printstr(PSTR("Data? "));
     uint8_t data = serial_inputhex(2);
     memory_write(addr, data, true);
     uint8_t new_data = print_data(addr);
     if (data != new_data)
-        serial_puts(ANSI_RED "Data write failed." ANSI_RESET);
+        serial_putsstr(PSTR(ANSI_RED "Data write failed." ANSI_RESET));
 }
 
 static void repl_dump_memory()
 {
     if (!check_bus_control())
         return;
-    serial_print("Page (0x100) ? ");
+    serial_printstr(PSTR("Page (0x100) ? "));
     uint8_t page = serial_inputhex(2);
 
     // read data
@@ -152,13 +153,13 @@ static void repl_dump_memory()
 
     // print header
     serial_spaces(8);
-    serial_puts(ANSI_MAGENTA "_0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F");
+    serial_putsstr(PSTR(ANSI_MAGENTA "_0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F"));
         
     // print data
     for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
-        serial_print(ANSI_MAGENTA);
+        serial_printstr(PSTR(ANSI_MAGENTA));
         serial_printhex16(((uint16_t) page * 0x10) + (a / 0x10));
-        serial_print("_" ANSI_RESET);
+        serial_printstr(PSTR("_" ANSI_RESET));
         serial_spaces(3);
         for (uint16_t b = a; b < (a + 0x10); ++b) {
             serial_printhex8(data[b]);
@@ -212,15 +213,24 @@ static void repl_programatic_download()
 static void repl_powerdown()
 {
     z80_powerdown();
-    serial_puts("Z80 powered down.");
+    serial_putsstr(PSTR("Z80 powered down."));
 }
 
 static void repl_init_z80()
 {
     z80_init();
-    serial_puts("Z80 (re)initialized.");
+    serial_putsstr(PSTR("Z80 (re)initialized."));
     last_was_status = false;
     repl_status();
+}
+
+void repl_free_ram()
+{
+    extern int __heap_start, *__brkval;
+    volatile int v;
+    int free = (int) &v - (__brkval == 0 ? (int) &__heap_start : (int) __brkval);
+    serial_printint(free);
+    serial_puts();
 }
 
 void repl_exec()
@@ -235,9 +245,10 @@ void repl_exec()
         case 'w': repl_write_memory(); break;
         case 'p': repl_powerdown(); break;
         case 'i': repl_init_z80(); break;
+        case 'f': repl_free_ram(); break;
         case 'b':
             z80_bus_request();
-            serial_puts("Bus requested.");
+            serial_putsstr(PSTR("Bus requested."));
             repl_status();
             break;
         case 'c': 

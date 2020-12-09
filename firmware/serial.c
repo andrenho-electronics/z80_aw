@@ -40,13 +40,37 @@ uint16_t serial_recv16()
 }
 
 void
-serial_print(const char* s)
+serial_printstr(PGM_P s)
 {
-    char* p = (char *) s;
-    while (*p) {
-        serial_send(*p);
-        ++p;
+	char c;
+    while ((c = pgm_read_byte(s++)) != 0)
+        serial_send(c);
+}
+
+void
+serial_puts()
+{
+    serial_printstr(PSTR("\r\n"));
+}
+
+void
+serial_putsstr(PGM_P s)
+{
+    serial_printstr(s);
+    serial_puts();
+}
+
+void
+serial_printint(int n)
+{
+	if (n < 0)
+		serial_printstr(PSTR("<0"));
+    if(n > 9) {
+        int a = n / 10;
+        n -= 10 * a;
+        serial_printint(a);
     }
+    serial_send('0'+n);
 }
 
 void
@@ -73,9 +97,9 @@ void
 serial_printbit(bool v)
 {
     if (v)
-        serial_print(ANSI_GREEN "1" ANSI_RESET);
+        serial_printstr(PSTR(ANSI_GREEN "1" ANSI_RESET));
     else
-        serial_print(ANSI_RED "0" ANSI_RESET);
+        serial_printstr(PSTR(ANSI_RED "0" ANSI_RESET));
 }
 
 void
@@ -105,11 +129,11 @@ serial_inputhex(unsigned num_digits)
         }
         if ((c == '\b' || c == 127) && current > 0) {
             buf[--current] = 0;
-            serial_print("\b \b");
+            serial_printstr(PSTR("\b \b"));
         }
     }
 
-    serial_puts();
+    serial_printstr(PSTR("\r\n"));
     
     // convert string to hex value
     current = 0;

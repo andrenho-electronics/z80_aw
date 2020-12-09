@@ -13,8 +13,8 @@ int main()
     bus_init();
     z80_clock_cycle();
 
-    serial_print(ANSI_CLRSCR);
-    serial_puts("Welcome to Z80-AW debugger. Type 'h' for help.");
+    serial_printstr(PSTR(ANSI_CLRSCR));
+    serial_putsstr(PSTR("Welcome to Z80-AW debugger. Type 'h' for help."));
 
     for (;;)
         repl_exec();

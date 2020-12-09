@@ -21,6 +21,9 @@
 - ROM memory writing - use D4 (ok)
 - speed up communication (ok)
 - fix specific incorrect memory locations on upload (ok)
+- reduce RAM usage
+  - free available RAM (ok)
+  - reduce memory usage (https://jeelabs.org/2011/05/22/atmega-memory-use/) (ok)
 - write memory tests
 - debugger
   - step (request bus)
