@@ -24,9 +24,9 @@
 - reduce RAM usage
   - free available RAM (ok)
   - reduce memory usage (https://jeelabs.org/2011/05/22/atmega-memory-use/) (ok)
-- write memory tests
+- write memory tests (ok)
 - debugger
-  - step (request bus)
+  - step (request bus) (ok)
   - show instructions
   - show registers
   - breakpoints
