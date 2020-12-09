@@ -17,11 +17,15 @@ ${PROJECT}.elf: ${OBJECTS}
 	$(CC) -mmcu=${MCU} -o $@ $^ -Wl,--gc-sections
 	avr-size -C --mcu=${MCU} ${PROJECT}.elf	
 
+test-disasm: test_disasm.c disassembler.c
+	gcc -Wall -Wextra -std=c11 -o $@ $^ -DTEST=1
+	./$@
+
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}
 
 clean:
-	rm -f *.elf *.o *.hex
+	rm -f *.elf *.o *.hex test-disasm
 
 upload: ${PROJECT}.hex
 	sudo avrdude ${AVRDUDE_FLAGS} -U flash:w:$<:i
