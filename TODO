@@ -19,8 +19,9 @@
 - remove bell from inputs (ok)
 - add help (ok)
 - ROM memory writing - use D4 (ok)
+- speed up communication (ok)
+- fix specific incorrect memory locations on upload (ok)
 - write memory tests
-- fix specific incorrect memory locations on upload (...)
 - debugger
   - step (request bus)
   - show instructions
