@@ -9,7 +9,18 @@ static bool last_was_status = false;
 
 static void repl_help()
 {
-    serial_puts("Help not implemented yet. See `repl.c`.");
+    serial_print("Information:\r\n   ");
+    serial_print(ANSI_MAGENTA "h" ANSI_RESET "elp  ");
+    serial_print(ANSI_MAGENTA "s" ANSI_RESET "tatus\r\n");
+    serial_print("Memory:\r\n   ");
+    serial_print(ANSI_MAGENTA "r" ANSI_RESET "ead memory  ");
+    serial_print(ANSI_MAGENTA "d" ANSI_RESET "ump memory  ");
+    serial_print(ANSI_MAGENTA "w" ANSI_RESET "rite to memory\r\n");
+    serial_print("Z80:\r\n   ");
+    serial_print(ANSI_MAGENTA "p" ANSI_RESET "owerdown  ");
+    serial_print(ANSI_MAGENTA "i" ANSI_RESET "nitialize (reset)  ");
+    serial_print(ANSI_MAGENTA "b" ANSI_RESET "us request  ");
+    serial_print(ANSI_MAGENTA "c" ANSI_RESET "ycle\r\n");
 }
 
 static void repl_status()

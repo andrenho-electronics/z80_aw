@@ -16,9 +16,9 @@
   - cycle (ok)
   - reset (ok)
 - fix line A5 on first port (ok)
-- remove bell from inputs
-- ROM memory writing - use D4
+- remove bell from inputs (ok)
 - add help
+- ROM memory writing - use D4
 - write memory tests
 - debugger
   - step (request bus)
