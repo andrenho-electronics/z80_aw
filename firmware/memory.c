@@ -160,7 +160,7 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
             set_RD(1);
             wait();
         } else {
-            _delay_ms(12);
+            // _delay_ms(12);
         }
     }
 

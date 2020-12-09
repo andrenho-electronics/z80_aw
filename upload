@@ -94,6 +94,7 @@ with serial.Serial(port, 114583, timeout=1) as ser:
         print('File uploaded successfully.')
     else:
         print('The verification does not match. Will now rewrite incorrect bytes.')
+        ser.timeout = 30
         for i, b in enumerate(bytes(response)):
             if b != contents[i]:
                 print('[' + hex(i) + ']: expected ' + hex(contents[i]) + ', found ' + hex(b) + '. Rewritting...')
