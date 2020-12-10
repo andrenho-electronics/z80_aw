@@ -35,6 +35,16 @@ int main()
     CHECK("add hl, de", 0x19);
     CHECK("ld (1234h), hl", 0x22, 0x34, 0x12);
     CHECK("inc bc", 0x3);
+    CHECK("inc (hl)", 0x34);
+    CHECK("ld h, f0h", 0x26, 0xf0);
+    CHECK("ld (hl), 12h", 0x36, 0x12);
+    CHECK("cpl", 0x2f);
+    CHECK("rrca", 0xf);
+    CHECK("halt", 0x76);
+    CHECK("ld h, (hl)", 0x66);
+    CHECK("sbc a, e", 0x9b);
+    CHECK("ret po", 0xe0);
+    CHECK("pop af", 0xf1);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

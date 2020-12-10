@@ -62,6 +62,16 @@ char* addrp(char* out, uint8_t v)
     return out - 1;
 }
 
+char* addrp2(char* out, uint8_t v)
+{
+    if (v != 3) {
+        return addrp(out, v);
+    } else {
+        *out++ = 'a'; *out++ = 'f'; *out = '\0';
+        return out;
+    }
+}
+
 char* addcomma(char* out)
 {
     *out++ = ',';
@@ -81,6 +91,49 @@ char* addnn(char* out, uint8_t p1, uint8_t p2)
     *out++ = 'h';
     *out++ = '\0';
     return out - 1;
+}
+
+char* add_n(char* out, uint8_t v)
+{
+#if TEST
+    out = out + sprintf(out, "%x", v);
+#else
+    out = itoa(v, out, 16);
+#endif
+    *out++ = 'h';
+    *out++ = '\0';
+    return out - 1;
+}
+
+char* add_r(char* out, uint8_t p)
+{
+    switch (p) {
+        case 0: *out++ = 'b'; break;
+        case 1: *out++ = 'c'; break;
+        case 2: *out++ = 'd'; break;
+        case 3: *out++ = 'e'; break;
+        case 4: *out++ = 'h'; break;
+        case 5: *out++ = 'l'; break;
+        case 6: out = add(out, PSTR("(hl)")); return out;
+        case 7: *out++ = 'a'; break;
+    }
+    *out++ = '\0';
+    return out - 1;
+}
+
+char* add_alu(char* out, uint8_t p)
+{
+    switch (p) {
+        case 0: out = add(out, PSTR("add a, ")); break;
+        case 1: out = add(out, PSTR("adc a, ")); break;
+        case 2: out = add(out, PSTR("sub ")); break;
+        case 3: out = add(out, PSTR("sbc a, ")); break;
+        case 4: out = add(out, PSTR("and ")); break;
+        case 5: out = add(out, PSTR("xor ")); break;
+        case 6: out = add(out, PSTR("or ")); break;
+        case 7: out = add(out, PSTR("cp ")); break;
+    }
+    return out;
 }
 
 int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
@@ -108,6 +161,9 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
     // printf("%d %d %d\n", x, y, z);
 
     switch (x) {
+        //
+        // x == 0
+        //
         case 0:
             switch (z) {
                 case 0:
@@ -148,6 +204,58 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                         ADD("inc"); addrp(nxt, p); return 1;
                     } else {
                         ADD("dec"); addrp(nxt, p); return 1;
+                    }
+                    break;
+                case 4:
+                    ADD("inc"); add_r(nxt, y); return 1;
+                case 5:
+                    ADD("dec"); add_r(nxt, y); return 1;
+                case 6:
+                    ADD("ld"); nxt = add_r(nxt, y); nxt = addcomma(nxt); add_n(nxt, m1); return 2;
+                case 7:
+                    switch (y) {
+                        case 0: ADDR("rlca", 1);
+                        case 1: ADDR("rrca", 1);
+                        case 2: ADDR("rla", 1);
+                        case 3: ADDR("rra", 1);
+                        case 4: ADDR("daa", 1);
+                        case 5: ADDR("cpl", 1);
+                        case 6: ADDR("scf", 1);
+                        case 7: ADDR("ccf", 1);
+                    }
+                    break;
+            }
+            break;
+
+        //
+        // x == 1
+        //
+        case 1:
+            if (z == 6 && y == 6) {
+                ADDR("halt", 1);
+            } else {
+                ADD("ld"); nxt = add_r(nxt, y); nxt = addcomma(nxt); add_r(nxt, z);
+                return 1;
+            }
+            break;
+
+        //
+        // x == 2
+        //
+        case 2:
+            nxt = add_alu(nxt, y); add_r(nxt, z);
+            return 1;
+
+        //
+        // x == 3
+        //
+        case 3:
+            switch (z) {
+                case 0: ADD("ret"); addcc(nxt, y); return 1;
+                case 1:
+                    if (q == 0) {
+                        ADD("pop"); addrp2(nxt, p); return 1;
+                    } else {
                     }
                     break;
             }
