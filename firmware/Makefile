@@ -18,7 +18,7 @@ ${PROJECT}.elf: ${OBJECTS}
 	avr-size -C --mcu=${MCU} ${PROJECT}.elf	
 
 test-disasm: test_disasm.c disassembler.c
-	gcc -Wall -Wextra -std=c11 -o $@ $^ -DTEST=1
+	gcc -ggdb3 -O0 -Wall -Wextra -std=c11 -o $@ $^ -DTEST=1
 
 test: test-disasm
 	./$^
