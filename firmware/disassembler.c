@@ -317,7 +317,7 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                 case 6:
                     nxt = add_alu(nxt, y); add_n(nxt, m1); return 2;
                 case 7:
-                    ADD("rst"); add_n(nxt, m1 * 8); return 2;
+                    ADD("rst"); add_n(nxt, y * 8); return 2;
             }
             break;
     }
