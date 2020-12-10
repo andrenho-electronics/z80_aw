@@ -19,7 +19,9 @@ ${PROJECT}.elf: ${OBJECTS}
 
 test-disasm: test_disasm.c disassembler.c
 	gcc -Wall -Wextra -std=c11 -o $@ $^ -DTEST=1
-	./$@
+
+test: test-disasm
+	./$^
 
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}

@@ -1,9 +1,12 @@
 #include "disassembler.h"
 
+#include <stdlib.h>
+
 #if !TEST
 #  include <avr/pgmspace.h>
 #else
 #  include <string.h>
+#  include <stdio.h>
 #  define strcpy_P strcpy
 #  define strlen_P strlen
 #  define PSTR(v) v
@@ -36,24 +39,59 @@ static char* addhex16(char* out, uint16_t v)
     return out + 2;
 }
 
+static char* adddisp(char* out, int8_t v)
+{
+    *out++ = '$';
+    if (v + 2 >= 0)
+        *out++ = '+';
+#if TEST
+    return out + sprintf(out, "%d", v + 2);
+#else
+    return itoa(v + 2, out, 10);
+#endif
+}
+
 int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
 {
-#define ADD(v) nxt = strcpy_P(out, PSTR(v " "));
+#define ADD(v) nxt = add(out, PSTR(v))
+#define ADDR(v, n) { add(out, PSTR(v)); return n; }
 
     char* nxt;
-
-    switch (mem[0]) {
-        case 0x0:
-            add(out, PSTR("nop"));
-            return 1;
-        case 0xc3:
-            nxt = add(out, PSTR("jp"));
-            addhex16(nxt, mem[1] | (mem[2] << 8));
-            return 3;
-        default:
-            add(out, PSTR("UNKNOWN"));
-            return 1;
+    uint8_t m = mem[0];
+    
+    // special tables
+    if (m == 0xcb || m == 0xdd || m == 0xed || m == 0xfd) {
+        goto not_found;  // TODO
     }
+
+    // decoding based on http://www.z80.info/decoding.htm
+    uint8_t x = m >> 6,
+            y = (m >> 3) & 0b111,
+            z = m & 0b111;
+
+    // printf("%d %d %d\n", x, y, z);
+
+    switch (x) {
+        case 0:
+            switch (z) {
+                case 0:
+                    switch (y) {
+                        case 0: ADDR("nop", 1);
+                        case 1: ADDR("ex af, af'", 1);
+                        case 2: ADD("djnz"); adddisp(nxt, mem[1]); return 2;
+                        case 3: ADD("jr"); adddisp(nxt, mem[1]); return 2;
+                        default: ADD("jr"); nxt = addcc(y-4); nxt = addcomma(nxt); adddisp(nxt, mem[1]); return 2;
+                    }
+                    break;
+            }
+            break;
+    }
+
+not_found:
+    add(out, PSTR("UNKNOWN"));
+    return 1;
+
+#undef ADD
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
