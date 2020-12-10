@@ -20,18 +20,25 @@ static char* add(char* out, PGM_P s)
     return r;
 }
 
+static char* add_number(int value, char* out, int base)
+{
+#if TEST
+    out += sprintf(out, base == 10 ? "%d" : "%x", value);
+    *out++ = '\0';
+    return out - 1;
+#else
+    itoa(value, out, base);
+    out += strlen(out);
+    return out - 1;
+#endif
+}
+
 static char* adddisp(char* out, int8_t v)
 {
     *out++ = '$';
     if (v + 2 >= 0)
         *out++ = '+';
-#if TEST
-    out += sprintf(out, "%d", v + 2);
-#else
-    out = itoa(v + 2, out, 10);
-#endif
-    *out++ = '\0';
-    return out - 1;
+    return add_number(v + 2, out, 10);
 }
 
 char* addcc(char* out, uint8_t v)
@@ -83,11 +90,7 @@ char* addcomma(char* out)
 char* addnn(char* out, uint8_t p1, uint8_t p2)
 {
     uint16_t v = p1 | ((uint16_t) p2 << 8);
-#if TEST
-    out = out + sprintf(out, "%x", v);
-#else
-    out = itoa(v, out, 16);
-#endif
+    out = add_number(v, out, 16);
     *out++ = 'h';
     *out++ = '\0';
     return out - 1;
@@ -95,14 +98,16 @@ char* addnn(char* out, uint8_t p1, uint8_t p2)
 
 char* add_n(char* out, uint8_t v)
 {
-#if TEST
-    out = out + sprintf(out, "%x", v);
-#else
-    out = itoa(v, out, 16);
-#endif
+    out = add_number(v, out, 16);
     *out++ = 'h';
     *out++ = '\0';
     return out - 1;
+}
+
+char* add_dec(char* out, uint8_t v)
+{
+    out = add_number(v, out, 10);
+    return out;
 }
 
 char* add_r(char* out, uint8_t p)
@@ -136,10 +141,45 @@ char* add_alu(char* out, uint8_t p)
     return out;
 }
 
+char* addrot(char* out, uint8_t p)
+{
+    switch (p) {
+        case 0: out = add(out, PSTR("rlc ")); break;
+        case 1: out = add(out, PSTR("rrc ")); break;
+        case 2: out = add(out, PSTR("rl ")); break;
+        case 3: out = add(out, PSTR("rr ")); break;
+        case 4: out = add(out, PSTR("sla ")); break;
+        case 5: out = add(out, PSTR("sra ")); break;
+        case 6: out = add(out, PSTR("sll ")); break;
+        case 7: out = add(out, PSTR("srl ")); break;
+    }
+    return out;
+}
+
+#define ADD(v) { nxt = add(nxt, PSTR(v)); *nxt++ = ' '; *nxt = '\0'; }
+#define ADDR(v, n) { add(nxt, PSTR(v)); return n; }
+
 static int cb_prefix(uint8_t* mem, char* nxt)
 {
-    (void) mem; (void) nxt;
-    return 0;  // TODO
+    uint8_t m = mem[0];
+    uint8_t x = m >> 6,
+            y = (m >> 3) & 0b111,
+            z = m & 0b111;
+    switch (x) {
+        case 0:
+            nxt = addrot(nxt, y); add_r(nxt, z);
+            return 1;
+        case 1:
+            ADD("bit"); nxt = add_dec(nxt, y); nxt = addcomma(nxt); add_r(nxt, z);
+            return 1;
+        case 2:
+            ADD("res"); nxt = add_dec(nxt, y); nxt = addcomma(nxt); add_r(nxt, z);
+            return 1;
+        case 3:
+            ADD("set"); nxt = add_dec(nxt, y); nxt = addcomma(nxt); add_r(nxt, z);
+            return 1;
+    }
+    return 1;
 }
 
 static int dd_prefix(uint8_t* mem, char* nxt)
@@ -162,9 +202,6 @@ static int fd_prefix(uint8_t* mem, char* nxt)
 
 int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
 {
-#define ADD(v) { nxt = add(nxt, PSTR(v)); *nxt++ = ' '; *nxt = '\0'; }
-#define ADDR(v, n) { add(nxt, PSTR(v)); return n; }
-
     char* nxt = out;
     uint8_t m = mem[0],
             m1 = mem[1],
@@ -290,7 +327,7 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                 case 3:
                     switch (y) {
                         case 0: ADD("jp"); nxt = addnn(nxt, m1, m2); return 3;
-                        case 1: return cb_prefix(mem, nxt);
+                        case 1: return cb_prefix(&mem[1], nxt) + 1;
                         case 2: nxt = add(nxt, PSTR("out (")); nxt = add_n(nxt, m1); ADD("), a"); return 2;
                         case 3: nxt = add(nxt, PSTR("in a, (")); nxt = add_n(nxt, m1); ADD(")"); return 2;
                         case 4: ADDR("ex (sp), hl", 1);
@@ -308,9 +345,9 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                     } else {
                         switch (p) {
                             case 0: ADD("call"); addnn(nxt, m1, m2); return 3;
-                            case 1: return dd_prefix(mem, nxt);
-                            case 2: return ed_prefix(mem, nxt);
-                            case 3: return fd_prefix(mem, nxt);
+                            case 1: return dd_prefix(&mem[1], nxt) + 1;
+                            case 2: return ed_prefix(&mem[1], nxt) + 1;
+                            case 3: return fd_prefix(&mem[1], nxt) + 1;
                         }
                     }
                     break;
@@ -324,8 +361,8 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
 
     add(out, PSTR("UNKNOWN"));
     return 1;
+}
 
 #undef ADD
-}
 
 // vim:ts=4:sts=4:sw=4:expandtab

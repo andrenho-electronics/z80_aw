@@ -52,6 +52,8 @@ int main()
     CHECK("push af", 0xf5);
     CHECK("xor 7bh", 0xee, 0x7b);
     CHECK("rst 20h", 0xe7);
+    CHECK("rr e", 0xcb, 0x1b);
+    CHECK("bit 5, h", 0xcb, 0x6c);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
