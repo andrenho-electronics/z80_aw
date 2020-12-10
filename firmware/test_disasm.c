@@ -49,6 +49,8 @@ int main()
     CHECK("jp pe, 1234h", 0xea, 0x34, 0x12);
     CHECK("jp c3c3h", 0xc3, 0xc3, 0xc3);
     CHECK("out (34h), a", 0xd3, 0x34);
+    CHECK("rst 20h", 0xe7);
+    CHECK("xor 7bh", 
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -138,6 +138,25 @@ char* add_alu(char* out, uint8_t p)
 
 static int cb_prefix(uint8_t* mem, char* nxt)
 {
+    (void) mem; (void) nxt;
+    return 0;  // TODO
+}
+
+static int dd_prefix(uint8_t* mem, char* nxt)
+{
+    (void) mem; (void) nxt;
+    return 0;  // TODO
+}
+
+static int ed_prefix(uint8_t* mem, char* nxt)
+{
+    (void) mem; (void) nxt;
+    return 0;  // TODO
+}
+
+static int fd_prefix(uint8_t* mem, char* nxt)
+{
+    (void) mem; (void) nxt;
     return 0;  // TODO
 }
 
@@ -151,11 +170,6 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
             m1 = mem[1],
             m2 = mem[2];
     
-    // special tables
-    if (m == 0xcb || m == 0xdd || m == 0xed || m == 0xfd) {
-        goto not_found;  // TODO
-    }
-
     // decoding based on http://www.z80.info/decoding.htm
     uint8_t x = m >> 6,
             y = (m >> 3) & 0b111,
@@ -284,18 +298,30 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                         case 6: ADDR("di", 1);
                         case 7: ADDR("ei", 1);
                     }
+                    break;
                 case 4:
                     ADD("call"); nxt = addcc(nxt, y); nxt = addcomma(nxt); addnn(nxt, m1, m2);
                     return 3;
                 case 5:
                     if (q == 0) {
+                        ADD("push"); nxt = addrp2(nxt, p); return 1;
+                    } else {
+                        switch (p) {
+                            case 0: ADD("call"); addnn(nxt, m1, m2); return 3;
+                            case 1: return dd_prefix(mem, nxt);
+                            case 2: return ed_prefix(mem, nxt);
+                            case 3: return fd_prefix(mem, nxt);
+                        }
                     }
                     break;
+                case 6:
+                    nxt = add_alu(nxt, y); add_n(nxt, m1); return 2;
+                case 7:
+                    ADD("rst"); add_n(nxt, m1 * 8); return 2;
             }
             break;
     }
 
-not_found:
     add(out, PSTR("UNKNOWN"));
     return 1;
 
