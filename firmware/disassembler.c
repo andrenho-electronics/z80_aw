@@ -136,6 +136,11 @@ char* add_alu(char* out, uint8_t p)
     return out;
 }
 
+static int cb_prefix(uint8_t* mem, char* nxt)
+{
+    return 0;  // TODO
+}
+
 int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
 {
 #define ADD(v) { nxt = add(nxt, PSTR(v)); *nxt++ = ' '; *nxt = '\0'; }
@@ -268,6 +273,24 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                 case 2:
                     ADD("jp"); nxt = addcc(nxt, y); nxt = addcomma(nxt); addnn(nxt, m1, m2);
                     return 3;
+                case 3:
+                    switch (y) {
+                        case 0: ADD("jp"); nxt = addnn(nxt, m1, m2); return 3;
+                        case 1: return cb_prefix(mem, nxt);
+                        case 2: nxt = add(nxt, PSTR("out (")); nxt = add_n(nxt, m1); ADD("), a"); return 2;
+                        case 3: nxt = add(nxt, PSTR("in a, (")); nxt = add_n(nxt, m1); ADD(")"); return 2;
+                        case 4: ADDR("ex (sp), hl", 1);
+                        case 5: ADDR("ex de, hl", 1);
+                        case 6: ADDR("di", 1);
+                        case 7: ADDR("ei", 1);
+                    }
+                case 4:
+                    ADD("call"); nxt = addcc(nxt, y); nxt = addcomma(nxt); addnn(nxt, m1, m2);
+                    return 3;
+                case 5:
+                    if (q == 0) {
+                    }
+                    break;
             }
             break;
     }
