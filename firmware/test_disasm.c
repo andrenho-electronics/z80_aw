@@ -34,6 +34,7 @@ int main()
     CHECK("ld bc, 302h", 0x01, 0x2, 0x3);
     CHECK("add hl, de", 0x19);
     CHECK("ld (1234h), hl", 0x22, 0x34, 0x12);
+    CHECK("inc bc", 0x3);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

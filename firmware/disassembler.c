@@ -134,7 +134,22 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                             case 2: nxt = add(nxt, PSTR("ld (")); nxt = addnn(nxt, m1, m2); ADD("), hl"); return 3;
                             case 3: nxt = add(nxt, PSTR("ld (")); nxt = addnn(nxt, m1, m2); ADD("), a"); return 3;
                         }
+                    } else {
+                        switch (p) {
+                            case 0: ADDR("ld a, (bc)", 1);
+                            case 1: ADDR("ld a, (de)", 1);
+                            case 2: nxt = add(nxt, PSTR("ld hl, (")); nxt = addnn(nxt, m1, m2); ADD(")"); return 3;
+                            case 3: nxt = add(nxt, PSTR("ld a, (")); nxt = addnn(nxt, m1, m2); ADD(")"); return 3;
+                        }
                     }
+                    break;
+                case 3:
+                    if (q == 0) {
+                        ADD("inc"); addrp(nxt, p); return 1;
+                    } else {
+                        ADD("dec"); addrp(nxt, p); return 1;
+                    }
+                    break;
             }
             break;
     }
