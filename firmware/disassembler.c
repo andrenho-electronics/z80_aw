@@ -191,8 +191,82 @@ static int dd_prefix(uint8_t* mem, char* nxt)
 
 static int ed_prefix(uint8_t* mem, char* nxt)
 {
-    (void) mem; (void) nxt;
-    return 0;  // TODO
+    uint8_t m = mem[0],
+            m1 = mem[1],
+            m2 = mem[2];
+    
+    uint8_t x = m >> 6,
+            y = (m >> 3) & 0b111,
+            z = m & 0b111,
+            q = y & 1,
+            p = y >> 1;
+
+    switch (x) {
+        //
+        // x == 1
+        //
+        case 1:
+            switch (z) {
+                case 0:
+                    if (y != 6) {
+                        ADD("in"); nxt = add_r(nxt, y); ADD(", (c)"); return 1;
+                    } else {
+                        ADD("in (c)");
+                    }
+                    break;
+                case 1:
+                    if (y != 6) {
+                        ADD("out"); nxt = add_r(nxt, y); ADD(", (c)"); return 1;
+                    } else {
+                        ADD("out (c), 0");
+                    }
+                    break;
+                case 2:
+                    if (q == 0) {
+                        ADD("sbc hl, "); addrp(nxt, p); return 1;
+                    } else {
+                        ADD("adc hl, "); addrp(nxt, p); return 1;
+                    }
+                    break;
+                case 3:
+                    if (q == 0) {
+                        ADD("ld ("); nxt = addnn(nxt, m1, m2); nxt = addcomma(nxt); addrp(nxt, p); return 3;
+                    } else {
+                        ADD("ld ("); nxt = addrp(nxt, p); ADD("),"); addnn(nxt, m1, m2); return 3;
+                    }
+                case 4:
+                    ADD("neg"); return 1;
+                case 5:
+                    if (y != 1) ADD("retn") else ADD("reti"); return 1;
+                case 6:
+                    ADD("im"); add_im(nxt, y); return 1;
+                case 7:
+                    switch (y) {
+                        case 0: ADD("ld i, a"); return 1;
+                        case 1: ADD("ld r, a"); return 1;
+                        case 2: ADD("ld a, i"); return 1;
+                        case 3: ADD("ld a, r"); return 1;
+                        case 4: ADD("rrd"); return 1;
+                        case 5: ADD("rld"); return 1;
+                        case 6: ADD("nop*"); return 1;
+                        case 7: ADD("nop*"); return 1;
+                    }
+                    break;
+            }
+            break;
+
+        //
+        // x == 2
+        // 
+        case 2:
+            if (z <= 3 && y >= 4) {
+                add_bli(nxt, y, z);
+                return 1;
+            }
+            break;
+    }
+
+    return 1;
 }
 
 static int fd_prefix(uint8_t* mem, char* nxt)

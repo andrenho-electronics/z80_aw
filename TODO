@@ -31,6 +31,7 @@
   - show registers
   - breakpoints
   - step over
+- fix NMI issue
 - serial interface
   - send key presses (interrupt)
   - receive terminal changes (bus)

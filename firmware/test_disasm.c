@@ -54,6 +54,7 @@ int main()
     CHECK("rst 20h", 0xe7);
     CHECK("rr e", 0xcb, 0x1b);
     CHECK("bit 5, h", 0xcb, 0x6c);
+    CHECK("ld (1234h), bc", 0xed, 0x43, 0x34, 0x12);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
