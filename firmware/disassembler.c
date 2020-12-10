@@ -251,13 +251,23 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
         //
         case 3:
             switch (z) {
-                case 0: ADD("ret"); addcc(nxt, y); return 1;
+                case 0:
+                    ADD("ret"); addcc(nxt, y); return 1;
                 case 1:
                     if (q == 0) {
                         ADD("pop"); addrp2(nxt, p); return 1;
                     } else {
+                        switch (p) {
+                            case 0: ADDR("ret", 1);
+                            case 1: ADDR("exx", 1);
+                            case 2: ADDR("jp hl", 1);
+                            case 3: ADDR("ld sp, hl", 1);
+                        }
                     }
                     break;
+                case 2:
+                    ADD("jp"); nxt = addcc(nxt, y); nxt = addcomma(nxt); addnn(nxt, m1, m2);
+                    return 3;
             }
             break;
     }

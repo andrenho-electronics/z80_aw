@@ -45,6 +45,8 @@ int main()
     CHECK("sbc a, e", 0x9b);
     CHECK("ret po", 0xe0);
     CHECK("pop af", 0xf1);
+    CHECK("ld sp, hl", 0xf9);
+    CHECK("jp pe, 1234h", 0xea, 0x34, 0x12);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
