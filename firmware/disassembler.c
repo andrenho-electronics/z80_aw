@@ -1,23 +1,24 @@
 #include "disassembler.h"
 
 #include <stdlib.h>
+#include <string.h>
 
 #if !TEST
 #  include <avr/pgmspace.h>
 #else
-#  include <string.h>
 #  include <stdio.h>
-#  define strcpy_P strcpy
-#  define strlen_P strlen
 #  define PSTR(v) v
 #  define PGM_P const char* 
+#  define pgm_read_byte *
 #endif
 
 static char* add(char* out, PGM_P s)
 {
-    char* r = strcpy_P(out, s);
-    r += strlen_P(r);
-    return r;
+    char c;
+    while ((c = pgm_read_byte(s++)) != 0)
+        *out++ = c;
+    *out = '\0';
+    return out;
 }
 
 static char* add_number(int value, char* out, int base)
@@ -29,7 +30,7 @@ static char* add_number(int value, char* out, int base)
 #else
     itoa(value, out, base);
     out += strlen(out);
-    return out - 1;
+    return out;
 #endif
 }
 
@@ -200,9 +201,8 @@ static int fd_prefix(uint8_t* mem, char* nxt)
     return 0;  // TODO
 }
 
-int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
+int disassemble(uint8_t* mem, char* nxt)
 {
-    char* nxt = out;
     uint8_t m = mem[0],
             m1 = mem[1],
             m2 = mem[2];
@@ -326,7 +326,7 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
                     return 3;
                 case 3:
                     switch (y) {
-                        case 0: ADD("jp"); nxt = addnn(nxt, m1, m2); return 3;
+                        case 0: ADD("jp"); addnn(nxt, m1, m2); return 3;
                         case 1: return cb_prefix(&mem[1], nxt) + 1;
                         case 2: nxt = add(nxt, PSTR("out (")); nxt = add_n(nxt, m1); ADD("), a"); return 2;
                         case 3: nxt = add(nxt, PSTR("in a, (")); nxt = add_n(nxt, m1); ADD(")"); return 2;
@@ -359,7 +359,7 @@ int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ])
             break;
     }
 
-    add(out, PSTR("UNKNOWN"));
+    add(nxt, PSTR("UNKNOWN"));
     return 1;
 }
 

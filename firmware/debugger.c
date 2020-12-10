@@ -18,6 +18,10 @@ static void show_registers(uint16_t addr)
     serial_puts();
 }
 
+static void show_stack()
+{
+}
+
 static void show_instructions(uint16_t addr)
 {
     for (int i = 0; i < DEBUG_INSTRUCTION_COUNT; ++i) {
@@ -65,6 +69,7 @@ void debugger_step(bool show_cycles)
 
     // show debugging information
     show_registers(addr);
+    show_stack();
     show_instructions(addr);
     serial_printstr(PSTR("---------------------"));
     serial_puts();

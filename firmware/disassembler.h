@@ -6,7 +6,7 @@
 #define MAX_INST_SZ 8
 #define MAX_DISASM_SZ 40
 
-int disassemble(uint8_t mem[MAX_INST_SZ], char out[MAX_DISASM_SZ]);
+int disassemble(uint8_t* mem, char* out);
 
 #endif
 
