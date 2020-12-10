@@ -42,7 +42,7 @@ static char* adddisp(char* out, int8_t v)
     return add_number(v + 2, out, 10);
 }
 
-char* addcc(char* out, uint8_t v)
+static char* addcc(char* out, uint8_t v)
 {
     switch (v) {
         case 0: *out++ = 'n'; *out++ = 'z'; break;
@@ -58,7 +58,7 @@ char* addcc(char* out, uint8_t v)
     return out - 1;
 }
 
-char* addrp(char* out, uint8_t v)
+static char* addrp(char* out, uint8_t v)
 {
     switch (v) {
         case 0: *out++ = 'b'; *out++ = 'c'; break;
@@ -70,7 +70,7 @@ char* addrp(char* out, uint8_t v)
     return out - 1;
 }
 
-char* addrp2(char* out, uint8_t v)
+static char* addrp2(char* out, uint8_t v)
 {
     if (v != 3) {
         return addrp(out, v);
@@ -80,7 +80,7 @@ char* addrp2(char* out, uint8_t v)
     }
 }
 
-char* addcomma(char* out)
+static char* addcomma(char* out)
 {
     *out++ = ',';
     *out++ = ' ';
@@ -88,7 +88,7 @@ char* addcomma(char* out)
     return out - 1;
 }
 
-char* addnn(char* out, uint8_t p1, uint8_t p2)
+static char* addnn(char* out, uint8_t p1, uint8_t p2)
 {
     uint16_t v = p1 | ((uint16_t) p2 << 8);
     out = add_number(v, out, 16);
@@ -97,7 +97,7 @@ char* addnn(char* out, uint8_t p1, uint8_t p2)
     return out - 1;
 }
 
-char* add_n(char* out, uint8_t v)
+static char* add_n(char* out, uint8_t v)
 {
     out = add_number(v, out, 16);
     *out++ = 'h';
@@ -105,13 +105,13 @@ char* add_n(char* out, uint8_t v)
     return out - 1;
 }
 
-char* add_dec(char* out, uint8_t v)
+static char* add_dec(char* out, uint8_t v)
 {
     out = add_number(v, out, 10);
     return out;
 }
 
-char* add_r(char* out, uint8_t p)
+static char* add_r(char* out, uint8_t p)
 {
     switch (p) {
         case 0: *out++ = 'b'; break;
@@ -127,7 +127,7 @@ char* add_r(char* out, uint8_t p)
     return out - 1;
 }
 
-char* add_alu(char* out, uint8_t p)
+static char* add_alu(char* out, uint8_t p)
 {
     switch (p) {
         case 0: out = add(out, PSTR("add a, ")); break;
@@ -142,7 +142,7 @@ char* add_alu(char* out, uint8_t p)
     return out;
 }
 
-char* addrot(char* out, uint8_t p)
+static char* addrot(char* out, uint8_t p)
 {
     switch (p) {
         case 0: out = add(out, PSTR("rlc ")); break;
@@ -155,6 +155,57 @@ char* addrot(char* out, uint8_t p)
         case 7: out = add(out, PSTR("srl ")); break;
     }
     return out;
+}
+
+static char* add_im(char* out, uint8_t p)
+{
+    switch (p) {
+        case 0: case 4: *out++ = '0'; break;
+        case 1: case 5: *out++ = '0'; *out++ = '/'; *out++ = '1'; break;
+        case 2: case 6: *out++ = '1'; break;
+        case 3: case 7: *out++ = '2'; break;
+    }
+    *out = '\0';
+    return out;
+}
+
+static char* add_bli(char* nxt, uint8_t a, uint8_t b)
+{
+    switch (a) {
+        case 4:
+            switch (b) {
+                case 0: return add(nxt, PSTR("ldi"));
+                case 1: return add(nxt, PSTR("ldd"));
+                case 2: return add(nxt, PSTR("ldir"));
+                case 3: return add(nxt, PSTR("lddr"));
+            }
+            break;
+        case 5:
+            switch (b) {
+                case 0: return add(nxt, PSTR("cpi"));
+                case 1: return add(nxt, PSTR("cpd"));
+                case 2: return add(nxt, PSTR("cpir"));
+                case 3: return add(nxt, PSTR("cpdr"));
+            }
+            break;
+        case 6:
+            switch (b) {
+                case 0: return add(nxt, PSTR("ini"));
+                case 1: return add(nxt, PSTR("ind"));
+                case 2: return add(nxt, PSTR("inir"));
+                case 3: return add(nxt, PSTR("indr"));
+            }
+            break;
+        case 7:
+            switch (b) {
+                case 0: return add(nxt, PSTR("outi"));
+                case 1: return add(nxt, PSTR("outd"));
+                case 2: return add(nxt, PSTR("otir"));
+                case 3: return add(nxt, PSTR("otdr"));
+            }
+            break;
+    }
+    return nxt;
 }
 
 #define ADD(v) { nxt = add(nxt, PSTR(v)); *nxt++ = ' '; *nxt = '\0'; }
@@ -230,9 +281,9 @@ static int ed_prefix(uint8_t* mem, char* nxt)
                     break;
                 case 3:
                     if (q == 0) {
-                        ADD("ld ("); nxt = addnn(nxt, m1, m2); nxt = addcomma(nxt); addrp(nxt, p); return 3;
+                        nxt = add(nxt, PSTR("ld (")); nxt = addnn(nxt, m1, m2); nxt = add(nxt, PSTR(")")); nxt = addcomma(nxt); addrp(nxt, p); return 3;
                     } else {
-                        ADD("ld ("); nxt = addrp(nxt, p); ADD("),"); addnn(nxt, m1, m2); return 3;
+                        nxt = add(nxt, PSTR("ld (")); nxt = addrp(nxt, p); ADD("),"); addnn(nxt, m1, m2); return 3;
                     }
                 case 4:
                     ADD("neg"); return 1;
