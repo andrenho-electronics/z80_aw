@@ -5,11 +5,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define CHECK(s, ...) check_(s, (uint8_t[]){__VA_ARGS__})
+#define CHECK(s, ...) check_(s, (uint8_t[]){__VA_ARGS__}, sizeof((int[]){__VA_ARGS__})/sizeof(int))
 
-void check_(const char* inst, uint8_t* args) {
+void check_(const char* inst, uint8_t* args, size_t num_args) {
     char buf[MAX_DISASM_SZ];
-    disassemble(args, buf);
+    size_t n = disassemble(args, buf, NO_PREFIX);
     while (buf[strlen(buf) - 1] == ' ')  // trim
         buf[strlen(buf) - 1] = '\0';
     if (strcmp(buf, inst) != 0) {
@@ -17,6 +17,11 @@ void check_(const char* inst, uint8_t* args) {
         exit(1);
     } else {
         printf("Ok: %s\n", buf);
+    }
+    if (n != num_args) {
+        printf("Error. Number of bytes incorrect in expression '%s'. Expected %I64d, found %I64d.\n",
+               inst, num_args, n);
+        exit(1);
     }
 }
 

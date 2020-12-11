@@ -509,6 +509,7 @@ int disassemble(uint8_t* mem, char* nxt)
 #undef ADD
 */
 
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
@@ -522,9 +523,107 @@ int disassemble(uint8_t* mem, char* nxt)
 #  define pgm_read_byte *
 #endif
 
-int disassemble(uint8_t* mem, char* nxt)
+static char* z80_print_number(char* buf, int value, int base)
 {
-    return 1;
+#if TEST
+    buf += sprintf(buf, base == 10 ? "%d" : "%x", value);
+    *buf++ = '\0';
+    return buf - 1;
+#else
+    itoa(value, buf, base);
+    buf += strlen(buf);
+    return buf;
+#endif
+}
+
+static char* z80_addstr(char* buf, char* s)
+{
+    char c;
+    while ((c = pgm_read_byte(s++)) != 0)
+        *buf++ = c;
+    *buf = '\0';
+    return buf - 1;
+}
+#define RADD(s) return z80_addstr(buf, PSTR(s))
+
+static char* z80_print_displacement(char* buf, int8_t v)
+{
+    *buf++ = '$';
+    if (v + 2 >= 0)
+        *buf++ = '+';
+    return z80_print_number(buf, v + 2, 10);
+}
+
+static char* z80_print_condition(char* buf, uint8_t v)
+{
+    switch (v) {
+        case 0: RADD("nz");
+        case 1: RADD("z");
+        case 2: RADD("nc");
+        case 3: RADD("c");
+        case 4: RADD("po");
+        case 5: RADD("pe");
+        case 6: RADD("p");
+        case 7: RADD("m");
+    }
+    return buf;
+}
+
+static int z80_print(char* buf, const char* fmt, ...)
+{
+    va_list ap;
+    va_start(ap, fmt);
+
+    int n_bytes = 1;
+
+    char c;
+    while ((c = pgm_read_byte(fmt++)) != 0) {
+        if (c == '%') {
+            switch (pgm_read_byte(fmt++)) {
+                case 'd':
+                    buf = z80_print_displacement(buf, va_arg(ap, int));
+                    ++n_bytes;
+                    break;
+                case 'c':
+                    buf = z80_print_condition(buf, va_arg(ap, int));
+                    break;
+            }
+        } else {
+            *buf++ = c;
+        }
+    }
+    *buf = '\0';
+
+    va_end(ap);
+    return n_bytes;
+}
+
+int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
+{
+#define ZP(s, ...) return z80_print(buf, PSTR(s) __VA_OPT__(,) __VA_ARGS__)
+    uint8_t m = mem[0],
+            m1 = mem[1],
+            m2 = mem[2];
+
+    uint8_t x = m >> 6,
+            y = (m >> 3) & 0b111,
+            z = m & 0b111,
+            q = y & 1,
+            p = y >> 1;
+
+    switch (z) {
+        case 0:
+            switch (y) {
+                case 0: ZP("nop");
+                case 1: ZP("ex af, af'");
+                case 2: ZP("djnz %d", m1);
+                case 3: ZP("jr %d", m1);
+                default: ZP("jr %c, %d", y-4, m1);
+            }
+    }
+
+    ZP("Unknown");
+#undef ZP
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

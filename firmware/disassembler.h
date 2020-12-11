@@ -6,7 +6,9 @@
 #define MAX_INST_SZ 8
 #define MAX_DISASM_SZ 40
 
-int disassemble(uint8_t* mem, char* out);
+typedef enum { NO_PREFIX, DD, FD } Z80Prefix;
+
+int disassemble(uint8_t* mem, char* out, Z80Prefix prefix);
 
 #endif
 
