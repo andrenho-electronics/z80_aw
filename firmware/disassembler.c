@@ -542,7 +542,7 @@ static char* z80_addstr(char* buf, PGM_P s)
     while ((c = pgm_read_byte(s++)) != 0)
         *buf++ = c;
     *buf = '\0';
-    return buf - 1;
+    return buf;
 }
 #define RADD(s) return z80_addstr(buf, PSTR(s))
 
@@ -569,6 +569,27 @@ static char* z80_print_condition(char* buf, uint8_t v)
     return buf;
 }
 
+static char* z80_print_regpairs(char* buf, uint8_t v, Z80Prefix prefix, int type)
+{
+    switch (v) {
+        case 0: RADD("bc");
+        case 1: RADD("de");
+        case 2:
+            switch (prefix) {
+                case NO_PREFIX: RADD("hl");
+                case DD: RADD("ix");
+                case FD: RADD("iy");
+            }
+            break;
+        case 3:
+            if (type == 1)
+                RADD("sp");
+            else
+                RADD("af");
+    }
+    return buf;
+}
+
 static int z80_print(char* buf, PGM_P fmt, ...)
 {
     va_list ap;
@@ -586,6 +607,9 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                     break;
                 case 'c':
                     buf = z80_print_condition(buf, va_arg(ap, int));
+                    break;
+                case 'r':
+                    buf = z80_print_regpairs(buf, va_arg(ap, int), (Z80Prefix) va_arg(ap, int), 1);
                     break;
             }
         } else {
@@ -611,6 +635,8 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
             q = y & 1,
             p = y >> 1;
 
+    // printf("%d %d %d %d %d\n", x, y, z, q, p);
+
     switch (z) {
         case 0:
             switch (y) {
@@ -619,6 +645,13 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                 case 2: ZP("djnz %d", m1);
                 case 3: ZP("jr %d", m1);
                 default: ZP("jr %c, %d", y-4, m1);
+            }
+            break;
+        case 1:
+            if (q == 0) {
+                ZP("ld %r, %N", p, prefix, m1, m2);
+            } else {
+                // TODO
             }
     }
 
