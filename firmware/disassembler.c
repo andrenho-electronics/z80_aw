@@ -83,7 +83,6 @@ static char* z80_print_condition(char* buf, uint8_t v)
 
 static char* z80_print_rotation(char* buf, uint8_t v)
 {
-    printf("%d\n", v);
     switch (v) {
         case 0: RADD("rlc");
         case 1: RADD("rrc");
