@@ -45,6 +45,7 @@ int main()
     CHECK("ld (1234h), hl", 0x22, 0x34, 0x12);
     CHECK("inc bc", 0x3);
     CHECK("inc (hl)", 0x34);
+    CHECK("inc (ix+8)", 0xdd, 0x34, 0x8);
     CHECK("ld h, f0h", 0x26, 0xf0);
     CHECK("ld (hl), 12h", 0x36, 0x12);
     CHECK("cpl", 0x2f);
