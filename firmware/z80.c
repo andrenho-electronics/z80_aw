@@ -73,7 +73,7 @@ void z80_init()
     z80_cycle_number = 0;
     wait();
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 50; ++i)
         z80_clock_cycle(false);
 
     set_ZRST(1);

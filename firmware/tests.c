@@ -20,7 +20,8 @@ static void test_memory_block(uint16_t start_addr)
             data[a] = counter++;
         for (uint16_t j = 0; j < 0x20; ++j) {
             memory_write(addr + j, data[j], false);
-            _delay_ms(12);
+            if (addr + j < 0x8000)
+                _delay_ms(12);
         }
         for (uint16_t j = 0; j < 0x20; ++j) {
             uint8_t new_data = memory_read(addr + j);
@@ -32,9 +33,13 @@ static void test_memory_block(uint16_t start_addr)
 
 static void test_memory()
 {
+    serial_printstr(PSTR("Testing ROM...\r\n"));
     counter = starter++;
     test_memory_block(0x0);
     test_memory_block(0x7e00);
+    serial_printstr(PSTR("Testing RAM...\r\n"));
+    counter = starter++;
+    test_memory_block(0x8000);
 }
 
 void tests_run()

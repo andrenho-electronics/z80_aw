@@ -34,7 +34,7 @@ static void show_instructions(uint16_t addr)
         char buf[MAX_DISASM_SZ];
         for (int i = 0; i < MAX_INST_SZ; ++i)
             data[i] = memory_read(addr + i);
-        addr += disassemble(data, buf);
+        addr += disassemble(data, buf, NO_PREFIX);
         serial_print(buf);
         serial_puts();
     }
