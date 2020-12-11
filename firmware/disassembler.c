@@ -536,7 +536,7 @@ static char* z80_print_number(char* buf, int value, int base)
 #endif
 }
 
-static char* z80_addstr(char* buf, char* s)
+static char* z80_addstr(char* buf, PGM_P s)
 {
     char c;
     while ((c = pgm_read_byte(s++)) != 0)
@@ -569,7 +569,7 @@ static char* z80_print_condition(char* buf, uint8_t v)
     return buf;
 }
 
-static int z80_print(char* buf, const char* fmt, ...)
+static int z80_print(char* buf, PGM_P fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);
@@ -600,7 +600,7 @@ static int z80_print(char* buf, const char* fmt, ...)
 
 int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
 {
-#define ZP(s, ...) return z80_print(buf, PSTR(s) __VA_OPT__(,) __VA_ARGS__)
+#define ZP(s, ...) return z80_print(buf, PSTR(s), ##__VA_ARGS__)
     uint8_t m = mem[0],
             m1 = mem[1],
             m2 = mem[2];
