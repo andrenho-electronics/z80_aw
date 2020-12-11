@@ -549,6 +549,21 @@ static char* z80_addstr(char* buf, PGM_P s)
     return buf;
 }
 
+static char* z80_print_alu(char* buf, int alu)
+{
+    switch (alu) {
+        case 0: RADD("add a,");
+        case 1: RADD("adc a,");
+        case 2: RADD("sub");
+        case 3: RADD("sbc a,");
+        case 4: RADD("and");
+        case 5: RADD("xor");
+        case 6: RADD("or");
+        case 7: RADD("cp");
+    }
+    return buf;
+}
+
 static char* z80_print_displacement(char* buf, int8_t v, int plus)
 {
     *buf++ = '$';
@@ -618,6 +633,14 @@ static char* z80_print_register(char* buf, uint8_t v, Z80Prefix prefix, int8_t v
     return buf;
 }
 
+static char* z80_print_hex8(char* buf, uint8_t v)
+{
+    buf = z80_print_number(buf, v, 16);
+    *buf++ = 'h';
+    *buf = '\0';
+    return buf;
+}
+
 static char* z80_print_hex16(char* buf, uint8_t p1, uint8_t p2)
 {
     uint16_t v = p1 | ((uint16_t) p2 << 8);
@@ -633,44 +656,58 @@ static int z80_print(char* buf, PGM_P fmt, ...)
     va_start(ap, fmt);
 
     int n_bytes = 1;
+    size_t mem_idx = 1;
 
     char c;
     while ((c = pgm_read_byte(fmt++)) != 0) {
         if (c == '%') {
             char o = pgm_read_byte(fmt++);
             switch (o) {
-                case 'd':   // displacement
-                    buf = z80_print_displacement(buf, va_arg(ap, int), 2);
-                    ++n_bytes;
+                case 'a':   // alu (parameter: command)
+                    buf = z80_print_alu(buf, va_arg(ap, int));
                     break;
-                case 'c':   // condition
+                case 'c':   // condition (parameter: condition)
                     buf = z80_print_condition(buf, va_arg(ap, int));
                     break;
-                case 'p': case 'P': {  // register pair (1 or 2) - may replace HL per IX/IY
+                case 'd':   // displacement (parameters: memory)
+                    buf = z80_print_displacement(buf, va_arg(ap, char*)[mem_idx], 2);
+                    ++n_bytes;
+                    break;
+                case 'h':   // HL (may replace per IX/IY) - (parameters: prefix)
+                    buf = z80_print_regpairs(buf, 2, va_arg(ap, int), 1);
+                    break;
+                case 'n':     // hex8
+                    buf = z80_print_hex8(buf, va_arg(ap, char*)[mem_idx]);
+                    ++n_bytes;
+                    break;
+                case 'N': {   // hex16 (parameters: bytes 1 and 2)
+                        uint8_t* mem = (uint8_t *) va_arg(ap, char*);
+                        buf = z80_print_hex16(buf, mem[mem_idx], mem[mem_idx+1]);
+                        n_bytes += 2;
+                    }
+                    break;
+                case 'p': case 'P': {  // register pair (1 or 2) - may replace HL per IX/IY (parameters: register, prefix)
                         int p = va_arg(ap, int);
                         Z80Prefix prefix = va_arg(ap, int);
                         buf = z80_print_regpairs(buf, p, prefix, o == 'p' ? 1 : 2);
                     }
                     break;
-                case 'N': {   // hex16
-                        int m1 = va_arg(ap, int);
-                        int m2 = va_arg(ap, int);
-                        buf = z80_print_hex16(buf, m1, m2);
-                        n_bytes += 2;
-                    }
-                    break;
-                case 'h':   // HL (may replace per IX/IY)
-                    buf = z80_print_regpairs(buf, 2, va_arg(ap, int), 1);
-                    break;
-                case 'r': {   // register (may replace HL per IX/IY)
+                case 'r': {   // register (may replace HL per IX/IY) - parameters (register, prefix, memory buffer)
                          int p = va_arg(ap, int);
                          Z80Prefix prefix = va_arg(ap, int);
-                         int m1 = va_arg(ap, int);
-                         buf = z80_print_register(buf, p, prefix, m1);
-                         if (p == 6 && prefix != NO_PREFIX)   // DD/DF instruction type, (HL) is transformed in (IX/Y+d)
+                         uint8_t* mem = (uint8_t *) va_arg(ap, char*);
+                         buf = z80_print_register(buf, p, prefix, mem[mem_idx]);
+                         if (p == 6 && prefix != NO_PREFIX) {  // DD/DF instruction type, (HL) is transformed in (IX/Y+d)
                              ++n_bytes;
+                             ++mem_idx;
+                         }
                      }
                      break;
+                case 'x':    // hex
+                    buf = z80_print_number(buf, va_arg(ap, int), 16);
+                    *buf++ = 'h';
+                    *buf = '\0';
+                    break;
 #if TEST
                 default:
                     fprintf(stderr, "Invalid option '%c'.\n", o);
@@ -687,13 +724,25 @@ static int z80_print(char* buf, PGM_P fmt, ...)
     return n_bytes;
 }
 
+static int cb_prefix(uint8_t* mem, char* buf, Z80Prefix prefix)
+{
+    (void) mem; (void) buf; (void) prefix;
+    // TODO - write this function
+    return 1;
+}
+
+static int eb_prefix(uint8_t* mem, char* buf, Z80Prefix prefix)
+{
+    (void) mem; (void) buf; (void) prefix;
+    // TODO - write this function
+    return 1;
+}
+
 int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
 {
 #define ZP(s, ...) return z80_print(buf, PSTR(s), ##__VA_ARGS__)
 
-    uint8_t m = mem[0],
-            m1 = mem[1],
-            m2 = mem[2];
+    uint8_t m = mem[0];
 
     uint8_t x = m >> 6,
             y = (m >> 3) & 0b111,
@@ -713,14 +762,14 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                     switch (y) {
                         case 0: ZP("nop");
                         case 1: ZP("ex af, af'");
-                        case 2: ZP("djnz %d", m1);
-                        case 3: ZP("jr %d", m1);
-                        default: ZP("jr %c, %d", y-4, m1);
+                        case 2: ZP("djnz %d", mem);
+                        case 3: ZP("jr %d", mem);
+                        default: ZP("jr %c, %d", y-4, mem);
                     }
                     break;
                 case 1:
                     if (q == 0)
-                        ZP("ld %p, %N", p, prefix, m1, m2);
+                        ZP("ld %p, %N", p, prefix, mem);
                     else
                         ZP("add %h, %p", prefix, p, prefix);
                     break;
@@ -729,15 +778,15 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                         switch (p) {
                             case 0: ZP("ld (bc), a");
                             case 1: ZP("ld (de), a");
-                            case 2: ZP("ld (%N), %h", m1, m2, prefix);
-                            case 3: ZP("ld (%N), a", m1, m2);
+                            case 2: ZP("ld (%N), %h", mem, prefix);
+                            case 3: ZP("ld (%N), a", mem);
                         }
                     } else {
                         switch (p) {
                             case 0: ZP("ld a, (bc)");
                             case 1: ZP("ld a, (de)");
-                            case 2: ZP("ld %h, (%N)", prefix, m1, m2);
-                            case 3: ZP("ld a, (%N)", m1, m2);
+                            case 2: ZP("ld %h, (%N)", prefix, mem);
+                            case 3: ZP("ld a, (%N)", mem);
                         }
                     }
                     break;
@@ -748,33 +797,96 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                         ZP("dec %p", p, prefix);
                     break;
                 case 4:
-                    ZP("inc %r", y, prefix, m1);
+                    ZP("inc %r", y, prefix, mem);
                     break;
                 case 5:
-                    ZP("dec %r", y, prefix, m1);
+                    ZP("dec %r", y, prefix, mem);
+                    break;
+                case 6:
+                    ZP("ld %r, %n", y, prefix, mem, mem);
+                case 7:
+                    switch (y) {
+                        case 0: ZP("rlca");
+                        case 1: ZP("rrca");
+                        case 2: ZP("rla");
+                        case 3: ZP("rra");
+                        case 4: ZP("daa");
+                        case 5: ZP("cpl");
+                        case 6: ZP("scf");
+                        case 7: ZP("ccf");
+                    }
                     break;
             }
             break;
 
-        // ...
+        //
+        // x == 1
+        //
+        case 1:
+            if (y == 6 && prefix == NO_PREFIX) {
+                ZP("halt");
+            } else {
+                ZP("ld %r, %r", y, prefix, mem, z, prefix, mem);
+            }
+            break;
+
+        //
+        // x == 2
+        //
+        case 2:
+            ZP("%a %r", y, z, prefix, mem);
 
         //
         // x == 3
         //
         case 3:
             switch (z) {
-                case 5:
+                case 0:
+                    ZP("ret %c", y);
+                case 1:
                     if (q == 0) {
-                        // ...
+                        ZP("pop %P", p);
                     } else {
                         switch (p) {
-                            case 0: ZP("call %N", m1, m2);
+                            case 0: ZP("ret");
+                            case 1: ZP("exx");
+                            case 2: ZP("jp (%h)", prefix);
+                            case 3: ZP("ld sp, %h", prefix);
+                        }
+                    }
+                    break;
+                case 2:
+                    ZP("jp %c, %N", y, mem);
+                case 3:
+                    switch (y) {
+                        case 0: ZP("jp %N", mem);
+                        case 1: return cb_prefix(mem, buf, prefix) + 1;
+                        case 2: ZP("out (%n), a", mem);
+                        case 3: ZP("in a, (%n)", mem);
+                        case 4: ZP("ex (sp), %h", prefix);
+                        case 5: ZP("ex de, hl");
+                        case 6: ZP("di");
+                        case 7: ZP("ei");
+                    }
+                    break;
+                case 4:
+                    ZP("call %c, %N", y, mem);
+                case 5:
+                    if (q == 0) {
+                        ZP("push %P", p);
+                    } else {
+                        switch (p) {
+                            case 0: ZP("call %N", mem);
                             case 1: return disassemble(&mem[1], buf, DD) + 1;
-                            case 2: /* TODO */ break;
+                            case 2: return eb_prefix(mem, buf, prefix) + 1;
                             case 3: return disassemble(&mem[1], buf, FD) + 1;
                         }
                     }
                     break;
+                case 6:
+                    ZP("%a %n", y, mem);
+                case 7:
+                    ZP("rst %x", y * 8);
             }
             break;
     }

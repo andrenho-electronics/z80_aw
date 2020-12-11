@@ -48,14 +48,17 @@ int main()
     CHECK("inc (ix+8)", 0xdd, 0x34, 0x8);
     CHECK("ld h, f0h", 0x26, 0xf0);
     CHECK("ld (hl), 12h", 0x36, 0x12);
+    CHECK("ld (ix-56), 12h", 0xdd, 0x36, 0xc8, 0x12);
     CHECK("cpl", 0x2f);
     CHECK("rrca", 0xf);
     CHECK("halt", 0x76);
     CHECK("ld h, (hl)", 0x66);
+    CHECK("ld (ix+9), e", 0xdd, 0x73, 0x09);
     CHECK("sbc a, e", 0x9b);
     CHECK("ret po", 0xe0);
     CHECK("pop af", 0xf1);
     CHECK("ld sp, hl", 0xf9);
+    CHECK("jp (ix)", 0xdd, 0xe9);
     CHECK("jp pe, 1234h", 0xea, 0x34, 0x12);
     CHECK("jp c3c3h", 0xc3, 0xc3, 0xc3);
     CHECK("out (34h), a", 0xd3, 0x34);
