@@ -620,9 +620,12 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                 case 'r':
                     buf = z80_print_regpairs(buf, va_arg(ap, int), (Z80Prefix) va_arg(ap, int), 1);
                     break;
-                case 'N':
-                    buf = z80_print_hex16(buf, va_arg(ap, int), va_arg(ap, int));
-                    n_bytes += 2;
+                case 'N': {
+                        int m1 = va_arg(ap, int);
+                        int m2 = va_arg(ap, int);
+                        buf = z80_print_hex16(buf, m1, m2);
+                        n_bytes += 2;
+                    }
                     break;
             }
         } else {
