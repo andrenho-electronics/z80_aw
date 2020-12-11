@@ -590,6 +590,15 @@ static char* z80_print_regpairs(char* buf, uint8_t v, Z80Prefix prefix, int type
     return buf;
 }
 
+static char* z80_print_hex16(char* buf, uint8_t p1, uint8_t p2)
+{
+    uint16_t v = p1 | ((uint16_t) p2 << 8);
+    buf = z80_print_number(buf, v, 16);
+    *buf++ = 'h';
+    *buf = '\0';
+    return buf;
+}
+
 static int z80_print(char* buf, PGM_P fmt, ...)
 {
     va_list ap;
@@ -610,6 +619,10 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                     break;
                 case 'r':
                     buf = z80_print_regpairs(buf, va_arg(ap, int), (Z80Prefix) va_arg(ap, int), 1);
+                    break;
+                case 'N':
+                    buf = z80_print_hex16(buf, va_arg(ap, int), va_arg(ap, int));
+                    n_bytes += 2;
                     break;
             }
         } else {
