@@ -605,10 +605,12 @@ static char* z80_print_register(char* buf, uint8_t v, Z80Prefix prefix, int8_t v
         case 6:
             if (prefix == NO_PREFIX) {
                 RADD("(hl)");
-            } else if (prefix == DD) {
-                return z80_print(buf, PSTR("(ix%D)"), value);
-            } else if (prefix == FD) {
-                return z80_print(buf, PSTR("(iy%D)"), value);
+            } else {
+                buf = z80_addstr(buf, prefix == DD ? PSTR("(ix") : PSTR("(iy"));
+                if (value >= 0)
+                    *buf++ = '+';
+                buf = z80_print_number(buf, value, 10);
+                return z80_addstr(buf, PSTR(")"));
             }
             break;
         case 7: RADD("a");
@@ -641,10 +643,6 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                     buf = z80_print_displacement(buf, va_arg(ap, int), 2);
                     ++n_bytes;
                     break;
-                case 'D':   // displacement + 2
-                    buf = z80_print_displacement(buf, va_arg(ap, int), 0);
-                    ++n_bytes;
-                    break;
                 case 'c':   // condition
                     buf = z80_print_condition(buf, va_arg(ap, int));
                     break;
@@ -669,6 +667,8 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                          Z80Prefix prefix = va_arg(ap, int);
                          int m1 = va_arg(ap, int);
                          buf = z80_print_register(buf, p, prefix, m1);
+                         if (p == 6 && prefix != NO_PREFIX)   // DD/DF instruction type, (HL) is transformed in (IX/Y+d)
+                             ++n_bytes;
                      }
                      break;
 #if TEST
