@@ -653,22 +653,52 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
 
     // printf("%d %d %d %d %d\n", x, y, z, q, p);
 
-    switch (z) {
+    switch (x) {
+        //
+        // x == 0
+        //
         case 0:
-            switch (y) {
-                case 0: ZP("nop");
-                case 1: ZP("ex af, af'");
-                case 2: ZP("djnz %d", m1);
-                case 3: ZP("jr %d", m1);
-                default: ZP("jr %c, %d", y-4, m1);
+            switch (z) {
+                case 0:
+                    switch (y) {
+                        case 0: ZP("nop");
+                        case 1: ZP("ex af, af'");
+                        case 2: ZP("djnz %d", m1);
+                        case 3: ZP("jr %d", m1);
+                        default: ZP("jr %c, %d", y-4, m1);
+                    }
+                    break;
+                case 1:
+                    if (q == 0) {
+                        ZP("ld %r, %N", p, prefix, m1, m2);
+                    } else {
+                        // TODO
+                    }
+                    break;
             }
             break;
-        case 1:
-            if (q == 0) {
-                ZP("ld %r, %N", p, prefix, m1, m2);
-            } else {
-                // TODO
+
+        // ...
+
+        //
+        // x == 3
+        //
+        case 3:
+            switch (z) {
+                case 5:
+                    if (q == 0) {
+                        // ...
+                    } else {
+                        switch (p) {
+                            case 0: ZP("call %N", m1, m2);
+                            case 1: return disassemble(&mem[1], buf, DD) + 1;
+                            case 2: /* TODO */ break;
+                            case 3: return disassemble(&mem[1], buf, FD) + 1;
+                        }
+                    }
+                    break;
             }
+            break;
     }
 
     ZP("Unknown");
