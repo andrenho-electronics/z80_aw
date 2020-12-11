@@ -1,7 +1,10 @@
 #include "disassembler.h"
 
+/*
+
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 
 #if !TEST
 #  include <avr/pgmspace.h>
@@ -209,6 +212,7 @@ static char* add_bli(char* nxt, uint8_t a, uint8_t b)
 }
 
 #define ADD(v) { nxt = add(nxt, PSTR(v)); *nxt++ = ' '; *nxt = '\0'; }
+#define ADDN(v) { nxt = add(nxt, PSTR(v)); }
 #define ADDR(v, n) { add(nxt, PSTR(v)); return n; }
 
 static int cb_prefix(uint8_t* mem, char* nxt)
@@ -234,9 +238,29 @@ static int cb_prefix(uint8_t* mem, char* nxt)
     return 1;
 }
 
-static int dd_prefix(uint8_t* mem, char* nxt)
+static int dd_fd_prefix(uint8_t* mem, char* nxt, PGM_P reg)
 {
-    (void) mem; (void) nxt;
+#define ADDREG() { nxt = add(nxt, reg); }
+    uint8_t m = mem[0],
+            m1 = mem[1],
+            m2 = mem[2];
+    
+    switch(m) {
+        case 0x9:
+            ADD("add"); ADDREG(); ADD(", bc"); return 1;
+        case 0x19:
+            ADD("add"); ADDREG(); ADD(", de"); return 1;
+        case 0x21:
+            ADD("ld"); ADDREG(); nxt = add(nxt, PSTR(", ")); addnn(nxt, m1, m2);
+            return 3;
+        case 0x22:
+            ADDN("ld ("); nxt = addnn(nxt, m1, m2); ADD("),"); ADDREG();
+            return 3;
+        case 0x23:
+            ADD("inc"); ADDREG();
+            return 1;
+    }
+
     return 0;  // TODO
 }
 
@@ -318,12 +342,6 @@ static int ed_prefix(uint8_t* mem, char* nxt)
     }
 
     return 1;
-}
-
-static int fd_prefix(uint8_t* mem, char* nxt)
-{
-    (void) mem; (void) nxt;
-    return 0;  // TODO
 }
 
 int disassemble(uint8_t* mem, char* nxt)
@@ -470,9 +488,9 @@ int disassemble(uint8_t* mem, char* nxt)
                     } else {
                         switch (p) {
                             case 0: ADD("call"); addnn(nxt, m1, m2); return 3;
-                            case 1: return dd_prefix(&mem[1], nxt) + 1;
+                            case 1: return dd_fd_prefix(&mem[1], nxt, PSTR("ix")) + 1;
                             case 2: return ed_prefix(&mem[1], nxt) + 1;
-                            case 3: return fd_prefix(&mem[1], nxt) + 1;
+                            case 3: return dd_fd_prefix(&mem[1], nxt, PSTR("iy")) + 1;
                         }
                     }
                     break;
@@ -489,5 +507,24 @@ int disassemble(uint8_t* mem, char* nxt)
 }
 
 #undef ADD
+*/
+
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+
+#if !TEST
+#  include <avr/pgmspace.h>
+#else
+#  include <stdio.h>
+#  define PSTR(v) v
+#  define PGM_P const char* 
+#  define pgm_read_byte *
+#endif
+
+int disassemble(uint8_t* mem, char* nxt)
+{
+    return 1;
+}
 
 // vim:ts=4:sts=4:sw=4:expandtab
