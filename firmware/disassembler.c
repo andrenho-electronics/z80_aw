@@ -525,6 +525,8 @@ int disassemble(uint8_t* mem, char* nxt)
 
 #define RADD(s) return z80_addstr(buf, PSTR(s))
 
+static int z80_print(char* buf, PGM_P fmt, ...);
+
 static char* z80_print_number(char* buf, int value, int base)
 {
 #if TEST
@@ -547,12 +549,12 @@ static char* z80_addstr(char* buf, PGM_P s)
     return buf;
 }
 
-static char* z80_print_displacement(char* buf, int8_t v)
+static char* z80_print_displacement(char* buf, int8_t v, int plus)
 {
     *buf++ = '$';
-    if (v + 2 >= 0)
+    if (v + plus >= 0)
         *buf++ = '+';
-    return z80_print_number(buf, v + 2, 10);
+    return z80_print_number(buf, v + plus, 10);
 }
 
 static char* z80_print_condition(char* buf, uint8_t v)
@@ -591,6 +593,29 @@ static char* z80_print_regpairs(char* buf, uint8_t v, Z80Prefix prefix, int type
     return buf;
 }
 
+static char* z80_print_register(char* buf, uint8_t v, Z80Prefix prefix, int8_t value)
+{
+    switch (v) {
+        case 0: RADD("b");
+        case 1: RADD("c");
+        case 2: RADD("d");
+        case 3: RADD("e");
+        case 4: RADD("h");
+        case 5: RADD("l");
+        case 6:
+            if (prefix == NO_PREFIX) {
+                RADD("(hl)");
+            } else if (prefix == DD) {
+                return z80_print(buf, PSTR("(ix%D)"), value);
+            } else if (prefix == FD) {
+                return z80_print(buf, PSTR("(iy%D)"), value);
+            }
+            break;
+        case 7: RADD("a");
+    }
+    return buf;
+}
+
 static char* z80_print_hex16(char* buf, uint8_t p1, uint8_t p2)
 {
     uint16_t v = p1 | ((uint16_t) p2 << 8);
@@ -612,33 +637,38 @@ static int z80_print(char* buf, PGM_P fmt, ...)
         if (c == '%') {
             char o = pgm_read_byte(fmt++);
             switch (o) {
-                case 'd':
-                    buf = z80_print_displacement(buf, va_arg(ap, int));
+                case 'd':   // displacement
+                    buf = z80_print_displacement(buf, va_arg(ap, int), 2);
                     ++n_bytes;
                     break;
-                case 'c':
+                case 'D':   // displacement + 2
+                    buf = z80_print_displacement(buf, va_arg(ap, int), 0);
+                    ++n_bytes;
+                    break;
+                case 'c':   // condition
                     buf = z80_print_condition(buf, va_arg(ap, int));
                     break;
-                case 'p': case 'P': {
+                case 'p': case 'P': {  // register pair (1 or 2) - may replace HL per IX/IY
                         int p = va_arg(ap, int);
                         Z80Prefix prefix = va_arg(ap, int);
                         buf = z80_print_regpairs(buf, p, prefix, o == 'p' ? 1 : 2);
                     }
                     break;
-                case 'N': {
+                case 'N': {   // hex16
                         int m1 = va_arg(ap, int);
                         int m2 = va_arg(ap, int);
                         buf = z80_print_hex16(buf, m1, m2);
                         n_bytes += 2;
                     }
                     break;
-                case 'h':
+                case 'h':   // HL (may replace per IX/IY)
                     buf = z80_print_regpairs(buf, 2, va_arg(ap, int), 1);
                     break;
-                case 'r': {
+                case 'r': {   // register (may replace HL per IX/IY)
                          int p = va_arg(ap, int);
                          Z80Prefix prefix = va_arg(ap, int);
-                         buf = z80_print_register(buf, p, prefix);
+                         int m1 = va_arg(ap, int);
+                         buf = z80_print_register(buf, p, prefix, m1);
                      }
                      break;
 #if TEST
@@ -718,10 +748,10 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                         ZP("dec %p", p, prefix);
                     break;
                 case 4:
-                    ZP("inc %r", y, prefix);
+                    ZP("inc %r", y, prefix, m1);
                     break;
                 case 5:
-                    ZP("dec %r", y, prefix);
+                    ZP("dec %r", y, prefix, m1);
                     break;
             }
             break;
