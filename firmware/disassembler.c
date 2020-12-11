@@ -523,6 +523,8 @@ int disassemble(uint8_t* mem, char* nxt)
 #  define pgm_read_byte *
 #endif
 
+#define RADD(s) return z80_addstr(buf, PSTR(s))
+
 static char* z80_print_number(char* buf, int value, int base)
 {
 #if TEST
@@ -544,7 +546,6 @@ static char* z80_addstr(char* buf, PGM_P s)
     *buf = '\0';
     return buf;
 }
-#define RADD(s) return z80_addstr(buf, PSTR(s))
 
 static char* z80_print_displacement(char* buf, int8_t v)
 {
@@ -609,7 +610,8 @@ static int z80_print(char* buf, PGM_P fmt, ...)
     char c;
     while ((c = pgm_read_byte(fmt++)) != 0) {
         if (c == '%') {
-            switch (pgm_read_byte(fmt++)) {
+            char o = pgm_read_byte(fmt++);
+            switch (o) {
                 case 'd':
                     buf = z80_print_displacement(buf, va_arg(ap, int));
                     ++n_bytes;
@@ -617,8 +619,11 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                 case 'c':
                     buf = z80_print_condition(buf, va_arg(ap, int));
                     break;
-                case 'r':
-                    buf = z80_print_regpairs(buf, va_arg(ap, int), (Z80Prefix) va_arg(ap, int), 1);
+                case 'p': case 'P': {
+                        int p = va_arg(ap, int);
+                        Z80Prefix prefix = va_arg(ap, int);
+                        buf = z80_print_regpairs(buf, p, prefix, o == 'p' ? 1 : 2);
+                    }
                     break;
                 case 'N': {
                         int m1 = va_arg(ap, int);
@@ -627,6 +632,20 @@ static int z80_print(char* buf, PGM_P fmt, ...)
                         n_bytes += 2;
                     }
                     break;
+                case 'h':
+                    buf = z80_print_regpairs(buf, 2, va_arg(ap, int), 1);
+                    break;
+                case 'r': {
+                         int p = va_arg(ap, int);
+                         Z80Prefix prefix = va_arg(ap, int);
+                         buf = z80_print_register(buf, p, prefix);
+                     }
+                     break;
+#if TEST
+                default:
+                    fprintf(stderr, "Invalid option '%c'.\n", o);
+                    exit(1);
+#endif
             }
         } else {
             *buf++ = c;
@@ -641,6 +660,7 @@ static int z80_print(char* buf, PGM_P fmt, ...)
 int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
 {
 #define ZP(s, ...) return z80_print(buf, PSTR(s), ##__VA_ARGS__)
+
     uint8_t m = mem[0],
             m1 = mem[1],
             m2 = mem[2];
@@ -669,11 +689,39 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                     }
                     break;
                 case 1:
+                    if (q == 0)
+                        ZP("ld %p, %N", p, prefix, m1, m2);
+                    else
+                        ZP("add %h, %p", prefix, p, prefix);
+                    break;
+                case 2:
                     if (q == 0) {
-                        ZP("ld %r, %N", p, prefix, m1, m2);
+                        switch (p) {
+                            case 0: ZP("ld (bc), a");
+                            case 1: ZP("ld (de), a");
+                            case 2: ZP("ld (%N), %h", m1, m2, prefix);
+                            case 3: ZP("ld (%N), a", m1, m2);
+                        }
                     } else {
-                        // TODO
+                        switch (p) {
+                            case 0: ZP("ld a, (bc)");
+                            case 1: ZP("ld a, (de)");
+                            case 2: ZP("ld %h, (%N)", prefix, m1, m2);
+                            case 3: ZP("ld a, (%N)", m1, m2);
+                        }
                     }
+                    break;
+                case 3:
+                    if (q == 0)
+                        ZP("inc %p", p, prefix);
+                    else
+                        ZP("dec %p", p, prefix);
+                    break;
+                case 4:
+                    ZP("inc %r", y, prefix);
+                    break;
+                case 5:
+                    ZP("dec %r", y, prefix);
                     break;
             }
             break;
