@@ -39,5 +39,6 @@
     - serial i/o
 - debugger
   - show registers
+    - show state: halted
   - breakpoints
   - step over

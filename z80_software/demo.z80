@@ -1,7 +1,27 @@
+	jp main
+	defs 8h - $
+
+	;
+	; keyboard interrupt
+	;
+org 8h
+	ret
+
+	;
+	; main code
+	;
+main:
 	nop
-	nop
-	ld a, 0x12
-	out (0xfe), a
-	jp 0xc3c3
+	ei
+	im 0
+
+	; send char to display
+	ld a, 'A'
+	out (0x00), a
+
+	; enable keyboard interrupts
+	rst 8h
+
+	halt
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

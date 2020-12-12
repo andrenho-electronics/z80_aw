@@ -1,5 +1,7 @@
 #include "repl.h"
 
+#include <util/delay.h>
+
 #include "ansi.h"
 #include "debugger.h"
 #include "lowlevel.h"
@@ -26,6 +28,8 @@ static void repl_help()
     serial_printstr(PSTR(ANSI_GREEN "i" ANSI_RESET "nitialize (reset)  "));
     serial_printstr(PSTR(ANSI_GREEN "b" ANSI_RESET "us request  "));
     serial_printstr(PSTR(ANSI_GREEN "c" ANSI_RESET "ycle\r\n"));
+    serial_printstr(PSTR("Devices:\r\n   "));
+    serial_printstr(PSTR(ANSI_GREEN "k" ANSI_RESET "eyboard\r\n"));
     serial_printstr(PSTR("Debugger:\r\n   "));
     serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p   "));
     serial_printstr(PSTR(ANSI_GREEN "l" ANSI_RESET "ist   "));
@@ -210,14 +214,18 @@ static void repl_programatic_write()
 
 static void repl_programatic_upload()
 {
+    z80_powerdown();
     if (z80_controls_bus())
         serial_send(1);
     else
         serial_send(0);
     uint16_t length = serial_recv16();
     for (uint16_t i = 0; i < length; ++i) {
-        memory_write(i, serial_recv(), false);
-        serial_send(0);
+        uint8_t data = serial_recv();
+        memory_write(i, data, false);
+        _delay_ms(10);
+        data = memory_read(i);
+        serial_send(data);
     }
 }
 
@@ -251,6 +259,18 @@ void repl_free_ram()
     serial_puts();
 }
 
+static void repl_keyboard()
+{
+    serial_printstr(PSTR("Key? "));
+    uint8_t key = serial_recv();
+    if (key > 32 && key < 127)
+        serial_send(key);
+    else
+        serial_printhex8(key);
+    serial_puts();
+    z80_keypress(key);
+}
+
 void repl_exec()
 {
     uint8_t c = serial_recv();
@@ -268,6 +288,7 @@ void repl_exec()
         case 'E': debugger_step(true); break;
         case 'l': repl_list(false); break;
         case 'L': repl_list(true); break;
+        case 'k': repl_keyboard(); break;
 #if ADD_TESTS
         case 't': tests_run(); break;
 #endif

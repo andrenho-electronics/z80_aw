@@ -3,11 +3,15 @@
 #include "bus.h"
 #include "lowlevel.h"
 #include "memory.h"
+#include "serial.h"
+
 #include "wait.h"
 
 Status   z80_last_status;
 uint16_t z80_cycle_number = 0;
 uint16_t z80_last_pc = 0;
+
+static uint8_t last_key_pressed = 0;
 
 static void update_status()
 {
@@ -43,11 +47,25 @@ bool z80_controls_bus()
     return true;
 }
 
-#include "serial.h"
-
 static void z80_iorq_requested()
 {
-    serial_printstr(PSTR("IORQ requested by a device!\n"));
+    uint16_t addr = memory_read_addr();
+    if ((addr & 0xff) == 0x00) {   // video device
+        uint8_t data = addr >> 8;
+        serial_printstr(PSTR("Char "));
+        serial_printhex8(data);
+        if (data >= 32 && data < 127) {
+            serial_send(' ');
+            serial_send('\'');
+            serial_send(data);
+            serial_send('\'');
+        }
+        serial_printstr(PSTR(" was sent to the display.\r\n"));
+    } else {
+        serial_printstr(PSTR("IORQ requested by device "));
+        serial_printhex8(addr & 0xff);
+        serial_puts();
+    }
 }
 
 static void z80_clock()
@@ -92,6 +110,20 @@ void z80_init()
     set_ZRST(1);
     wait();
     z80_clock_cycle(false);
+}
+
+void z80_keypress(uint8_t key)
+{
+    last_key_pressed = key;
+
+    // fire interrupt
+    set_INT(0);
+
+    // cycle until IORQ == 0, release INT
+    
+    // put RST on the data bus
+    
+    // cycle until IORQ == 1
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

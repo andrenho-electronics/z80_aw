@@ -65,10 +65,11 @@ with serial.Serial(port, 114583, timeout=1) as ser:
         sys.exit(1)
     ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
     i = 1
+    ser.timeout = 20
     for byte in contents:
         printProgressBar(i, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
         ser.write(bytes([byte]))
-        ser.read()
+        print(ser.read())
         i += 1
 
     time.sleep(1)

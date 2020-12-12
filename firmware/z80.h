@@ -18,6 +18,7 @@ void z80_powerdown();
 void z80_init();
 void z80_clock_cycle(bool request_bus);
 void z80_bus_request();
+void z80_keypress(uint8_t key);
 
 extern Status   z80_last_status;
 extern uint16_t z80_cycle_number;
