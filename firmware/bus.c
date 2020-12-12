@@ -16,6 +16,7 @@ void bus_init()
     set_ZCLK(0);      // Z80 clock waiting to begin transmitting
     set_ZRST(0);      // Z80 start in reset mode (active)
     set_BUSREQ(1);
+    set_NMI(1);
 
     // these pins will always be read-only
     set_IORQ(X);
@@ -31,7 +32,6 @@ void bus_mc_takeover()
     set_WR(1);
     set_RD(1);
     set_INT(1);
-    set_NMI(1);
     set_WAIT(1);
 }
 
@@ -40,7 +40,6 @@ void bus_mc_release()
     set_MREQ(X);
     set_WR(X);
     set_RD(X);
-    set_NMI(X);
     set_WAIT(X);
     set_OE_595(1);    // ADDR bus in high impedance
     DDRC = 0x0;       // DATA bus in high impedance

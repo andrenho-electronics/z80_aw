@@ -5,7 +5,7 @@
 #include <stdint.h>
 
 void debugger_step(bool show_cycles);
-void debugger_show_instructions(uint16_t addr);
+int  debugger_show_instructions(uint16_t addr);
 
 #endif
 

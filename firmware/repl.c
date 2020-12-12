@@ -9,6 +9,7 @@
 #include "z80.h"
 
 static bool last_was_status = false;
+static long last_listing_pc = -1;
 
 static void repl_help()
 {
@@ -189,8 +190,10 @@ static void repl_list(bool ask_addr)
     if (ask_addr) {
         serial_printstr(PSTR("Address? "));
         pc = serial_inputhex(4);
+    } else if (last_listing_pc >= 0) {
+        pc = last_listing_pc;
     }
-    debugger_show_instructions(pc);
+    last_listing_pc = debugger_show_instructions(pc);
 }
 
 static void repl_programatic_write()
@@ -293,6 +296,8 @@ void repl_exec()
 
     if (c != 's' && c != 'c' && c != 'b')
         last_was_status = false;
+    if (c != 'l' && c != 'L')
+        last_listing_pc = -1;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -22,10 +22,10 @@ static void show_stack()
 {
 }
 
-void debugger_show_instructions(uint16_t addr)
+int debugger_show_instructions(uint16_t addr)
 {
     for (int i = 0; i < DEBUG_INSTRUCTION_COUNT; ++i) {
-        if (i == 0)
+        if (addr == z80_last_pc)
             serial_printstr(PSTR("-> "));
         else
             serial_spaces(3);
@@ -42,6 +42,7 @@ void debugger_show_instructions(uint16_t addr)
         serial_print(buf);
         serial_puts();
     }
+    return addr;
 }
 
 void debugger_step(bool show_cycles)

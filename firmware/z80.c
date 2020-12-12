@@ -27,7 +27,7 @@ static void update_status()
     Z.mreq = get_MREQ();
     Z.rd = get_RD();
     Z.wr = get_WR();
-    if (Z.mreq == 0 && (Z.rd == 0 || Z.wr == 0)) {
+    if (Z.rd == 0 || Z.wr == 0) {
         Z.addr_bus = memory_read_addr();
         Z.data_bus = memory_read_data();
         if (Z.m1 == 0)
@@ -43,12 +43,22 @@ bool z80_controls_bus()
     return true;
 }
 
+#include "serial.h"
+
+static void z80_iorq_requested()
+{
+    serial_printstr(PSTR("IORQ requested by a device!\n"));
+}
+
 static void z80_clock()
 {
     set_ZCLK(1);
     wait();
     set_ZCLK(0);
     wait();
+    if (z80_last_status.iorq == 1 && get_IORQ() == 0) {
+        z80_iorq_requested();
+    }
     update_status();
     if (z80_last_status.reset == 1)
         ++z80_cycle_number;
