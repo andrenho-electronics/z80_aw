@@ -26,7 +26,9 @@ static void repl_help()
     serial_printstr(PSTR(ANSI_GREEN "b" ANSI_RESET "us request  "));
     serial_printstr(PSTR(ANSI_GREEN "c" ANSI_RESET "ycle\r\n"));
     serial_printstr(PSTR("Debugger:\r\n   "));
-    serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p\r\n"));
+    serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p   "));
+    serial_printstr(PSTR(ANSI_GREEN "l" ANSI_RESET "ist   "));
+    serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  "));
 #if ADD_TESTS
     serial_printstr(PSTR("Tests:\r\n   "));
     serial_printstr(PSTR("run " ANSI_GREEN "t" ANSI_RESET "ests\r\n"));
@@ -181,6 +183,16 @@ static void repl_dump_memory()
     }
 }
 
+static void repl_list(bool ask_addr)
+{
+    uint16_t pc = z80_last_pc;
+    if (ask_addr) {
+        serial_printstr(PSTR("Address? "));
+        pc = serial_inputhex(4);
+    }
+    debugger_show_instructions(pc);
+}
+
 static void repl_programatic_write()
 {
     uint16_t addr = serial_recv16();
@@ -251,6 +263,8 @@ void repl_exec()
         case 'f': repl_free_ram(); break;
         case 'e': debugger_step(false); break;
         case 'E': debugger_step(true); break;
+        case 'l': repl_list(false); break;
+        case 'L': repl_list(true); break;
 #if ADD_TESTS
         case 't': tests_run(); break;
 #endif

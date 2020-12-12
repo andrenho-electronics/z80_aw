@@ -2,8 +2,10 @@
 #define DEBUGGER_H_
 
 #include <stdbool.h>
+#include <stdint.h>
 
 void debugger_step(bool show_cycles);
+void debugger_show_instructions(uint16_t addr);
 
 #endif
 

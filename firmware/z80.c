@@ -7,6 +7,7 @@
 
 Status   z80_last_status;
 uint16_t z80_cycle_number = 0;
+uint16_t z80_last_pc = 0;
 
 static void update_status()
 {
@@ -29,6 +30,8 @@ static void update_status()
     if (Z.mreq == 0 && (Z.rd == 0 || Z.wr == 0)) {
         Z.addr_bus = memory_read_addr();
         Z.data_bus = memory_read_data();
+        if (Z.m1 == 0)
+            z80_last_pc = Z.addr_bus;
     }
 #undef Z 
 }

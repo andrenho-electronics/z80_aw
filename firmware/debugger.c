@@ -22,13 +22,17 @@ static void show_stack()
 {
 }
 
-static void show_instructions(uint16_t addr)
+void debugger_show_instructions(uint16_t addr)
 {
     for (int i = 0; i < DEBUG_INSTRUCTION_COUNT; ++i) {
         if (i == 0)
             serial_printstr(PSTR("-> "));
         else
             serial_spaces(3);
+
+        serial_send('[');
+        serial_printhex16(addr);
+        serial_printstr(PSTR("] : "));
 
         uint8_t data[MAX_INST_SZ];
         char buf[MAX_DISASM_SZ];
@@ -40,13 +44,14 @@ static void show_instructions(uint16_t addr)
     }
 }
 
-
 void debugger_step(bool show_cycles)
 {
     if (get_ZRST() == 0) {
         serial_putsstr(PSTR("Z80 is powered down."));
         return;
     }
+
+    serial_printstr(PSTR("---------------------\r\n"));
 
     bool busack = 1, m1 = 1;
 
@@ -70,9 +75,7 @@ void debugger_step(bool show_cycles)
     // show debugging information
     show_registers(addr);
     show_stack();
-    show_instructions(addr);
-    serial_printstr(PSTR("---------------------"));
-    serial_puts();
+    debugger_show_instructions(addr);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
