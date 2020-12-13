@@ -6,6 +6,7 @@
 #include "debugger.h"
 #include "lowlevel.h"
 #include "memory.h"
+#include "programatic.h"
 #include "serial.h"
 #include "tests.h"
 #include "z80.h"
@@ -200,46 +201,6 @@ static void repl_list(bool ask_addr)
     last_listing_pc = debugger_show_instructions(pc);
 }
 
-static void repl_programatic_write()
-{
-    uint16_t addr = serial_recv16();
-    uint8_t data = serial_recv();
-    if (z80_controls_bus()) {
-        serial_send(1);
-    } else {
-        memory_write(addr, data, true);
-        serial_send(0);
-    }
-}
-
-static void repl_programatic_upload()
-{
-    z80_powerdown();
-    if (z80_controls_bus())
-        serial_send(1);
-    else
-        serial_send(0);
-    uint16_t length = serial_recv16();
-    for (uint16_t i = 0; i < length; ++i) {
-        uint8_t data = serial_recv();
-        memory_write(i, data, false);
-        _delay_ms(10);
-        data = memory_read(i);
-        serial_send(data);
-    }
-}
-
-static void repl_programatic_download()
-{
-    if (z80_controls_bus())
-        serial_send(1);
-    else
-        serial_send(0);
-    uint16_t length = serial_recv16();
-    for (uint16_t i = 0; i < length; ++i)
-        serial_send(memory_read(i));
-}
-
 static void repl_powerdown()
 {
     z80_powerdown();
@@ -307,11 +268,11 @@ void repl_exec()
         case 0xC:  // Ctrl+L
             serial_printstr(PSTR(ANSI_CLRSCR));
             break;
+        case 0xfe:
+            programatic_upload();
+            break;
         case '\n': case '\r':
             break;
-        case PROGRAMATIC_UPLOAD:   repl_programatic_upload(); break;
-        case PROGRAMATIC_DOWNLOAD: repl_programatic_download(); break;
-        case PROGRAMATIC_WRITE:    repl_programatic_write(); break;
         default:
             break;
     }

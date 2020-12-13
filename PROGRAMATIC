@@ -1,6 +1,11 @@
 Programatic interface for file upload:
 
 PC           MC
+ Send programming command (0xFE)
+ ------------>
+ Ack (0x1) or error (0x2)
+ ------------>
+ 
  Send initial addr (2 bytes)
  ------------>
  Ack (0x1) or error (0x2)
@@ -18,7 +23,7 @@ PC           MC
  Send all data
  <------------
 
- Number of bytes to rewrite
+ Number of bytes to rewrite (2 bytes)
  ------------>
  Addr (2 bytes) + Data (1 byte)
  ------------>

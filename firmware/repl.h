@@ -1,9 +1,7 @@
 #ifndef REPL_H_
 #define REPL_H_
 
-#define PROGRAMATIC_UPLOAD   128
-#define PROGRAMATIC_DOWNLOAD 129
-#define PROGRAMATIC_WRITE    130
+#define PROGRAMATIC_UPLOAD   0xfe
 
 void repl_exec();
 void repl_status();

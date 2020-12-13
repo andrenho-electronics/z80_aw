@@ -32,9 +32,9 @@
   - add listing (ok)
 - file upload
   - optionally remove debugger (ok)
-  - block write data to memory
-  - remove non-checking memory write
+  - block write data to memory (ok)
   - communication interface
+  - remove unused writes
 - serial interface
   - send key presses (interrupt)
   - receive terminal changes (bus)

@@ -5,26 +5,11 @@ import serial
 import sys
 import time
 
-BELL     = bytes('\a', 'latin1')
-ENTER    = bytes('\n', 'latin1')
-UPLOAD   = bytes([128])
-DOWNLOAD = bytes([129])
-WRITE    = bytes([130])
+PROGRAMMING = bytes([0xfe])
+ACK         = b'\x01'
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
     percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
     filledLength = int(length * iteration // total)
     bar = fill * filledLength + '-' * (length - filledLength)
@@ -47,13 +32,29 @@ elif len(sys.argv) == 2:
 
 # open connection and get ready
 with serial.Serial(port, 114583, timeout=1) as ser:
-    print('Connected to controller! Reading file from stdin...')
 
     contents = sys.stdin.buffer.read()
     if len(contents) >= 32 * 1024:
         print('File must be smaller than ROM (32k).')
         sys.exit(1)
 
+    # negotiate
+    ser.write(PROGRAMMING)
+    r = ser.read()
+    if r != ACK:
+        print('Error writing to controller: ' + str(r))
+        sys.exit(1)
+
+    ser.write(bytes([0, 0]))
+    r = ser.read()
+    if r != ACK:
+        print('Error writing to controller: ' + str(r))
+        sys.exit(1)
+
+    for page in range(0, len(contents), 64):
+        pass
+
+'''
     print('Sending UPLOAD command...')
     ser.write(UPLOAD)
     r = ser.read()
@@ -63,7 +64,6 @@ with serial.Serial(port, 114583, timeout=1) as ser:
         print(r)
         print('Cannot write file. Maybe the bus is busy?')
         sys.exit(1)
-    ser.write(bytes([len(contents) & 0xff, len(contents) >> 8]))
     i = 1
     ser.timeout = 20
     for byte in contents:
@@ -106,3 +106,4 @@ with serial.Serial(port, 114583, timeout=1) as ser:
                     print('Invalid response from write (' + str(r) + ')')
                     sys.exit(1)
         print('Bytes rewritten successfully.')
+        '''

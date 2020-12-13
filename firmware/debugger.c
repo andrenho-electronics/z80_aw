@@ -80,6 +80,7 @@ void debugger_step(bool show_cycles)
     }
     uint16_t addr = z80_last_status.addr_bus;
     uint8_t data = z80_last_status.data_bus;
+    (void) data;
 
     // run cycle until BUSACK
     while (busack == 1) {
