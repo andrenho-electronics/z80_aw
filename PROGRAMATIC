@@ -1,0 +1,13 @@
+Programatic interface for file upload:
+
+PC           MC
+ Send initial addr (2 bytes)
+ ------------>
+ Ack (0x1) or error (0x2)
+ <------------
+ Blocks of 64 bytes
+ ------------>
+ Checksum
+ <------------
+ (repeat...)
+ 
