@@ -33,7 +33,7 @@ static void repl_help()
     serial_printstr(PSTR("Debugger:\r\n   "));
     serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p   "));
     serial_printstr(PSTR(ANSI_GREEN "l" ANSI_RESET "ist   "));
-    serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  "));
+    serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  \r\n"));
 #if ADD_TESTS
     serial_printstr(PSTR("Tests:\r\n   "));
     serial_printstr(PSTR("run " ANSI_GREEN "t" ANSI_RESET "ests\r\n"));
@@ -172,8 +172,8 @@ static void repl_dump_memory()
     // print data
     for (uint16_t a = 0x0; a < 0x100; a += 0x10) {
         serial_printstr(PSTR(ANSI_MAGENTA));
-        serial_printhex16(((uint16_t) page * 0x10) + (a / 0x10));
-        serial_printstr(PSTR("_" ANSI_RESET));
+        serial_printhex16(((uint16_t) page * 0x100) + a);
+        serial_printstr(PSTR("\b_" ANSI_RESET));
         serial_spaces(3);
         for (uint16_t b = a; b < (a + 0x10); ++b) {
             serial_printhex8(data[b]);
@@ -273,6 +273,8 @@ static void repl_keyboard()
 
 void repl_exec()
 {
+    (void) repl_list;
+
     uint8_t c = serial_recv();
 
     switch (c) {
@@ -286,8 +288,10 @@ void repl_exec()
         case 'f': repl_free_ram(); break;
         case 'e': debugger_step(false); break;
         case 'E': debugger_step(true); break;
+#if ADD_DEBUGGER
         case 'l': repl_list(false); break;
         case 'L': repl_list(true); break;
+#endif
         case 'k': repl_keyboard(); break;
 #if ADD_TESTS
         case 't': tests_run(); break;

@@ -5,9 +5,23 @@ PC           MC
  ------------>
  Ack (0x1) or error (0x2)
  <------------
+ Block size (max 64 bytes, or 0 for ending)
+ ------------>
  Blocks of 64 bytes
  ------------>
  Checksum
  <------------
  (repeat...)
- 
+
+ Finish (0x0) or ask for verification (0x1)
+ ------------>
+ Send all data
+ <------------
+
+ Number of bytes to rewrite
+ ------------>
+ Addr (2 bytes) + Data (1 byte)
+ ------------>
+ Ack (0x1) or error (0x2)
+ <-----------
+ (repeat)

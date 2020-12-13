@@ -72,17 +72,13 @@ uint16_t memory_read(uint16_t addr)
     set_RD(1);
 
     set_addr(addr);
-    wait();
     set_RD(0);
     set_MREQ(0);
-    wait();
 
     uint8_t data = memory_read_data();
-    wait();
 
     set_MREQ(1);
     set_RD(1);
-    wait();
 
     bus_mc_release();  // this also put the ADDR pins in high impedance
     
@@ -90,7 +86,7 @@ uint16_t memory_read(uint16_t addr)
 }
 
 void
-memory_read_page(uint8_t page, uint8_t data[0x100])
+memory_read_page(uint16_t addr, uint8_t data[64])
 {
     if (z80_controls_bus()) {
         for (uint16_t a = 0; a < 0x100; ++a)
@@ -102,9 +98,8 @@ memory_read_page(uint8_t page, uint8_t data[0x100])
     set_WR(1);
     set_RD(1);
 
-    for (uint16_t a = 0; a < 0x100; ++a) {
-        uint16_t addr = (uint16_t) page * 0x100 + a;
-        set_addr(addr);
+    for (uint16_t a = 0; a < 64; ++a) {
+        set_addr(addr + a);
         wait();
         set_MREQ(0);
         set_RD(0);
@@ -126,21 +121,14 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
         return;
 
     bus_mc_takeover();
-    set_MREQ(1);
-    set_WR(1);
-    set_RD(1);
-    wait();
 
     set_addr(addr);
     set_data(data);
-    wait();
 
     set_MREQ(0);
     set_WR(0);
-    wait();
     set_MREQ(1);
     set_WR(1);
-    wait();
 
     if (addr < 0x8000) {  // ROM
         if (wait_for_completion) {
@@ -148,23 +136,34 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
             for (;;) {
                 set_RD(0);
                 set_MREQ(0);
-                wait();
 
                 uint8_t new_data = memory_read_data();
-                wait();
 
                 if (new_data == data)
                     break;
             }
             set_MREQ(1);
             set_RD(1);
-            wait();
-        } else {
-            // _delay_ms(12);
         }
     }
 
     bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
+}
+
+bool memory_write_page(uint16_t addr, uint8_t data[64])
+{
+    if (addr % 64 != 0)
+        return false;
+    if (z80_controls_bus())
+        return false;
+
+    for (uint16_t i = 0; i < 64; ++i) {
+        memory_write(addr + i, data[i], false);
+        _delay_ms(10);
+    }
+
+    // bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
+    return true;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

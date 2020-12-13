@@ -10,6 +10,8 @@
 
 #define DEBUG_INSTRUCTION_COUNT 8
 
+#if ADD_DEBUGGER
+
 static void show_registers(uint16_t addr)
 {
     serial_printstr(PSTR("PC: " ANSI_GREEN));
@@ -45,6 +47,19 @@ int debugger_show_instructions(uint16_t addr)
     return addr;
 }
 
+#else
+
+static void debugger_show_simple(uint16_t addr, uint8_t data)
+{
+    serial_send('[');
+    serial_printhex16(addr);
+    serial_printstr(PSTR("] = "));
+    serial_printhex8(data);
+    serial_puts();
+}
+
+#endif
+
 void debugger_step(bool show_cycles)
 {
     if (get_ZRST() == 0) {
@@ -64,6 +79,7 @@ void debugger_step(bool show_cycles)
             repl_status();
     }
     uint16_t addr = z80_last_status.addr_bus;
+    uint8_t data = z80_last_status.data_bus;
 
     // run cycle until BUSACK
     while (busack == 1) {
@@ -74,9 +90,13 @@ void debugger_step(bool show_cycles)
     }
 
     // show debugging information
+#if ADD_DEBUGGER
     show_registers(addr);
     show_stack();
     debugger_show_instructions(addr);
+#else
+    debugger_show_simple(addr, data);
+#endif
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
