@@ -52,6 +52,8 @@ with serial.Serial(port, 114583, timeout=1) as ser:
         sys.exit(1)
 
     for page in range(0, len(contents), 64):
+        printProgressBar(i, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
+        ser.write(bytes(contents[(page * 64) : ((page + 1) * 64])))
         pass
 
 '''
