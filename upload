@@ -103,6 +103,7 @@ if r != ACK:
     sys.exit(1)
 
 # separate file in blocks
+print('Breaking file in blocks...')
 blocks = break_file_in_64_byte_blocks(contents)
 
 # send blocks
@@ -116,6 +117,7 @@ for i, block in enumerate(blocks):
         invalid_blocks.append(i)
 
 # TODO - finish
+print('Finished, sending ok command...')
 ser.send(0)
 
 #page_number = 0
