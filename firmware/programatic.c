@@ -47,7 +47,9 @@ void programatic_upload()
 
     // check if finish or ask for verification
     uint8_t r = serial_recv();
-    if (r == 0x1) {
+    if (r == 0x0) {
+        serial_send(P_ACK);
+    } else if (r == 0x1) {
 
         // send written bytes
         for (uint16_t a = initial_addr; a < addr; ++a)
