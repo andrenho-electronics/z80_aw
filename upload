@@ -8,6 +8,9 @@ import time
 PROGRAMMING = 0xfe
 ACK         = 0x1
 
+def to_int_array(b):
+    return [x for x in b]
+
 class MySerial:
     def __init__(self, port):
         self.serial = serial.Serial(port, 114583, timeout=1)
@@ -18,7 +21,13 @@ class MySerial:
 
     def recv_as_int(self, n_bytes=1):
         if n_bytes == 1:
-            return int.from_bytes(self.serial.read(), 'little')
+            return int(self.serial.read())
+
+    def recv16(self):
+        r = self.recv_as_int()
+        r |= self.recv_as_int() << 8
+        return r
+
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -29,6 +38,26 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     # Print New Line on Complete
     if iteration == total: 
         print()
+
+
+def break_file_in_64_byte_blocks(contents):
+    blocks = []
+    for b in range(0, len(contents), 64):
+        blocks.append(contents[(b * 64) : ((b + 1) * 64)])
+    return blocks
+
+
+def checksum(block):
+    checksum1 = 0
+    checksum2 = 0
+    for b in to_int_array(block):
+        checksum1 = (checksum1 + b) % 255
+        checksum2 = (checksum2 + checksum1) % 255
+    return checksum1 | (checksum2 << 8)
+
+#
+# MAIN
+#
 
 # get arguments
 port = '/dev/ttyUSB0'
@@ -42,8 +71,6 @@ elif len(sys.argv) == 2:
     else:
         port = sys.argv[1]
 
-def break_file_in_64_byte_blocks(contents):
-    return []  # TODO
 
 with MySerial(port) as ser:
 
