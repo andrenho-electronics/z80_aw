@@ -18,6 +18,13 @@ class MySerial:
     def send(self, data):
         if type(data) == int:
             self.serial.write(bytes([data]))
+        elif type(data) == list:
+            if type(data[0]) == bytes:
+                self.serial.write(data)
+
+    def send16(self, data):
+        self.send(data & 0xff)
+        self.send((data >> 8) & 0xff)
 
     def recv_as_int(self, n_bytes=1):
         if n_bytes == 1:
@@ -71,42 +78,45 @@ elif len(sys.argv) == 2:
     else:
         port = sys.argv[1]
 
+print('Opening connection...')
+ser = MySerial(port)
 
-with MySerial(port) as ser:
+print('Reading file contents...')
+contents = sys.stdin.buffer.read()
+if len(contents) >= 32 * 1024:
+    print('File must be smaller than ROM (32k).')
+    sys.exit(1)
 
-    contents = sys.stdin.buffer.read()
-    if len(contents) >= 32 * 1024:
-        print('File must be smaller than ROM (32k).')
-        sys.exit(1)
+# negotiate
+print('Sending programming command...')
+ser.send(PROGRAMMING)
+r = ser.recv_as_int()
+if r != ACK:
+    print('Error writing to controller: ' + str(r))
+    sys.exit(1)
 
-    # negotiate
-    ser.send(PROGRAMMING)
-    r = ser.recv_as_int()
-    if r != ACK:
-        print('Error writing to controller: ' + str(r))
-        sys.exit(1)
+print('Sending initial address...')
+ser.send16(0)  # initial address
+r = ser.recv_as_int()
+if r != ACK:
+    print('Error writing to controller: ' + str(r))
+    sys.exit(1)
 
-    ser.send16(0)  # initial address
-    r = ser.recv_as_int()
-    if r != ACK:
-        print('Error writing to controller: ' + str(r))
-        sys.exit(1)
+# separate file in blocks
+blocks = break_file_in_64_byte_blocks(contents)
 
-    # separate file in blocks
-    blocks = break_file_in_64_byte_blocks(contents)
+# send blocks
+invalid_blocks = []
+for i, block in enumerate(blocks):
+    printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
+    chk = checksum(block)
+    ser.send(len(block))
+    ser.send(block)
+    if ser.recv16() != chk:
+        invalid_blocks.append(i)
 
-    # send blocks
-    invalid_blocks = []
-    for i, block in enumerate(blocks):
-        printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
-        chk = checksum(block)
-        ser.send(len(block))
-        ser.send(block)
-        if ser.recv16() != chk:
-            invalid_blocks.append(i)
-
-    # TODO - finish
-    ser.send(0)
+# TODO - finish
+ser.send(0)
 
 #page_number = 0
     #for page in range(0, len(contents), 64):
