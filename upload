@@ -5,8 +5,20 @@ import serial
 import sys
 import time
 
-PROGRAMMING = bytes([0xfe])
-ACK         = b'\x01'
+PROGRAMMING = 0xfe
+ACK         = 0x1
+
+class MySerial:
+    def __init__(self, port):
+        self.serial = serial.Serial(port, 114583, timeout=1)
+
+    def send(self, data):
+        if type(data) == int:
+            self.serial.write(bytes([data]))
+
+    def recv_as_int(self, n_bytes=1):
+        if n_bytes == 1:
+            return int.from_bytes(self.serial.read(), 'little')
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
@@ -30,8 +42,10 @@ elif len(sys.argv) == 2:
     else:
         port = sys.argv[1]
 
-# open connection and get ready
-with serial.Serial(port, 114583, timeout=1) as ser:
+def break_file_in_64_byte_blocks(contents):
+    return []  # TODO
+
+with MySerial(port) as ser:
 
     contents = sys.stdin.buffer.read()
     if len(contents) >= 32 * 1024:
@@ -39,22 +53,39 @@ with serial.Serial(port, 114583, timeout=1) as ser:
         sys.exit(1)
 
     # negotiate
-    ser.write(PROGRAMMING)
-    r = ser.read()
+    ser.send(PROGRAMMING)
+    r = ser.recv_as_int()
     if r != ACK:
         print('Error writing to controller: ' + str(r))
         sys.exit(1)
 
-    ser.write(bytes([0, 0]))
-    r = ser.read()
+    ser.send16(0)  # initial address
+    r = ser.recv_as_int()
     if r != ACK:
         print('Error writing to controller: ' + str(r))
         sys.exit(1)
 
-    for page in range(0, len(contents), 64):
-        printProgressBar(i, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
-        ser.write(bytes(contents[(page * 64) : ((page + 1) * 64])))
-        pass
+    # separate file in blocks
+    blocks = break_file_in_64_byte_blocks(contents)
+
+    # send blocks
+    invalid_blocks = []
+    for i, block in enumerate(blocks):
+        printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
+        chk = checksum(block)
+        ser.send(len(block))
+        ser.send(block)
+        if ser.recv16() != chk:
+            invalid_blocks.append(i)
+
+    # TODO - finish
+    ser.send(0)
+
+#page_number = 0
+    #for page in range(0, len(contents), 64):
+    #    printProgressBar(page_number * 64, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
+    #    ser.write(bytes(contents[(page * 64) : ((page + 1) * 64])))
+    #    pass
 
 '''
     print('Sending UPLOAD command...')
