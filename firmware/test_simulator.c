@@ -64,7 +64,16 @@ memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 {
     memory[addr] = data;
     if (wait_for_completion)
-        _delay_ms(100);
+        _delay_ms(10);
+}
+
+bool
+memory_write_page(uint16_t addr, uint8_t data[64], int count)
+{
+    for (uint16_t i = 0; i < count; ++i) {
+        memory_write(addr + i, data[i], true);
+    }
+    return true;
 }
 
 int main()

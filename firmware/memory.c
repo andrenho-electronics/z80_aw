@@ -89,7 +89,7 @@ void
 memory_read_page(uint16_t addr, uint8_t data[64])
 {
     if (z80_controls_bus()) {
-        for (uint16_t a = 0; a < 0x100; ++a)
+        for (uint16_t a = 0; a < 64; ++a)
             data[a] = 0xff;
     }
 
@@ -150,14 +150,14 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
     bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
 }
 
-bool memory_write_page(uint16_t addr, uint8_t data[64])
+bool memory_write_page(uint16_t addr, uint8_t data[64], int count)
 {
     if (addr % 64 != 0)
         return false;
     if (z80_controls_bus())
         return false;
 
-    for (uint16_t i = 0; i < 64; ++i) {
+    for (uint16_t i = 0; i < count; ++i) {
         memory_write(addr + i, data[i], false);
         _delay_ms(10);
     }
