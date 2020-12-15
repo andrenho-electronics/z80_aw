@@ -30,7 +30,7 @@ uint8_t memory_read_data()
     return PINC;
 }
 
-static void set_addr(uint16_t addr)
+void memory_set_addr(uint16_t addr)
 {
     set_OE_595(1);
     set_SER_CLK(1);
@@ -71,7 +71,7 @@ uint16_t memory_read(uint16_t addr)
     set_WR(1);
     set_RD(1);
 
-    set_addr(addr);
+    memory_set_addr(addr);
     set_RD(0);
     set_MREQ(0);
 
@@ -99,7 +99,7 @@ memory_read_page(uint16_t addr, uint8_t data[64], int count)
     set_RD(1);
 
     for (uint16_t a = 0; a < count; ++a) {
-        set_addr(addr + a);
+        memory_set_addr(addr + a);
         wait();
         set_MREQ(0);
         set_RD(0);
@@ -122,7 +122,7 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 
     bus_mc_takeover();
 
-    set_addr(addr);
+    memory_set_addr(addr);
     set_data(data);
 
     set_MREQ(0);
