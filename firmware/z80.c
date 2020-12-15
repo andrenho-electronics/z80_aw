@@ -130,7 +130,7 @@ void z80_keypress(uint8_t key)
     set_INT(1);
     
     // put RST on the data bus
-    memory_set_addr(0xcf);  // RST 0x8
+    memory_set_data(0xcf);  // RST 0x8
     
     // cycle until IORQ == 1
     while (z80_last_status.iorq == 0) {

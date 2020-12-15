@@ -30,7 +30,7 @@ uint8_t memory_read_data()
     return PINC;
 }
 
-void memory_set_addr(uint16_t addr)
+static void memory_set_addr(uint16_t addr)
 {
     set_OE_595(1);
     set_SER_CLK(1);
@@ -54,7 +54,7 @@ void memory_set_addr(uint16_t addr)
     set_OE_595(0);
 }
 
-static void set_data(uint8_t data)
+void memory_set_data(uint8_t data)
 {
     DDRC = 0xff;
     PORTC = data;
@@ -123,7 +123,7 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
     bus_mc_takeover();
 
     memory_set_addr(addr);
-    set_data(data);
+    memory_set_data(data);
 
     set_MREQ(0);
     set_WR(0);
