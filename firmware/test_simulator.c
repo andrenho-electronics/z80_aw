@@ -94,7 +94,7 @@ int main()
         exit(1);
     }
 
-    while (true) {
+    while (1) {
         uint8_t byte = serial_recv();
         if (byte != 0xfe) {
             fprintf(stderr, "Invalid byte read from serial port: expected 0xFE, found 0x%02X.\n", byte);

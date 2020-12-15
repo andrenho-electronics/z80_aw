@@ -4,7 +4,7 @@ PC           MC
  Send programming command (0xFE)
  ------------>
  Ack (0x1) or error (0x2)
- ------------>
+ <------------
  
  Send initial addr (2 bytes)
  ------------>
