@@ -38,17 +38,6 @@ class MySerial:
         ser.timeout = t
 
 
-# Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print(f'\r{prefix} |{bar}| {percent}% {suffix}', end = printEnd)
-    # Print New Line on Complete
-    if iteration == total: 
-        print()
-
-
 def break_file_in_64_byte_blocks(contents):
     blocks = []
     for b in range(0, len(contents), 64):
@@ -124,7 +113,6 @@ for i, block in enumerate(blocks):
     if remote_chk != chk:
         invalid_blocks.append(i)
 
-# TODO - finish
 print('Finished, finalizing write...')
 ser.send(0)
 ser.send(0)
@@ -133,10 +121,7 @@ if r != ACK:
     print('Error writing to controller: ' + str(r))
     sys.exit(1)
 
-
-#page_number = 0
-    #for page in range(0, len(contents), 64):
-    #    printProgressBar(page_number * 64, len(contents), prefix='Upload:', suffix='Complete', decimals=0)
-    #    ser.write(bytes(contents[(page * 64) : ((page + 1) * 64])))
-    #    pass
-
+# check for errors
+if len(invalid_blocks) > 0:
+    print('There were errors writing to ROM memory. Please verify the checksums above.')
+    sys.exit(1)
