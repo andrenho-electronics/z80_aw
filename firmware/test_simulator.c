@@ -76,6 +76,13 @@ memory_write_page(uint16_t addr, uint8_t data[64], int count)
     return true;
 }
 
+void
+memory_read_page(uint16_t addr, uint8_t data[64], int count)
+{
+    for (uint16_t i = 0; i < count; ++i)
+        data[i] = memory_read(addr + i);
+}
+
 int main()
 {
     char name[255];

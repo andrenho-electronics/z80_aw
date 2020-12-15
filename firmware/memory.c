@@ -86,7 +86,7 @@ uint16_t memory_read(uint16_t addr)
 }
 
 void
-memory_read_page(uint16_t addr, uint8_t data[64])
+memory_read_page(uint16_t addr, uint8_t data[64], int count)
 {
     if (z80_controls_bus()) {
         for (uint16_t a = 0; a < 64; ++a)
@@ -98,7 +98,7 @@ memory_read_page(uint16_t addr, uint8_t data[64])
     set_WR(1);
     set_RD(1);
 
-    for (uint16_t a = 0; a < 64; ++a) {
+    for (uint16_t a = 0; a < count; ++a) {
         set_addr(addr + a);
         wait();
         set_MREQ(0);

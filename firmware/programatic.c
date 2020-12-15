@@ -36,18 +36,25 @@ void programatic_upload()
         if (block_size == 0)
             break;
 
-        uint16_t checksum1 = 0, checksum2 = 0;
+        // receive bytes
         uint8_t data[64];
-        for (int i = 0; i < block_size; ++i) {
+        for (int i = 0; i < block_size; ++i)
             data[i] = serial_recv();
-            // TODO - checksum should be from READ data
+
+        // write memory
+        memory_write_page(addr, data, block_size);
+        addr += block_size;
+        
+        // read bytes
+        uint8_t rdata[64];
+        memory_read_page(addr, rdata, block_size);
+
+        // calculate checksum
+        uint16_t checksum1 = 0, checksum2 = 0;
+        for (int i = 0; i < block_size; ++i) {
             checksum1 = (checksum1 + data[i]) % 255;
             checksum2 = (checksum2 + checksum1) % 255;
         }
-
-        memory_write_page(addr, data, block_size);
-        addr += block_size;
-
         serial_send(checksum1);
         serial_send(checksum2);
     }
