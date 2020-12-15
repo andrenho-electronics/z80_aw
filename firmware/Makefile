@@ -20,6 +20,9 @@ ${PROJECT}.elf: ${OBJECTS}
 test-disasm: test_disasm.c disassembler.c
 	gcc -ggdb3 -O0 -Wall -Wextra -std=c11 -o $@ $^ -DTEST=1
 
+test-simulator: programatic.c test_simulator.c
+	gcc -ggdb3 -O0 -Wall -Wextra -std=c11 -o $@ $^ -DSIMULATOR=1 -lutil
+
 test: test-disasm
 	./$^
 
@@ -27,7 +30,7 @@ test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}
 
 clean:
-	rm -f *.elf *.o *.hex test-disasm
+	rm -f *.elf *.o *.hex test-disasm test-simulator
 
 upload: ${PROJECT}.hex
 	sudo avrdude ${AVRDUDE_FLAGS} -U flash:w:$<:i

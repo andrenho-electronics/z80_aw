@@ -3,7 +3,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <avr/pgmspace.h>
+#if !SIMULATOR
+#  include <avr/pgmspace.h>
+#else
+#  define PGM_P const char*
+#endif
 
 void     serial_init();
 

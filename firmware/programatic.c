@@ -4,7 +4,11 @@
 #include "serial.h"
 #include "z80.h"
 
-#include <util/delay.h>
+#if !SIMULATOR
+#  include <util/delay.h>
+#else
+void _delay_ms(int ms);
+#endif
 
 #define P_ACK   0x1
 #define P_ERROR 0x2
