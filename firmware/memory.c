@@ -150,7 +150,7 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
     bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
 }
 
-bool memory_write_page(uint16_t addr, uint8_t data[64], int count)
+bool memory_write_page(uint16_t addr, uint8_t data[64], size_t count)
 {
     if (addr % 64 != 0)
         return false;
