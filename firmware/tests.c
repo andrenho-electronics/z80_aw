@@ -41,7 +41,7 @@ static void test_memory_page(uint16_t start_addr)
         serial_spaces(2);
         for (int i = 0; i < 64; ++i)
             data[i] = counter++;
-        memory_write_page(addr, data);
+        memory_write_page(addr, data, 64);
         memory_read_page(addr, new_data);
         for (uint16_t j = 0; j < 64; ++j) {
             serial_printbit(new_data[j] == data[j]);
