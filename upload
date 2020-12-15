@@ -52,7 +52,7 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
 def break_file_in_64_byte_blocks(contents):
     blocks = []
     for b in range(0, len(contents), 64):
-        blocks.append(contents[(b * 64) : ((b + 1) * 64)])
+        blocks.append(contents[b:b+64])
     return blocks
 
 
@@ -115,7 +115,7 @@ print('Sending bytes...')
 invalid_blocks = []
 for i, block in enumerate(blocks):
     # printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
-    print("Writing block " + str(i+1) + " of " + str(len(blocks)))
+    print("Writing block " + str(i+1) + " of " + str(len(blocks)) + " (" + str(len(block)) + " bytes)")
     chk = checksum(block)
     ser.send(len(block))
     ser.send(block)
