@@ -115,11 +115,12 @@ print('Sending bytes...')
 invalid_blocks = []
 for i, block in enumerate(blocks):
     # printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
+    print("Writing block " + str(i+1) + " of " + str(len(blocks)))
     chk = checksum(block)
     ser.send(len(block))
     ser.send(block)
     remote_chk = ser.recv16()
-    print(chk, remote_chk)
+    print("Write/read checksum: ", chk, remote_chk)
     if remote_chk != chk:
         invalid_blocks.append(i)
 

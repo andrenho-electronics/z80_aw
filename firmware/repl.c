@@ -164,7 +164,7 @@ static void repl_dump_memory()
 
     // read data
     uint8_t data[0x100];
-    memory_read_page(page, data);
+    memory_read_page(page, data, 0x100);
 
     // print header
     serial_spaces(8);
