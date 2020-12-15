@@ -124,7 +124,7 @@ void z80_keypress(uint8_t key)
 
     // cycle until IORQ == 0, release INT
     while (z80_last_status.iorq == 1) {
-        z80_clock_cycle(false);
+        z80_clock();
         repl_status();
     }
     set_INT(1);
@@ -134,7 +134,7 @@ void z80_keypress(uint8_t key)
     
     // cycle until IORQ == 1
     while (z80_last_status.iorq == 0) {
-        z80_clock_cycle(false);
+        z80_clock();
         repl_status();
     }
 
