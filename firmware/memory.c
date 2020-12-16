@@ -158,8 +158,8 @@ bool memory_write_page(uint16_t addr, uint8_t data[64], size_t count)
         return false;
 
     for (uint16_t i = 0; i < count; ++i) {
-        memory_write(addr + i, data[i], false);
-        _delay_ms(10);
+        memory_write(addr + i, data[i], true);
+        // _delay_ms(10);
     }
 
     // bus_mc_release();  // this also put the ADDR & DATA pins in high impedance

@@ -1,5 +1,6 @@
 #include "programatic.h"
 
+#include "bus.h"
 #include "memory.h"
 #include "serial.h"
 #include "z80.h"
@@ -16,6 +17,7 @@ void _delay_ms(int ms);
 void programatic_upload()
 {
     z80_powerdown();
+    z80_clock_cycle(true);
 
     // respond with ack
     if (z80_controls_bus()) {
@@ -44,7 +46,7 @@ void programatic_upload()
         // write memory
         memory_write_page(addr, data, block_size);
         addr += block_size;
-        
+
         // read bytes
         uint8_t rdata[64];
         memory_read_page(addr, rdata, block_size);
@@ -52,7 +54,7 @@ void programatic_upload()
         // calculate checksum
         uint16_t checksum1 = 0, checksum2 = 0;
         for (int i = 0; i < block_size; ++i) {
-            checksum1 = (checksum1 + data[i]) % 255;
+            checksum1 = (checksum1 + rdata[i]) % 255;
             checksum2 = (checksum2 + checksum1) % 255;
         }
         serial_send(checksum1);

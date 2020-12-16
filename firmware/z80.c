@@ -117,28 +117,24 @@ void z80_keypress(uint8_t key)
 {
     last_key_pressed = key;
 
-    serial_printstr("## started interrupt management");
+    bus_mc_release();
 
     // fire interrupt
     set_INT(0);
-
-    // cycle until IORQ == 0, release INT
-    while (z80_last_status.iorq == 1) {
+    set_BUSREQ(1);
+    for (int i = 0; i < 15; ++i) {
         z80_clock();
         repl_status();
     }
     set_INT(1);
-    
-    // put RST on the data bus
-    memory_set_data(0xcf);  // RST 0x8
-    
-    // cycle until IORQ == 1
-    while (z80_last_status.iorq == 0) {
+
+    serial_send('-');
+    serial_puts();
+
+    for (int i = 0; i < 15; ++i) {
         z80_clock();
         repl_status();
     }
-
-    serial_printstr("## finished interrupt management");
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

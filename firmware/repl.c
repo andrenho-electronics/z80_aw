@@ -164,10 +164,10 @@ static void repl_dump_memory()
 
     // read data
     uint8_t data[0x100];
-    memory_read_page(page, data, 0x100);
+    memory_read_page(page * 0x100, data, 0x100);
 
     // print header
-    serial_spaces(8);
+    serial_spaces(7);
     serial_putsstr(PSTR(ANSI_MAGENTA "_0 _1 _2 _3 _4 _5 _6 _7  _8 _9 _A _B _C _D _E _F"));
         
     // print data
@@ -224,10 +224,7 @@ static void repl_keyboard()
 {
     serial_printstr(PSTR("Key? "));
     uint8_t key = serial_recv();
-    if (key > 32 && key < 127)
-        serial_send(key);
-    else
-        serial_printhex8(key);
+    serial_printhex8(key);
     serial_puts();
     z80_keypress(key);
 }
