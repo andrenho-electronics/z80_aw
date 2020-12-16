@@ -8,7 +8,7 @@
 	out (0h), a
 	ld a, 'o'
 	out (0h), a
-	ld a, '.'
+	ld a, '!'
 	out (0h), a
 	halt
 
