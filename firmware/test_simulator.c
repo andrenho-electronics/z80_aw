@@ -24,6 +24,10 @@ void z80_powerdown()
 {
 }
 
+void z80_clock_cycle()
+{
+}
+
 bool z80_controls_bus()
 {
     return false;

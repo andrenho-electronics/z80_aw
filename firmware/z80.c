@@ -124,16 +124,23 @@ void z80_keypress(uint8_t key)
     set_BUSREQ(1);
     for (int i = 0; i < 15; ++i) {
         z80_clock();
-        repl_status();
+        // repl_status();
+        if (get_IORQ() == 0)
+            goto z80_response;
     }
+    set_INT(1);   // a interrupt request was not accepted by Z80
+    return;
+
+z80_response:
     set_INT(1);
 
-    serial_send('-');
-    serial_puts();
+    //serial_send('-');
+    //serial_puts();
 
-    for (int i = 0; i < 15; ++i) {
+    for (int i = 0; i < 3; ++i) {
+        memory_set_data(0xcf);
         z80_clock();
-        repl_status();
+        // repl_status();
     }
 }
 
