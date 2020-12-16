@@ -45,7 +45,6 @@ void programatic_upload()
 
         // write memory
         memory_write_page(addr, data, block_size);
-        addr += block_size;
 
         // read bytes
         uint8_t rdata[64];
