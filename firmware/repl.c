@@ -9,6 +9,7 @@
 #include "programatic.h"
 #include "serial.h"
 #include "tests.h"
+#include "run.h"
 #include "z80.h"
 
 static bool last_was_status = false;
@@ -34,7 +35,8 @@ static void repl_help()
     serial_printstr(PSTR("Debugger:\r\n   "));
     serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p   "));
     serial_printstr(PSTR(ANSI_GREEN "l" ANSI_RESET "ist   "));
-    serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  \r\n"));
+    serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  "));
+    serial_printstr(PSTR(ANSI_GREEN "R" ANSI_RESET "un\r\n"));
 #if ADD_TESTS
     serial_printstr(PSTR("Tests:\r\n   "));
     serial_printstr(PSTR("run " ANSI_GREEN "t" ANSI_RESET "ests\r\n"));
@@ -254,6 +256,10 @@ void repl_exec()
 #if ADD_TESTS
         case 't': tests_run(); break;
 #endif
+        case 'R':
+            serial_printstr(PSTR(ANSI_CLRSCR));
+            run();
+                break;
         case 'b':
             z80_clock_cycle(true);
             repl_status();
