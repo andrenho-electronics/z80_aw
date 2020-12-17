@@ -14,6 +14,8 @@ uint16_t z80_last_pc = 0;
 
 static uint8_t last_key_pressed = 0;
 
+static void z80_clock();
+
 static void update_status()
 {
 #define Z z80_last_status
@@ -62,6 +64,15 @@ static void z80_iorq_requested()
             serial_send('\'');
         }
         serial_printstr(PSTR(" was sent to the display.\r\n"));
+    } else if ((addr & 0xff) == 0x01) {  // last keyboard press
+        serial_printstr(PSTR("Last pressed key requested."));
+        for (int i = 0; i < 1; ++i) {
+            memory_set_data(last_key_pressed);
+            z80_clock();
+            repl_status();
+        }
+        serial_send('-');
+        serial_puts();
     } else {
         serial_printstr(PSTR("IORQ requested by device "));
         serial_printhex8(addr & 0xff);
@@ -124,7 +135,7 @@ void z80_keypress(uint8_t key)
     set_BUSREQ(1);
     for (int i = 0; i < 15; ++i) {
         z80_clock();
-        // repl_status();
+        repl_status();
         if (get_IORQ() == 0)
             goto z80_response;
     }
@@ -134,13 +145,13 @@ void z80_keypress(uint8_t key)
 z80_response:
     set_INT(1);
 
-    //serial_send('-');
-    //serial_puts();
+    serial_send('-');
+    serial_puts();
 
     for (int i = 0; i < 3; ++i) {
         memory_set_data(0xcf);
         z80_clock();
-        // repl_status();
+        repl_status();
     }
 }
 

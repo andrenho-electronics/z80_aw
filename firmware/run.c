@@ -31,7 +31,16 @@ void run()
     z80_init();
 
     // TODO - replace by an AVR timer
+    int i = 0;
     for (;;) {
+        if (get_M1() == 0) {
+            uint16_t addr = memory_read_addr();
+            if (addr != 0x16) {
+                serial_printhex16(addr);
+                serial_puts();
+                ++i;
+            }
+        }
         PORTB = CLK_UP;
         PORTB = CLK_DOWN;
     }
@@ -43,6 +52,10 @@ ISR(INT0_vect)
     if ((addr & 0xff) == 0x00) {   // video device
         uint8_t data = addr >> 8;
         serial_send(data);
+    } else if ((addr & 0xff) == 0x01) {   // retrieve last key pressed
+        memory_set_data(last_key_pressed);
+        PORTB = CLK_UP;
+        PORTB = CLK_DOWN;
     }
 }
 
