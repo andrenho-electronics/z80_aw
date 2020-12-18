@@ -53,7 +53,7 @@ void repl_status()
     }
 
     serial_printstr(PSTR(ANSI_MAGENTA));
-    serial_printhex16(z80_cycle_number);
+    serial_printhex16(Z.cycle);
     serial_printstr(PSTR(ANSI_RESET));
     serial_spaces(2);
 

@@ -9,17 +9,18 @@
 #include "wait.h"
 
 Status   z80_last_status;
-uint16_t z80_cycle_number = 0;
 uint16_t z80_last_pc = 0;
 
-static uint8_t last_key_pressed = 0;
+static uint8_t  last_key_pressed = 0;
+static uint16_t z80_cycle_number = 0;
 
 static void z80_clock();
 
-static void update_status()
+void z80_update_status()
 {
 #define Z z80_last_status
     bus_mc_release();
+    Z.cycle = z80_cycle_number;
     Z.addr_bus = -1;
     Z.data_bus = -1;
     Z.m1 = get_M1();
@@ -65,14 +66,10 @@ static void z80_iorq_requested()
         }
         serial_printstr(PSTR(" was sent to the display.\r\n"));
     } else if ((addr & 0xff) == 0x01) {  // last keyboard press
-        serial_printstr(PSTR("Last pressed key requested."));
-        for (int i = 0; i < 1; ++i) {
-            memory_set_data(last_key_pressed);
-            z80_clock();
-            repl_status();
-        }
-        serial_send('-');
-        serial_puts();
+        serial_printstr(PSTR("Last pressed key requested.\r\n"));
+        memory_set_data(last_key_pressed);
+        z80_clock();
+        z80_last_status.data_bus = last_key_pressed;
     } else {
         serial_printstr(PSTR("IORQ requested by device "));
         serial_printhex8(addr & 0xff);
@@ -86,10 +83,11 @@ static void z80_clock()
     wait();
     set_ZCLK(0);
     wait();
-    if (z80_last_status.iorq == 1 && get_IORQ() == 0) {
+    bool last_iorq = z80_last_status.iorq;
+    z80_update_status();
+    if (last_iorq == 1 && get_IORQ() == 0) {
         z80_iorq_requested();
     }
-    update_status();
     if (z80_last_status.reset == 1)
         ++z80_cycle_number;
 }
@@ -148,11 +146,12 @@ z80_response:
     serial_send('-');
     serial_puts();
 
-    for (int i = 0; i < 3; ++i) {
+    do {
         memory_set_data(0xcf);
         z80_clock();
+        z80_last_status.data_bus = 0xcf;
         repl_status();
-    }
+    } while (get_IORQ() == 0);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
