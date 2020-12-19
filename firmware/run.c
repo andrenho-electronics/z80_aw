@@ -31,7 +31,8 @@ void run()
 
     z80_init();  // improve this initialization (?)
 
-    // TODO - replace by an AVR timer
+    // TODO - replace by an AVR timer 
+    // (see https://www.reddit.com/r/arduino/comments/3898g6/generating_14_mhz_clock_on_arduino/)
     for (;;) {
         PORTB = CLK_UP;
         PORTB = CLK_DOWN;

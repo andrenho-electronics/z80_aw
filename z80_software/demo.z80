@@ -4,6 +4,7 @@
 
 org 8h
 	in a, (1h)		; 08
+	inc a
 	out (0h), a		; 0A
 	ei			; 0C
 	reti			; 0D

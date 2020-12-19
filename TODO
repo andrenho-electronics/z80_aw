@@ -33,17 +33,23 @@
 - file upload
   - optionally remove debugger (ok)
   - block write data to memory (ok)
-  - communication interface
-  - remove unused writes
+  - communication interface (ok)
+  - remove unused writes (ok)
 - serial interface
-  - send key presses (interrupt)
-  - receive terminal changes (bus)
+  - send key presses (interrupt) (ok)
+  - receive terminal changes (bus) (ok)
 - run
-  - run in debugger
+  - run in debugger (ok)
   - run without debugger
-    - serial i/o
+    - serial i/o (ok)
 - debugger
   - show registers
     - show state: halted
   - breakpoints
   - step over
+- programming during run
+  - special commands
+- Z80 software
+  - better development cycle
+  - test sdcc
+  - shell
