@@ -18,8 +18,6 @@ static uint8_t last_key_pressed = 0;
 
 void run()
 {
-    serial_putsstr(PSTR("Welcome to the Z80-AW computer.\r\n"));
-
     // setup RX interrupt
     UCSRB |= (1 << RXEN) | (1 << RXCIE);
 
@@ -28,6 +26,8 @@ void run()
     MCUCR &= ~(1 << ISC00);
     MCUCR |= (1 << ISC01);   // on falling edge
     sei();
+
+    serial_putsstr(PSTR("Z80-AW computer initialized.\r\n"));
 
     z80_init();  // improve this initialization (?)
 
