@@ -3,9 +3,9 @@ demo.bin: demo.z80
 
 upload-demo: demo.bin
 	hexdump -C $^
-	-killall -9 screen
+	-screen -d
 	make -C ../firmware test-connection  # reset AVR
-	sleep 1s
+	../reset
 	../upload < $^
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:
