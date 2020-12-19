@@ -3,8 +3,7 @@ demo.bin: demo.z80
 
 upload-demo: demo.bin
 	hexdump -C $^
-	-screen -d
-	make -C ../firmware test-connection  # reset AVR
+	-screen -S z80 -X quit
 	../reset
 	../upload < $^
 
