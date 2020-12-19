@@ -1,0 +1,14 @@
+Calling convention:
+-------------------
+
+Return value: 
+
+Functions that return char: in the L register
+Functions that return int or a pointer: in the HL registers
+Functions that return long: in the DEHL registers
+
+Parameters:
+
+Parameters for the function are pushed to the stack before the function is
+called. They are pushed from right to left, so the leftmost parameter is the
+first one found when going up in the stack.

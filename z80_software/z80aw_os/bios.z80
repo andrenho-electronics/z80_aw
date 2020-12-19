@@ -1,0 +1,12 @@
+	; print text in parameter HL
+z_print:
+	ld	a, (hl)
+	cp	0		; if *s == 0
+	jr	z, .done	;     goto done
+	out	(0x0), a	; print char
+	inc	hl		; s++
+	jp	z_print
+.done:
+	ret
+  
+; vim:ts=8:sts=8:sw=8:noexpandtab
