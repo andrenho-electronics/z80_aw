@@ -2,3 +2,5 @@
 .include bios.z80
 .include main.z80
 .include shell.z80
+
+.include globals.z80

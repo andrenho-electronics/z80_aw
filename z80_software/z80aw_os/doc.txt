@@ -12,3 +12,9 @@ Parameters:
 Parameters for the function are pushed to the stack before the function is
 called. They are pushed from right to left, so the leftmost parameter is the
 first one found when going up in the stack.
+
+
+Memory map:
+
+FF00 - stack
+F800 - globals

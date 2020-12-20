@@ -1,4 +1,6 @@
 main:
+	im	0
+	ei
 	ld	hl, str_welcome
 	call	PRINT
 
