@@ -58,6 +58,8 @@ void programatic_upload()
         }
         serial_send(checksum1);
         serial_send(checksum2);
+
+        addr += block_size;
     }
 
     // check if finish or ask for verification
