@@ -38,8 +38,7 @@ shell_get_command:
 	inc	b
 	jp	.next
 
-.skip:				; else if c == '\b' and n_chars > 0:
-	cp	127
+.skip:	cp	127		; else if c == '\b' and n_chars > 0:
 	jp	nz, .skip2
 	; TODO - check nchars > 0
 
@@ -52,9 +51,16 @@ shell_get_command:
 	dec	hl
 	dec	b
 
-.skip2:				; else if c == '\n':
-				;	return
+.skip2:	cp	13		; else if c == '\n':
+	jp	nz, .skip3
+	ld	a, 10
+	out	(VIDEO), a
+	ld	a, 13
+	out	(VIDEO), a
+	ld	(hl), 0
+	ret
 
+.skip3
 	jp	.next
 
 
