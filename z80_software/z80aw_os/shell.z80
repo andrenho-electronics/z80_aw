@@ -16,15 +16,47 @@ shell_print_prompt:
 	call	PRINT
 	ret
 .str_prompt:
-	string	"Z) "
+	string	"% "
 
 	;
 	; get command from user
 	;
 shell_get_command:
-	halt			; wait for keypress (key = A)
+	ld	b, 0		; B = string size
+	ld	hl, shell_cmdline ; HL = string pointer
+.next:	halt			; wait for keypress (key = A)
 
-	ret
+	cp	32		; if c >= 32 && c < 127 && n_chars < 50:
+	jp	m, .skip
+	cp	127
+	jp	p, .skip
+	; TODO - check nchars < 50
+
+	out	(VIDEO), a	; add_char
+	ld	(hl), a
+	inc	hl
+	inc	b
+	jp	.next
+
+.skip:				; else if c == '\b' and n_chars > 0:
+	cp	127
+	jp	nz, .skip2
+	; TODO - check nchars > 0
+
+	ld	a, 8		; remove char
+	out	(VIDEO), a
+	ld	a, ' '
+	out	(VIDEO), a
+	ld	a, 8
+	out	(VIDEO), a
+	dec	hl
+	dec	b
+
+.skip2:				; else if c == '\n':
+				;	return
+
+	jp	.next
+
 
 	;
 	; execute command given by user

@@ -3,7 +3,7 @@ PRINT:
 	ld	a, (hl)
 	cp	0		; if *s == 0
 	jr	z, .done	;     goto done
-	out	(0x0), a	; print char
+	out	(VIDEO), a	; print char
 	inc	hl		; s++
 	jp	PRINT
 .done:

@@ -1,7 +1,15 @@
-	dsect
 INITIAL_RAM = 0xf800
+STACK_AREA  = 0xff00
 
-shell_cmdline: blk 50
+VIDEO	 = 0x0
+KEYBOARD = 0x1
+
+	;
+	; variables
+	;
+	dsect
+	org INITIAL_RAM
+shell_cmdline:	blk 50
 	dend
 
 ;.set  shell_cmdline, INITIAL_RAM
