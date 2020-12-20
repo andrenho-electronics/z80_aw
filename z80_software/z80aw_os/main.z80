@@ -7,6 +7,6 @@ main:
 	jp	shell
 
 str_welcome:
-	.string	"Welcome to Z80AW-OS!\r\n"
+	string	"Welcome to Z80AW-OS!\r\n"
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

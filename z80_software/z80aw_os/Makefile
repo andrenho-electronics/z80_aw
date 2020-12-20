@@ -1,7 +1,6 @@
 BIN=z80aw_os.bin
 
-AS=vasmz80_std
-LD=vlink
+AS=vasmz80_oldstyle
 
 ASFLAGS=-chklabels -nocase -Llisting.txt -Fbin
 

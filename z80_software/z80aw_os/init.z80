@@ -1,7 +1,7 @@
 	ld sp, 0xf000		; 00
 	jp main			; 03
 
-.org 0x8
+	org 0x8
 	in a, (0x1)		; 08
 	; out (0x0), a		; 0A
 	ei			; 0C

@@ -1,0 +1,9 @@
+	dsect
+INITIAL_RAM = 0xf800
+
+shell_cmdline: blk 50
+	dend
+
+;.set  shell_cmdline, INITIAL_RAM
+
+; vim:ts=8:sts=8:sw=8:noexpandtab
