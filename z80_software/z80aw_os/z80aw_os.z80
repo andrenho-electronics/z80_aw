@@ -1,3 +1,4 @@
 .include init.z80
 .include bios.z80
 .include main.z80
+.include shell.z80

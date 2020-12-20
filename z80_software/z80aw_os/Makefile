@@ -8,6 +8,7 @@ ASFLAGS=-chklabels -nocase -Llisting.txt -Fbin
 .PHONY: $(BIN)
 $(BIN): z80aw_os.z80
 	$(AS) $(ASFLAGS) -o $@ $^
+	wc -c $@
 
 upload: $(BIN)
 	hexdump -C $^

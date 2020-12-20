@@ -36,6 +36,8 @@ static void repl_help()
     serial_printstr(PSTR("st" ANSI_GREEN "e" ANSI_RESET "p   "));
     serial_printstr(PSTR(ANSI_GREEN "l" ANSI_RESET "ist   "));
     serial_printstr(PSTR(ANSI_GREEN "L" ANSI_RESET "ist from addr  "));
+    serial_printstr(PSTR(ANSI_GREEN "B" ANSI_RESET "reakpoint  "));
+    serial_printstr(PSTR(ANSI_GREEN "C" ANSI_RESET "ontinue  "));
     serial_printstr(PSTR(ANSI_GREEN "R" ANSI_RESET "un\r\n"));
 #if ADD_TESTS
     serial_printstr(PSTR("Tests:\r\n   "));
@@ -231,6 +233,22 @@ static void repl_keyboard()
     z80_keypress(key);
 }
 
+static void repl_breakpoint()
+{
+    serial_printstr(PSTR("Breakpoint? "));
+    uint16_t bkp = serial_inputhex(4);
+    if (bkp != 0)
+        debugger_add_breakpoint(bkp);
+    serial_printstr(PSTR("Breakpoint list: "));
+    uint8_t count;
+    uint16_t* bkps = debugger_breakpoint_list(&count);
+    for (uint8_t i = 0; i < count; ++i) {
+        serial_printhex16(bkps[i]);
+        serial_send(' ');
+    }
+    serial_puts();
+}
+
 void repl_exec()
 {
     (void) repl_list;
@@ -246,12 +264,14 @@ void repl_exec()
         case 'p': repl_powerdown(); break;
         case 'i': repl_init_z80(); break;
         case 'f': repl_free_ram(); break;
-        case 'e': debugger_step(false); break;
-        case 'E': debugger_step(true); break;
+        case 'e': debugger_step(false, false); break;
+        case 'E': debugger_step(true, false); break;
 #if ADD_DEBUGGER
         case 'l': repl_list(false); break;
         case 'L': repl_list(true); break;
 #endif
+        case 'B': repl_breakpoint(); break;
+        case 'C': debugger_continue(); break;
         case 'k': repl_keyboard(); break;
 #if ADD_TESTS
         case 't': tests_run(); break;
@@ -259,7 +279,7 @@ void repl_exec()
         case 'R':
             serial_printstr(PSTR(ANSI_CLRSCR));
             run();
-                break;
+            break;
         case 'b':
             z80_clock_cycle(true);
             repl_status();
