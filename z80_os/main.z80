@@ -1,8 +1,19 @@
 main:
-	im	0
+	im	0			; interrupt type = 0
+	
+	ld	a, 0			; initialize OS variables
+	ld	(KEYBUF_SZ), a		; KEYBUF_SZ = 0
+
+.next:
 	ei
-	ld	hl, str_welcome
-	call	PRINT
+	halt
+	call	INPUTCHR
+	ld	a, l
+	out	(VIDEO), a
+	jp	.next
+
+	;ld	hl, str_welcome		; print welcome message
+	;call	PRINT
 
 	jp	shell
 

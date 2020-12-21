@@ -1,5 +1,6 @@
 - write monitor
   - keyboard buffer
+    - system call POPKEY
   - system call INPUT
   - create monitor as a separate memory area
     - write to separate memory areas

@@ -8,10 +8,10 @@ MONITOR		= 0x7000	; monitor memory location
 
 	; OS memory locations
 INPUTBUF	= 0xf800	; input buffer for INPUT (256 bytes)
-KBBUF		= 0xf900	; keyboard input buffer (8 bytes)
-KBBUF_SZ	= 0xf908	; keyboard input buffer size
+KEYBUF		= 0xf900	; keyboard input buffer (8 bytes)
+KEYBUF_SZ	= 0xf908	; keyboard input buffer size
 
-STACK_AREA	= 0xff00
+STACK_AREA	= 0xffff
 
 	;
 	; interrupts

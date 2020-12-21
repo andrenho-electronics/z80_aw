@@ -45,6 +45,7 @@ int main()
     CHECK("ld (1234h), hl", 0x22, 0x34, 0x12);
     CHECK("inc bc", 0x3);
     CHECK("inc (hl)", 0x34);
+    CHECK("push hl", 0xe5);
     CHECK("inc (ix+8)", 0xdd, 0x34, 0x8);
     CHECK("ld h, f0h", 0x26, 0xf0);
     CHECK("ld (hl), 12h", 0x36, 0x12);
@@ -75,6 +76,7 @@ int main()
     CHECK("ld ix, 1234h", 0xdd, 0x21, 0x34, 0x12);
     CHECK("ld (1234h), iy", 0xfd, 0x22, 0x34, 0x12);
     CHECK("add ix, bc", 0xdd, 0x9);
+    CHECK("ld bc, (f908h)", 0xed, 0x4b, 0x08, 0xf9);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

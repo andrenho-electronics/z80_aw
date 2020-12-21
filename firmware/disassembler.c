@@ -339,14 +339,14 @@ static int ed_prefix(uint8_t* mem, char* buf, Z80Prefix prefix)
                     ZP("out (c), 0");
             case 2:
                 if (q == 0)
-                    ZP("sbc %h, %p", prefix, p);
+                    ZP("sbc %h, %p", prefix, p, prefix);
                 else
-                    ZP("adc %h, %p", prefix, p);
+                    ZP("adc %h, %p", prefix, p, prefix);
             case 3:
                 if (q == 0)
-                    ZP("ld (%N), %p", mem, p);
+                    ZP("ld (%N), %p", mem, p, prefix);
                 else
-                    ZP("ld %p, (%N)", p, mem);
+                    ZP("ld %p, (%N)", p, prefix, mem);
             case 4:
                 ZP("neg");
             case 5:
@@ -510,7 +510,7 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                     ZP("call %c, %N", y, mem);
                 case 5:
                     if (q == 0) {
-                        ZP("push %P", p);
+                        ZP("push %P", p, prefix);
                     } else {
                         switch (p) {
                             case 0: ZP("call %N", mem);

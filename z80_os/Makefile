@@ -2,7 +2,7 @@ BIN=z80aw_os.bin
 
 AS=vasmz80_oldstyle
 
-ASFLAGS=-chklabels -L listing.txt -Fbin
+	ASFLAGS=-chklabels -L listing.txt -Fbin
 
 .PHONY: $(BIN)
 $(BIN): mmap.z80

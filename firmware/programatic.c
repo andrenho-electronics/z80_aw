@@ -67,6 +67,9 @@ void programatic_upload()
     if (r == 0x0) {
         serial_send(P_ACK);
     } 
+
+    run();  // TODO
+
     /* - reenable this if it's necessary to perform a rewrite
     else if (r == 0x1) {
 

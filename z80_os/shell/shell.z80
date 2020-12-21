@@ -26,6 +26,12 @@ shell_get_command:
 	ld	hl, INPUTBUF	; HL = string pointer
 .next:	ei
 	halt			; wait for keypress (key = A)
+	push	bc
+	push	hl
+	call	INPUTCHR
+	ld	a, l
+	pop	hl
+	pop	bc
 
 	cp	32		; if c >= 32 && c < 127 && n_chars < 50:
 	jp	m, .skip
