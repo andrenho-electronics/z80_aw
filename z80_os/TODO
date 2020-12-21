@@ -1,7 +1,7 @@
-- write monitor
-  - keyboard buffer
-    - system call POPKEY
-  - system call INPUT
+- write monitor (ok)
+  - keyboard buffer (ok)
+    - system call POPKEY (ok)
+  - system call INPUT (ok)
   - create monitor as a separate memory area
     - write to separate memory areas
   - welcome banner

@@ -5,13 +5,8 @@ main:
 	ld	(KEYBUF_SZ), a		; KEYBUF_SZ = 0
 
 .next:
-	call	INPUTSTR
-	ld	hl, INPUTBUF
+	ld	hl, str_welcome		; print welcome message
 	call	PRINT
-	jp	.next
-
-	;ld	hl, str_welcome		; print welcome message
-	;call	PRINT
 
 	jp	shell
 
