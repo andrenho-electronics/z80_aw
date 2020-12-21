@@ -2,6 +2,6 @@ monitor:
 	call	print_stack
 	ret
 
-	include monitor/stack.z80
+	include stack.z80
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab
