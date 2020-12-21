@@ -1,0 +1,9 @@
+- write monitor
+  - keyboard buffer
+  - system call INPUT
+  - create monitor as a separate memory area
+    - write to separate memory areas
+  - welcome banner
+  - ask for commands
+  - read/write memory
+  - dump memory
