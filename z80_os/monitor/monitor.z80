@@ -1,12 +1,11 @@
 	include bios.z80
 
+	org	MONITOR
+
 monitor:
-	call	print_stack
+	call	welcome_banner
 	ret
 
-	include stack.z80
-
-enter:
-	db	13, 10, 0
+	include	welcome.z80
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

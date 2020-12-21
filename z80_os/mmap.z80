@@ -40,7 +40,7 @@ KEYBOARD = 0x1
 	include main.z80
 
 	; executables
-	include	shell/shell.z80
+	; ...
 
 	; strings
 	include strings.z80

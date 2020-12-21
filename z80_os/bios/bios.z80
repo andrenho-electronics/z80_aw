@@ -1,5 +1,6 @@
 	include bios/PRINT.z80
 	include bios/INPUTCHR.z80
 	include bios/INPUTSTR.z80
+	include bios/CHRREP.z80
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

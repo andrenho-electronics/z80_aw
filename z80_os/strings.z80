@@ -1,8 +1,8 @@
-enter:
+ENTER:
 	db	13, 10, 0
-ansi_yellow:
+ANSI_YELLOW:
 	db	0x1b, "[33m", 0
-ansi_reset:
+ANSI_RESET:
 	db	0x1b, "[0m", 0
 
 

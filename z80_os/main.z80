@@ -8,7 +8,9 @@ main:
 	ld	hl, str_welcome		; print welcome message
 	call	PRINT
 
-	jp	shell
+	call	INPUTSTR		; wait for keypress
+
+	jp	MONITOR			; open monitor
 
 str_welcome:
 	db	"Welcome to Z80AW-OS!", 13, 10, 0
