@@ -1,7 +1,12 @@
+	include bios.z80
+
 monitor:
 	call	print_stack
 	ret
 
 	include stack.z80
+
+enter:
+	db	13, 10, 0
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

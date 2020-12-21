@@ -2,11 +2,12 @@ BIN=z80aw_os.bin
 
 AS=vasmz80_oldstyle
 
-	ASFLAGS=-chklabels -L listing.txt -Fbin
+ASFLAGS=-chklabels -L listing.txt -Fbin -autoexp
 
 .PHONY: $(BIN)
 $(BIN): mmap.z80
 	$(AS) $(ASFLAGS) -o $@ $^
+	./bioscalls.sh > common/bios.z80
 	wc -c $@
 
 upload: $(BIN)

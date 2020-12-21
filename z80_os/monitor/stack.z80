@@ -1,11 +1,7 @@
 print_stack:
 	ld	hl, enter
 	call	PRINT
-	ld	hl, ansi_yellow
-	call	PRINT
 	ld	hl, .stack
-	call	PRINT
-	ld	hl, ansi_reset
 	call	PRINT
         ret
 

@@ -2,7 +2,7 @@ BIN=monitor.bin
 
 AS=vasmz80_oldstyle
 
-ASFLAGS=-chklabels -L listing.txt -Fbin
+ASFLAGS=-chklabels -Fbin -I ../common
 ADDRESS=0x7000
 
 .PHONY: $(BIN)
