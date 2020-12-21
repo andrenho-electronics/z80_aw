@@ -389,6 +389,9 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
 
     // printf("%d %d %d %d %d\n", x, y, z, q, p);
 
+    if (m == 0x76)
+        ZP("halt");
+
     switch (x) {
         //
         // x == 0
@@ -460,11 +463,7 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
         // x == 1
         //
         case 1:
-            if (y == 6 && prefix == NO_PREFIX) {
-                ZP("halt");
-            } else {
-                ZP("ld %r, %r", y, prefix, mem, z, prefix, mem);
-            }
+            ZP("ld %r, %r", y, prefix, mem, z, prefix, mem);
             break;
 
         //
@@ -482,7 +481,7 @@ int disassemble(uint8_t* mem, char* buf, Z80Prefix prefix)
                     ZP("ret %c", y);
                 case 1:
                     if (q == 0) {
-                        ZP("pop %P", p);
+                        ZP("pop %P", p, prefix);
                     } else {
                         switch (p) {
                             case 0: ZP("ret");

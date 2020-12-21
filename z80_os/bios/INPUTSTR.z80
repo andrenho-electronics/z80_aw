@@ -1,30 +1,7 @@
-	;
-	; shell main procedure
-	;
-shell:
- 	call	shell_print_prompt
-	call	shell_get_command
-	call	shell_execute_command
-	jp	shell
-
-
-	;
-	; print prompt
-	;
-shell_print_prompt:
-	ld	hl, .str_prompt
-	call	PRINT
-	ret
-.str_prompt:
-	string	"% "
-
-	;
-	; get command from user
-	;
-shell_get_command:
+	; Read a text string from the user. Result is stored in INPUTBUF.
+INPUTSTR:
 	ld	b, 0		; B = string size
 	ld	hl, INPUTBUF	; HL = string pointer
-
 .next:	ei
 	halt			; wait for keypress (key = A)
 	push	bc
@@ -70,12 +47,5 @@ shell_get_command:
 
 .skip3
 	jp	.next
-
-
-	;
-	; execute command given by user
-	;
-shell_execute_command:
-	ret
-
+	
 ; vim:ts=8:sts=8:sw=8:noexpandtab

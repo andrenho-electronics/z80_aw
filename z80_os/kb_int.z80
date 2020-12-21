@@ -5,6 +5,7 @@ keyboard_interrupt:
 
 	ld	hl, KEYBUF		; get buffer location
 	ld	bc, (KEYBUF_SZ)
+	ld	b, 0
 	add	hl, bc
 
 	; TODO - is there still space in buffer?

@@ -66,7 +66,9 @@ static void z80_iorq_requested()
         }
         serial_printstr(PSTR(" was sent to the display.\r\n"));
     } else if ((addr & 0xff) == 0x01) {  // last keyboard press
-        serial_printstr(PSTR("Last pressed key requested.\r\n"));
+        serial_printstr(PSTR("Last pressed key requested ("));
+        serial_printhex8(last_key_pressed);
+        serial_printstr(PSTR(").\r\n"));
         memory_set_data(last_key_pressed);
         z80_clock();
         z80_last_status.data_bus = last_key_pressed;

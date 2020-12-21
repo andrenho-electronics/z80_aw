@@ -77,6 +77,7 @@ int main()
     CHECK("ld (1234h), iy", 0xfd, 0x22, 0x34, 0x12);
     CHECK("add ix, bc", 0xdd, 0x9);
     CHECK("ld bc, (f908h)", 0xed, 0x4b, 0x08, 0xf9);
+    CHECK("ld (hl), a", 0x77);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -1,0 +1,26 @@
+	; get next char from input buffer in L
+INPUTCHR:
+	ld	hl, (KEYBUF_SZ)		; HL = keyboard buffer size
+	ld	a, l
+
+	cp	0			; if keyboard buffer is zero, return 0
+	jp	z, .buffer_zero
+
+	ld	hl, KEYBUF_SZ		; decrement buffer count
+	dec	(hl)
+	ld	hl, (KEYBUF_SZ)
+
+	ld	bc, KEYBUF		; get buffer last location
+	ld	h, 0
+	add	hl, bc
+
+	ld	a, (hl)			; A = last key pressed
+
+	ld	l, a			; return L
+	ret
+
+.buffer_zero:
+	ld	l, 0
+	ret
+
+; vim:ts=8:sts=8:sw=8:noexpandtab

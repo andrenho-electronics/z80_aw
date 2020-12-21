@@ -5,11 +5,9 @@ main:
 	ld	(KEYBUF_SZ), a		; KEYBUF_SZ = 0
 
 .next:
-	ei
-	halt
-	call	INPUTCHR
-	ld	a, l
-	out	(VIDEO), a
+	call	INPUTSTR
+	ld	hl, INPUTBUF
+	call	PRINT
 	jp	.next
 
 	;ld	hl, str_welcome		; print welcome message
