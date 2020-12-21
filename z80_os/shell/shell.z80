@@ -23,7 +23,7 @@ shell_print_prompt:
 	;
 shell_get_command:
 	ld	b, 0		; B = string size
-	ld	hl, shell_cmdline ; HL = string pointer
+	ld	hl, INPUTBUF	; HL = string pointer
 .next:	ei
 	halt			; wait for keypress (key = A)
 

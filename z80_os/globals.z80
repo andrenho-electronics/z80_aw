@@ -1,7 +1,0 @@
-GLOBALS    = 0xf800
-STACK_AREA = 0xff00
-
-VIDEO	 = 0x0
-KEYBOARD = 0x1
-
-; vim:ts=8:sts=8:sw=8:noexpandtab

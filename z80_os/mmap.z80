@@ -1,30 +1,48 @@
-	include globals.z80
+	;
+	; memory map
+	;
+
+START_LOCATION  =    0x0
+KEYBOARD_INTR   =    0x8
+MONITOR		= 0x7000	; monitor memory location
+
+	; OS memory locations
+INPUTBUF	= 0xf800	; input buffer for INPUT (256 bytes)
+KBBUF		= 0xf900	; keyboard input buffer (8 bytes)
+KBBUF_SZ	= 0xf908	; keyboard input buffer size
+
+STACK_AREA	= 0xff00
+
+	;
+	; interrupts
+	;
+
+VIDEO	 = 0x0
+KEYBOARD = 0x1
+
+	;
+	; start of code
+	;
 
 	; boot sector
-	org	0x0
+	org	START_LOCATION
 	ld	sp, STACK_AREA
 	jp	main
 
 	; interrupts
-	org	0x8
+	org	KEYBOARD_INTR
 	include kb_int.z80
 
 	; bios
-	include	bios.z80
+	include	bios/bios.z80
 
 	; main code
 	include main.z80
 
 	; executables
 	include	shell/shell.z80
-	include monitor/monitor.z80
 
 	; strings
 	include strings.z80
-
-	dsect
-	org	GLOBALS
-shell_cmdline:	blk 50
-	dend
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab
