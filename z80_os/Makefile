@@ -5,15 +5,15 @@ AS=vasmz80_oldstyle
 ASFLAGS=-chklabels -nocase -Llisting.txt -Fbin
 
 .PHONY: $(BIN)
-$(BIN): z80aw_os.z80
+$(BIN): mmap.z80
 	$(AS) $(ASFLAGS) -o $@ $^
 	wc -c $@
 
 upload: $(BIN)
 	hexdump -C $^
 	-screen -S z80 -X quit
-	../../reset
-	../../upload < $^
+	../reset
+	../upload < $^
 
 .PHONY: clean
 clean:

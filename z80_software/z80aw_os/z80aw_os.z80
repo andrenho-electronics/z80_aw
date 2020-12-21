@@ -1,8 +1,0 @@
-	include init.z80
-	include bios.z80
-	include main.z80
-	include shell.z80
-
-	include globals.z80
-
-; vim:ts=8:sts=8:sw=8:noexpandtab

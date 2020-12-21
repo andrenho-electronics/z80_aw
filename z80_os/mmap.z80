@@ -1,0 +1,26 @@
+	include globals.z80
+
+	; boot sector
+	org	0x0
+	ld	sp, STACK_AREA
+	jp	main
+
+	; interrupts
+	org	0x8
+	include kb_int.z80
+
+	; bios
+	include	bios.z80
+
+	; main code
+	include main.z80
+
+	; executables
+	include	shell/shell.z80
+
+	dsect
+	org	GLOBALS
+shell_cmdline:	blk 50
+	dend
+
+; vim:ts=8:sts=8:sw=8:noexpandtab
