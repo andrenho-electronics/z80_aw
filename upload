@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import serial
 import sys
@@ -57,20 +58,17 @@ def checksum(block):
 # MAIN
 #
 
+def auto_int(x):
+    return int(x, 0)
+
 # get arguments
-port = '/dev/ttyUSB0'
-if len(sys.argv) > 2:
-    print('Usage: ' + sys.argv[0] + ' [SERIAL_PORT] < FILE')
-    sys.exit()
-elif len(sys.argv) == 2:
-    if sys.argv[1] == '-h':
-        print('Usage: ' + sys.argv[0] + ' [SERIAL_PORT] < FILE')
-        sys.exit()
-    else:
-        port = sys.argv[1]
+parser = argparse.ArgumentParser()
+parser.add_argument('port', help='Port to connect to', nargs='?', default='/dev/ttyUSB0')
+parser.add_argument('--dest', type=auto_int, nargs=1, default=0)
+args = parser.parse_args()
 
 print('Opening connection...')
-ser = MySerial(port)
+ser = MySerial(args.port)
 
 print('Reading file contents...')
 contents = sys.stdin.buffer.read()
@@ -87,7 +85,7 @@ if r != ACK:
     sys.exit(1)
 
 print('Sending initial address...')
-ser.send16(0)  # initial address
+ser.send16(args.dest[0])  # initial address
 r = ser.recv_as_int()
 if r != ACK:
     print('Error writing to controller: ' + str(r))
