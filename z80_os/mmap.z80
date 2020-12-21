@@ -17,6 +17,10 @@
 
 	; executables
 	include	shell/shell.z80
+	include monitor/monitor.z80
+
+	; strings
+	include strings.z80
 
 	dsect
 	org	GLOBALS

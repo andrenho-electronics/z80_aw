@@ -24,7 +24,8 @@ shell_print_prompt:
 shell_get_command:
 	ld	b, 0		; B = string size
 	ld	hl, shell_cmdline ; HL = string pointer
-.next:	halt			; wait for keypress (key = A)
+.next:	ei
+	halt			; wait for keypress (key = A)
 
 	cp	32		; if c >= 32 && c < 127 && n_chars < 50:
 	jp	m, .skip

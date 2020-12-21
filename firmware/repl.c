@@ -254,6 +254,8 @@ void repl_exec()
     (void) repl_list;
 
     uint8_t c = serial_recv();
+    // serial_printhex8(c);
+    // serial_puts();
 
     switch (c) {
         case 'h': repl_help(); break;
