@@ -1,0 +1,77 @@
+prompt_exec:
+	call	show_prompt
+	call	prompt_command
+	call	prompt_parse
+	call	prompt_execute
+	ret
+
+	;
+	; show input prompt
+	;
+show_prompt:
+	ld	a, '>'
+	out	(VIDEO), a
+	ld	a, ' '
+	out	(VIDEO), a
+	ret
+
+	;
+	; read input from the user
+	;
+prompt_command:
+	call	INPUTSTR
+	ret
+
+	;
+	; Parse command given by the user.
+	;
+	;   - Command is returned in register [X].
+	;   - Number of arguments is retunrned in register [X].
+	;   - The arguments are returned on the stack.
+	;   - The Z flag is set in case of errors.
+prompt_parse:
+	ld	hl, INPUTBUF		; HL = char pointer
+
+	call	.skip_spaces		; skip initial spaces
+	jp	nz, .cont1		; if end of string, simply return
+	or	1			;   clear Z flag
+	ret
+.cont1:
+	
+	ret
+
+	; Jump HL to the next char which is not a space or dot.
+	; Set Z flag if end-of-string.
+.skip_spaces
+	ld	a, (hl)
+	inc	hl
+	cp	' '			; if c == ' ' continue
+	jp	z, .skip_spaces
+	cp	'.'			; if c == '.' continue
+	jp	z, .skip_spaces
+	inc	a			; if c == 0 set Z flag
+	dec	a
+	jp	nz, .char_not_zero
+	cp	a			; set Z flag
+	ret
+.char_not_zero:
+	jp	.skip_spaces
+
+	;
+	; Execute the command given by the user
+	;
+prompt_execute:
+	call	z, prompt_syntax_error
+	ret
+
+	;
+	; Show syntax error message
+	;
+prompt_syntax_error:
+	ld	hl, .syntax_error_msg
+	call	PRINT
+	ret
+.syntax_error_msg:
+	db	"Syntax error.", 13, 10, 0
+
+; vim:ts=8:sts=8:sw=8:noexpandtab
