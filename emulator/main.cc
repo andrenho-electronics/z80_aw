@@ -1,10 +1,17 @@
+#include "ui/ui.hh"
+
 #include <curses.h>
 
 int main()
 {
     initscr();
-    printw("Hello world!");
+    resize_term(40, 130);
+    noecho();
+    keypad(stdscr, true);
     refresh();
-    getch();
-    endwin();
+
+    UI ui;
+
+    while (ui.active())
+        ui.execute();
 }
