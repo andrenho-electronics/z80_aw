@@ -1,7 +1,7 @@
 - read config file (ok)
 - compile code on initialization
-- read listing
-- save to memory
+- read listing (ok)
+- save to memory (ok)
 - create user interface
   - status
   - memory
