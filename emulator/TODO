@@ -1,0 +1,11 @@
+- create user interface
+  - status
+  - memory
+  - code
+  - screen
+  - send keypress
+- compile code on initialization
+- read listing
+- save to memory
+- hardware (emulated)
+- hardware (real)

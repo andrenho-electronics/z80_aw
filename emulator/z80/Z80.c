@@ -340,8 +340,8 @@ static void CodesCB(register Z80 *R)
       if(R->TrapBadOps)
         printf
         (   
-          "[Z80 %lX] Unrecognized instruction: CB %02X at PC=%04X\n",
-          (long)(R->User),OpZ80(R->PC.W-1),R->PC.W-2
+          "[Z80 %p] Unrecognized instruction: CB %02X at PC=%04X\n",
+          (R->User),OpZ80(R->PC.W-1),R->PC.W-2
         );
   }
 }
@@ -362,8 +362,8 @@ static void CodesDDCB(register Z80 *R)
       if(R->TrapBadOps)
         printf
         (
-          "[Z80 %lX] Unrecognized instruction: DD CB %02X %02X at PC=%04X\n",
-          (long)(R->User),OpZ80(R->PC.W-2),OpZ80(R->PC.W-1),R->PC.W-4
+          "[Z80 %p] Unrecognized instruction: DD CB %02X %02X at PC=%04X\n",
+          (R->User),OpZ80(R->PC.W-2),OpZ80(R->PC.W-1),R->PC.W-4
         );
   }
 #undef XX
@@ -385,8 +385,8 @@ static void CodesFDCB(register Z80 *R)
       if(R->TrapBadOps)
         printf
         (
-          "[Z80 %lX] Unrecognized instruction: FD CB %02X %02X at PC=%04X\n",
-          (long)R->User,OpZ80(R->PC.W-2),OpZ80(R->PC.W-1),R->PC.W-4
+          "[Z80 %p] Unrecognized instruction: FD CB %02X %02X at PC=%04X\n",
+          R->User,OpZ80(R->PC.W-2),OpZ80(R->PC.W-1),R->PC.W-4
         );
   }
 #undef XX
@@ -408,8 +408,8 @@ static void CodesED(register Z80 *R)
       if(R->TrapBadOps)
         printf
         (
-          "[Z80 %lX] Unrecognized instruction: ED %02X at PC=%04X\n",
-          (long)R->User,OpZ80(R->PC.W-1),R->PC.W-2
+          "[Z80 %p] Unrecognized instruction: ED %02X at PC=%04X\n",
+          R->User,OpZ80(R->PC.W-1),R->PC.W-2
         );
   }
 }
@@ -434,8 +434,8 @@ static void CodesDD(register Z80 *R)
       if(R->TrapBadOps)
         printf
         (
-          "[Z80 %lX] Unrecognized instruction: DD %02X at PC=%04X\n",
-          (long)R->User,OpZ80(R->PC.W-1),R->PC.W-2
+          "[Z80 %p] Unrecognized instruction: DD %02X at PC=%04X\n",
+          R->User,OpZ80(R->PC.W-1),R->PC.W-2
         );
   }
 #undef XX
