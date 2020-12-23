@@ -78,6 +78,8 @@ ConfigFile Config::load_config_file(char const *filename)
     std::string line;
     int nline = 1;
     while (std::getline(f, line)) {
+        if (line[0] == '#')
+            continue;
         size_t colon_pos = line.find(':');
         if (colon_pos == std::string::npos) {
             std::cerr << "Config file is in incorrect format: missing colon in line " << nline << ".\n";

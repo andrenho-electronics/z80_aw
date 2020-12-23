@@ -1,3 +1,5 @@
+#include <fstream>
+#include <iostream>
 #include "compiler.hh"
 
 static std::string execute_compiler(std::string const& filename)
@@ -9,11 +11,11 @@ static std::string execute_compiler(std::string const& filename)
 #else
 #error  Implement this!
 #endif
-    executable += " -chklabels -L listing.txt -Fbin -autoexp -o rom.bin " + filename + " 2>&1";
+    std::string commandline = executable + " -chklabels -L listing.txt -Fbin -autoexp -o rom.bin " + filename + " 2>&1";
 
-    FILE* pipe = popen(executable.c_str(), "r");
+    FILE* pipe = popen(commandline.c_str(), "r");
     if (!pipe)
-        throw std::runtime_error("Could not open executable!");
+        throw std::runtime_error("Could not open executable " + executable + "!");
 
     std::string result;
     while (fgets(buffer, sizeof buffer, pipe) != nullptr)
@@ -23,8 +25,63 @@ static std::string execute_compiler(std::string const& filename)
     return result;
 }
 
-static void load_listing(std::string const& filename)
+static size_t load_listing(std::string const& filename, int file_offset, CompiledCode& cc)
 {
+    std::ifstream f("listing.txt");
+    if (f.fail()) {
+        std::cerr << "File listing.txt does not exist or could not be opened.\n";
+        exit(1);
+    }
+
+    enum Section { Source, Filenames, Other };
+
+    std::string line;
+    size_t max_file_number = 0;
+    size_t file_number, file_line;
+    Section section = Source;
+    while (std::getline(f, line)) {
+        if (line.empty())
+            continue;
+        if (line == "Sections:" || line == "Symbols:") {
+            section = Other;
+        } else if (line == "Sources:") {
+            section = Filenames;
+        } else if (section == Source && line[0] == 'F') {   // regular source line
+            // read line
+            std::string file_number_s = line.substr(1, 2);
+            std::string file_line_s = line.substr(4, 4);
+            std::string source = line.substr(15);
+            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
+            file_line = strtoul(file_line_s.c_str(), nullptr, 10);
+            if (file_number == ULONG_MAX || file_line == ULONG_MAX)
+                throw std::runtime_error("Invalid listing file format.");
+
+            // adjust file offset (to permit reading multiple files)
+            file_number += file_offset;
+            max_file_number = std::max(max_file_number, file_number);
+
+            // adjust source count
+            while (cc.source.size() < (file_number + 1))
+                cc.source.emplace_back();
+
+            cc.source[file_number].push_back(source);
+
+        } else if (section == Source && line[0] == ' ') {  // address
+            std::string addr_s = line.substr(22, 4);
+            unsigned long addr = strtoul(addr_s.c_str(), nullptr, 16);
+            if (addr == ULONG_MAX)
+                throw std::runtime_error("Invalid listing file format.");
+            cc.locations[addr] = { file_number, file_line };
+
+        } else if (section == Filenames && line[0] == 'F') {
+            std::string file_number_s = line.substr(1, 2);
+            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
+            file_number += file_offset;
+            cc.filename[file_number] = line.substr(5);
+        }
+    }
+
+    return max_file_number + 1;
 }
 
 static void load_binary_into_memory(uint16_t addr)
@@ -35,15 +92,18 @@ static void cleanup()
 {
 }
 
-std::string compile_assembly_code(ConfigFile const& cf)
+std::pair<Result, CompiledCode> compile_assembly_code(ConfigFile const& cf)
 {
-    std::string result;
+    CompiledCode cc;
+
+    Result result;
+    int file_offset = 0;
     for (auto const& c: cf) {
-        result += "Compiling " + c.filename + "...\n";
-        result += execute_compiler(c.filename) + "\n";
-        load_listing(c.filename);
+        result[c.filename] = execute_compiler(c.filename);
+        file_offset += load_listing(c.filename, file_offset, cc);
         load_binary_into_memory(c.memory_location);
         cleanup();
     }
-    return result;
+
+    return std::make_pair(result, cc);
 }

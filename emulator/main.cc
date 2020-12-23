@@ -20,9 +20,10 @@ int main(int argc, char* argv[])
     }
 
 
-    std::string output;
+    CompiledCode cc;
     try {
-        output = compile_assembly_code(config.config_file());
+        auto const [output, cc_] = compile_assembly_code(config.config_file());
+        cc = cc_;
     } catch (std::exception& e) {
         std::cerr << "Compilation error:\n\n" << e.what() << "\n";
         return EXIT_FAILURE;
