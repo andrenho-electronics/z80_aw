@@ -7,15 +7,15 @@
 
 Config::Config(int argc, char **argv)
 {
+    int idx;
     while (true) {
         static struct option long_options[] = {
                 { "help",     no_argument,       nullptr, 'h' },
-                { "emulated", required_argument, nullptr, 'e' },
+                { "emulated", no_argument,       nullptr, 'e' },
                 { "real",     required_argument, nullptr, 'r' },
                 { nullptr,    0,                 nullptr, 0 },
         };
 
-        int idx;
         int c = getopt_long(argc, argv, "he:r:", long_options, &idx);
         if (c == -1)
             break;
@@ -29,11 +29,11 @@ Config::Config(int argc, char **argv)
                 exit(0);
             case 'e':
                 hardware_type_ = Emulated;
-                config_file_ = load_config_file(optarg);
                 break;
             case 'r':
-                std::cerr << "Sorry, support for real hardware is not yet implemented.\n";
-                exit(1);
+                hardware_type_ = Real;
+                serial_port_ = optarg;
+                break;
             case '?':
                 break;
             default:
@@ -43,16 +43,23 @@ Config::Config(int argc, char **argv)
 
     if (hardware_type_ == NotDefined) {
         print_usage(argv[0]);
-        exit(0);
+        exit(1);
     }
+
+    if (optind != argc) {
+        print_usage(argv[0]);
+        exit(1);
+    }
+
+    config_file_ = load_config_file(argv[optind - 1]);
 }
 
 void Config::print_usage(std::string const& argv0)
 {
     std::cout << "Emulator for the Z80AW machine.\n";
-    std::cout << "Usage: " << argv0 << " [-e CONFIGFILE] | [-r PORT]\n";
+    std::cout << "Usage: " << argv0 << " [-e] | [-r PORT] CONFIGFILE\n";
     std::cout << "  Choose either `-e` for running an emulation, or `-r` to connect to the real hardware.\n";
-    std::cout << "  For emulation, a config file in the following format must be passed:\n";
+    std::cout << "  A config file name in the following format must be given:\n";
     std::cout << "     ASSEMBLY_FILE_NAME:0x7000\n";
     std::cout << "     ...\n";
     std::cout << "  For the real hardware, a serial port (such as /dev/ttyUSB0) must be given.\n";

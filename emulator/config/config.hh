@@ -26,6 +26,7 @@ private:
 
     HardwareType hardware_type_ = NotDefined;
     ConfigFile   config_file_;
+    std::string  serial_port_;
 };
 
 #endif
