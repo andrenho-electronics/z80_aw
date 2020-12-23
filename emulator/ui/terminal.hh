@@ -5,6 +5,7 @@
 
 class Terminal : public Window {
 public:
+    Terminal();
     std::string name() const override { return "Terminal"; }
 
 };

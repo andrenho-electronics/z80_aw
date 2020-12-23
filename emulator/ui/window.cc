@@ -15,7 +15,7 @@ void Window::redraw() const
     box(window_, 0, 0);
     std::string name_ = std::string(" ") + name() + " ";
     mvwprintw(window_, 0, cols_ / 2 - name_.length() / 2, name_.c_str());
-    wbkgd(window_, COLOR_REGULAR);
+    wbkgd(window_, background_color_);
     wrefresh(window_);
 }
 

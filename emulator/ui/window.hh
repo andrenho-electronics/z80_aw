@@ -4,6 +4,7 @@
 #include <string>
 
 #include <curses.h>
+#include "colors.hh"
 
 class Window {
 public:
@@ -18,6 +19,7 @@ public:
 protected:
     WINDOW* window_;
     int line_ = 0, col_ = 0, lines_ = 0, cols_ = 0;
+    size_t background_color_ = COLOR_REGULAR;
 };
 
 #endif //EMULATOR_WINDOW_HH

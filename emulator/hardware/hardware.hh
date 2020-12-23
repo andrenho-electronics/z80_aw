@@ -7,7 +7,8 @@
 class Hardware {
 public:
     virtual ~Hardware() = default;
-    virtual void set_memory(uint16_t addr, uint8_t data) = 0;
+    virtual void    set_memory(uint16_t addr, uint8_t data) = 0;
+    virtual uint8_t get_memory(uint16_t addr) = 0;
 
 protected:
     Hardware() = default;
