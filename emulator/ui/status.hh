@@ -8,6 +8,7 @@ public:
     std::string name() const override { return "Status"; }
 
     void redraw() const override;
+    void update() const override;
 };
 
 #endif

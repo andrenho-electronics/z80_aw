@@ -12,6 +12,8 @@ public:
     void    set_memory(uint16_t addr, uint8_t data) override { memory_[addr] = data; }
     uint8_t get_memory(uint16_t addr) override { return memory_[addr]; }
 
+    uint16_t AF() const override { return z80_.AF.W; }
+
 private:
     Z80 z80_;
     uint32_t memory_[64 * 1024];
