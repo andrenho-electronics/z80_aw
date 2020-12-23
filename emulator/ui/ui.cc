@@ -48,3 +48,11 @@ void UI::redraw()
     source.redraw();
     terminal.redraw();
 }
+
+void UI::update()
+{
+    status.update();
+    memory.update();
+    source.update();
+    terminal.update();
+}

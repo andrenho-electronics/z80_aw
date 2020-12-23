@@ -14,6 +14,8 @@ public:
     void resize(int line, int col, int lines=0, int cols=0);
     virtual void redraw() const;
 
+    virtual void update() const {}
+
     virtual std::string name() const = 0;
 
 protected:

@@ -5,7 +5,6 @@
 #include "compiler/compiler.hh"
 
 #include <iostream>
-#include <curses.h>
 
 int main(int argc, char* argv[])
 {
@@ -32,6 +31,8 @@ int main(int argc, char* argv[])
     UI::init_curses();
 
     UI ui;
-    while (ui.active())
+    while (ui.active()) {
+        ui.update();
         ui.execute();
+    }
 }

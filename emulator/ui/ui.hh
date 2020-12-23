@@ -13,6 +13,7 @@ public:
 
     bool active() const { return active_; }
     void execute();
+    void update();
 
     static void init_curses();
 
