@@ -19,9 +19,12 @@ int main(int argc, char* argv[])
         abort();
     }
 
-    auto r = compile_assembly_code(config.config_file());
-    if (!r.ok) {
-        std::cerr << "Compilation error:\n\n" << r.messages;
+
+    std::string output;
+    try {
+        output = compile_assembly_code(config.config_file());
+    } catch (std::exception& e) {
+        std::cerr << "Compilation error:\n\n" << e.what() << "\n";
         return EXIT_FAILURE;
     }
 

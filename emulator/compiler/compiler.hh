@@ -6,11 +6,6 @@
 #include "../hardware/hardware.hh"
 #include "../config/config.hh"
 
-struct CompilationResult {
-    bool        ok;
-    std::string messages;
-};
-
-CompilationResult compile_assembly_code(ConfigFile const& cf);
+std::string compile_assembly_code(ConfigFile const& cf);
 
 #endif //EMULATOR_COMPILER_HH
