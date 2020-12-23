@@ -7,16 +7,17 @@
 
 class Window {
 public:
-    Window(int x, int y, int w=0, int h=0);
+    Window();
     ~Window();
 
-    void redraw() const;
+    void resize(int line, int col, int lines=0, int cols=0);
+    virtual void redraw() const;
 
     virtual std::string name() const = 0;
 
 protected:
-    int x, y, w, h;
     WINDOW* window_;
+    int line_ = 0, col_ = 0, lines_ = 0, cols_ = 0;
 };
 
 #endif //EMULATOR_WINDOW_HH

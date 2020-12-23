@@ -29,16 +29,9 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    /*
-    initscr();
-    resize_term(40, 130);
-    noecho();
-    keypad(stdscr, true);
-    refresh();
+    UI::init_curses();
 
     UI ui;
-
     while (ui.active())
         ui.execute();
-    */
 }

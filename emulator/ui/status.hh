@@ -5,9 +5,9 @@
 
 class Status : public Window {
 public:
-    Status() : Window(COLS - 25, 0) {}
-
     std::string name() const override { return "Status"; }
+
+    void redraw() const override;
 };
 
 #endif

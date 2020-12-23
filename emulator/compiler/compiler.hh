@@ -15,7 +15,7 @@ struct SourceLocation {
 };
 
 struct CompiledCode {
-    std::vector<std::string>                     filename;
+    std::unordered_map<size_t, std::string>      filename;
     std::vector<std::vector<std::string>>        source;    // index = filename index
     std::unordered_map<uint16_t, SourceLocation> locations;
 };
