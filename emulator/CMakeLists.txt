@@ -7,4 +7,4 @@ include_directories(include include/pdcurses z80)
 link_directories(lib)
 link_libraries(pdcurses)
 
-add_executable(emulator main.cc ui/ui.cc ui/ui.hh ui/status.cc ui/status.hh ui/window.cc ui/window.hh z80/Z80.c z80/z80_user.c)
+add_executable(emulator main.cc ui/ui.cc ui/ui.hh ui/status.cc ui/status.hh ui/window.cc ui/window.hh z80/Z80.c z80/z80_user.c config/config.cc config/config.hh)

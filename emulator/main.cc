@@ -1,9 +1,12 @@
 #include "ui/ui.hh"
+#include "config/config.hh"
 
 #include <curses.h>
 
-int main()
+int main(int argc, char* argv[])
 {
+    Config config(argc, argv);
+    /*
     initscr();
     resize_term(40, 130);
     noecho();
@@ -14,4 +17,5 @@ int main()
 
     while (ui.active())
         ui.execute();
+    */
 }
