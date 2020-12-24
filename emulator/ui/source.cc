@@ -8,7 +8,7 @@ Source::Source()
 
 Source::~Source()
 {
-    delwin(window_);
+    delwin(subwindow_);
 }
 
 void Source::resize(int line, int col, int lines, int cols)
@@ -19,22 +19,14 @@ void Source::resize(int line, int col, int lines, int cols)
 
 void Source::update() const
 {
+    clearok(subwindow_, TRUE);
+
     wbkgd(subwindow_, background_color_);
-
-    SourceLocation source_location;
-    try {
-        source_location = compiled_code.locations.at(hardware->PC());
-    } catch (std::out_of_range& e) {
-        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.");
-    }
-
-    if (scroll_ + this->lines_ - 2 < source_location.line)
-        scroll_ = std::max(source_location.line - this->lines_ + 8, (size_t) 0);
 
     for (int i = 0; i < lines_; ++i) {
         std::string line;
         try {
-            line = compiled_code.source.at(source_location.file).at(i + scroll_);
+            line = compiled_code.source.at(source_location_.file).at(i + scroll_);
         } catch (std::out_of_range&) {
             break;  // TODO - clear panel
         }
@@ -51,10 +43,26 @@ void Source::update() const
                 }
             }
         }
-        if (source_location.line == i + scroll_ + 1) {
+        if (source_location_.line == i + scroll_ + 1) {
             mvwchgat(subwindow_, i + 1, 1, this->cols_ - 1, 0, 2, nullptr);
         }
     }
+
+    move(1, cursor_line_ + 1);
+
     wrefresh(subwindow_);
+}
+
+void Source::pc_updated()
+{
+    try {
+        source_location_ = compiled_code.locations.at(hardware->PC());
+    } catch (std::out_of_range& e) {
+        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.");
+        return;
+    }
+
+    if (scroll_ + this->lines_ - 2 < source_location_.line)
+        scroll_ = std::max(source_location_.line - this->lines_ + 8, (size_t) 0);
 }
 

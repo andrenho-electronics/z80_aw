@@ -3,6 +3,7 @@
 
 
 #include "memory.hh"
+#include "../compiler/compiler.hh"
 
 class Source : public Window {
 public:
@@ -13,10 +14,13 @@ public:
     std::string name() const override { return "Source Code"; }
 
     void update() const override;
+    void pc_updated();
 
 private:
     WINDOW* subwindow_;
-    mutable size_t scroll_ = 0;
+    size_t scroll_ = 0;
+    int cursor_line_ = 0;
+    SourceLocation source_location_;
 };
 
 #endif //EMULATOR_SOURCE_HH

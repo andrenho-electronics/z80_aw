@@ -6,8 +6,16 @@
 class Terminal : public Window {
 public:
     Terminal();
+    ~Terminal();
+    void resize(int line, int col, int lines, int cols) override;
+
+    void update() const override;
+
     std::string name() const override { return "Terminal"; }
 
+private:
+    WINDOW* subwindow_;
+    int cursor_line_ = 0, cursor_col_ = 0;
 };
 
 
