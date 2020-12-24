@@ -3,7 +3,7 @@
 
 Source::Source()
 {
-    subwindow_ = derwin(window_, 1, 1, 0, 0);
+    subwindow_ = derwin(window_, 2, 2, 0, 0);
 }
 
 Source::~Source()
@@ -19,8 +19,6 @@ void Source::resize(int line, int col, int lines, int cols)
 
 void Source::update() const
 {
-    clearok(subwindow_, TRUE);
-
     wbkgd(subwindow_, background_color_);
 
     for (int i = 0; i < lines_; ++i) {
@@ -48,9 +46,21 @@ void Source::update() const
         }
     }
 
-    move(1, cursor_line_ + 1);
+    move(cursor_line_ + 1, 1);
 
     wrefresh(subwindow_);
+}
+
+void Source::move_cursor(int rel)
+{
+    if (cursor_line_ + rel < 0) {
+        if (scroll_ > 0) {
+            --scroll_;
+        }
+    } else {
+        cursor_line_ += rel;
+    }
+    update();
 }
 
 void Source::pc_updated()

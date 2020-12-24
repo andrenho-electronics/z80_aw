@@ -16,6 +16,8 @@ public:
     void update() const override;
     void pc_updated();
 
+    void move_cursor(int rel);
+
 private:
     WINDOW* subwindow_;
     size_t scroll_ = 0;

@@ -39,13 +39,19 @@ UI::~UI()
 void UI::execute()
 {
     int ch = getch();
-    // printf("%d\n", ch);
+    printf("%d\n", ch);
     switch (ch) {
         case KEY_PPAGE: case 60499:
             memory.change_page(-1);
             break;
         case KEY_NPAGE: case 60498:
             memory.change_page(1);
+            break;
+        case KEY_UP: case 60419:
+            source.move_cursor(-1);
+            break;
+        case KEY_DOWN: case 60418:
+            source.move_cursor(1);
             break;
         case 'g':
             memory.update_page(ask("New page?"));
