@@ -14,6 +14,9 @@ public:
     bool active() const { return active_; }
     void execute();
     void update();
+    static void draw_status_bar() ;
+
+    static long ask(std::string const& question) ;
 
     static void init_curses();
 

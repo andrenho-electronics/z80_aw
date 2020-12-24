@@ -14,6 +14,8 @@ void UI::init_curses()
 
     if (has_colors()) {
         start_color();
+        init_pair(0, COLOR_WHITE, COLOR_BLACK);
+        init_pair(1, COLOR_WHITE, COLOR_BLUE);
         init_pair(1, COLOR_WHITE, COLOR_BLUE);
         init_pair(2, COLOR_BLACK, COLOR_CYAN);
         init_pair(3, COLOR_CYAN, COLOR_BLUE);
@@ -37,12 +39,28 @@ UI::~UI()
 void UI::execute()
 {
     int ch = getch();
-    if (ch == ' ')
-        active_ = false;
+    // printf("%d\n", ch);
+    switch (ch) {
+        case KEY_PPAGE: case 60499:
+            memory.change_page(-1);
+            break;
+        case KEY_NPAGE: case 60498:
+            memory.change_page(1);
+            break;
+        case 'g':
+            memory.update_page(ask("New page?"));
+            draw_status_bar();
+            break;
+        case 'q':
+            active_ = false;
+            break;
+    }
 }
 
 void UI::redraw()
 {
+    draw_status_bar();
+
     source.resize(0, 0, LINES - 20, COLS / 2);
     terminal.resize(0, COLS / 2, LINES - 20, 0);
     status.resize(LINES - 20, COLS - 25, 19);
@@ -60,4 +78,27 @@ void UI::update()
     memory.update();
     source.update();
     terminal.update();
+}
+
+void UI::draw_status_bar()
+{
+    move(LINES - 1, 0);
+    clrtoeol();
+    attrset(COLOR_TERMINAL); printw("PgUp/Down ");
+    attrset(COLOR_FIELD); printw("Memory page ");
+    attrset(COLOR_TERMINAL); printw(" g ");
+    attrset(COLOR_FIELD); printw("Go to page ");
+}
+
+long UI::ask(std::string const &question)
+{
+    move(LINES - 1, 0);
+    clrtoeol();
+    attrset(COLOR_TERMINAL);
+    printw((question + " ").c_str());
+    char buf[1024];
+    echo();
+    getnstr(buf, sizeof buf);
+    noecho();
+    return strtol(buf, nullptr, 0);
 }

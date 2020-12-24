@@ -20,7 +20,7 @@ private:
     WINDOW* subwindow_;
     size_t scroll_ = 0;
     int cursor_line_ = 0;
-    SourceLocation source_location_;
+    SourceLocation source_location_ {};
 };
 
 #endif //EMULATOR_SOURCE_HH

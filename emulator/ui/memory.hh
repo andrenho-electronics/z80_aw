@@ -11,6 +11,9 @@ public:
     void redraw() const override;
     void update() const override;
 
+    void change_page(int rel);
+    void update_page(uint8_t page_);
+
 private:
     uint8_t page = 0;
 };

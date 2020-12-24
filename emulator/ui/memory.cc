@@ -31,3 +31,15 @@ void Memory::update() const
 
     wrefresh(window_);
 }
+
+void Memory::change_page(int rel)
+{
+    page += rel;
+    update();
+}
+
+void Memory::update_page(uint8_t page_)
+{
+    this->page = page_;
+    update();
+}
