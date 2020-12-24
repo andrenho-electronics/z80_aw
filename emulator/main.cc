@@ -18,11 +18,8 @@ int main(int argc, char* argv[])
         abort();
     }
 
-
-    CompiledCode cc;
     try {
-        auto const [output, cc_] = compile_assembly_code(config.config_file());
-        cc = cc_;
+        Result r = compile_assembly_code(config.config_file());
     } catch (std::exception& e) {
         std::cerr << "Compilation error:\n\n" << e.what() << "\n";
         return EXIT_FAILURE;

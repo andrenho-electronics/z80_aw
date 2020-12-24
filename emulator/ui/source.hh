@@ -6,8 +6,17 @@
 
 class Source : public Window {
 public:
-    std::string name() const override { return "Source Code"; }
-};
+    Source();
+    ~Source();
+    void resize(int line, int col, int lines, int cols) override;
 
+    std::string name() const override { return "Source Code"; }
+
+    void update() const override;
+
+private:
+    WINDOW* subwindow_;
+    mutable size_t scroll_ = 0;
+};
 
 #endif //EMULATOR_SOURCE_HH

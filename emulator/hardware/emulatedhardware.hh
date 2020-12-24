@@ -26,6 +26,7 @@ public:
     uint16_t SP() const override { return z80_.SP.W; }
     uint8_t I() const override { return z80_.I; }
     uint8_t R() const override { return z80_.R; }
+    bool    HALT() const override { return z80_.IFF & IFF_HALT; }
 
 private:
     Z80 z80_;

@@ -9,6 +9,10 @@ public:
     std::string name() const override { return "Memory"; }
 
     void redraw() const override;
+    void update() const override;
+
+private:
+    uint8_t page = 0;
 };
 
 

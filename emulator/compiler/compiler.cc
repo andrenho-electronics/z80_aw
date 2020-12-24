@@ -1,6 +1,9 @@
 #include <fstream>
 #include <iostream>
+#include <regex>
 #include "compiler.hh"
+
+CompiledCode compiled_code;
 
 static std::string execute_compiler(std::string const& filename)
 {
@@ -67,7 +70,7 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             cc.source[file_number].push_back(source);
 
         } else if (section == Source && line[0] == ' ') {  // address
-            std::string addr_s = line.substr(22, 4);
+            std::string addr_s = line.substr(23, 4);
             unsigned long addr = strtoul(addr_s.c_str(), nullptr, 16);
             if (addr == ULONG_MAX)
                 throw std::runtime_error("Invalid listing file format.");
@@ -110,19 +113,17 @@ static void cleanup()
     unlink("rom.bin");
 }
 
-std::pair<Result, CompiledCode> compile_assembly_code(ConfigFile const& cf)
+Result compile_assembly_code(ConfigFile const& cf)
 {
-    CompiledCode cc;
-
     Result result;
     int file_offset = 0;
     cleanup();
     for (auto const& c: cf) {
         result[c.filename] = execute_compiler(c.filename);
-        file_offset += load_listing(c.filename, file_offset, cc);
+        file_offset += load_listing(c.filename, file_offset, compiled_code);
         load_binary_into_memory(c.memory_location);
         cleanup();
     }
 
-    return std::make_pair(result, cc);
+    return result;
 }

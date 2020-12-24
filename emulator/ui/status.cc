@@ -17,12 +17,13 @@ void Status::redraw() const
     mvwprintw(window_, 9, 2, "PC:");
     mvwprintw(window_, 6, 13, "I:");
     mvwprintw(window_, 7, 13, "R:");
+    mvwprintw(window_, 8, 13, "Halt: ");
     mvwprintw(window_, 11, 2, "Flags:");
     mvwprintw(window_, 12, 4, "Sign:");
     mvwprintw(window_, 13, 4, "Zero:");
     mvwprintw(window_, 14, 4, "Half-carry:");
-    mvwprintw(window_, 15, 4, "Parity/Overflow:");
-    mvwprintw(window_, 16, 4, "Add/Subtract:");
+    mvwprintw(window_, 15, 4, "Parity/Ovf:");
+    mvwprintw(window_, 16, 4, "Add/Sub:");
     mvwprintw(window_, 17, 4, "Carry:");
     Window::redraw();
 }
@@ -44,12 +45,14 @@ void Status::update() const
     mvwprintw(window_, 8, 6, "%04X", hardware->SP());
     mvwprintw(window_, 9, 6, "%04X", hardware->PC());
     mvwprintw(window_, 6, 16, "%02X", hardware->I());
-    BIT(12, 21, (hardware->SP() >> 7) & 1);
-    BIT(13, 21, (hardware->SP() >> 6) & 1);
-    BIT(14, 21, (hardware->SP() >> 4) & 1);
-    BIT(15, 21, (hardware->SP() >> 2) & 1);
-    BIT(16, 21, (hardware->SP() >> 1) & 1);
-    BIT(17, 21, (hardware->SP() >> 0) & 1);
+    mvwprintw(window_, 7, 16, "%02X", hardware->R());
+    BIT(12, 16, (hardware->SP() >> 7) & 1);
+    BIT(13, 16, (hardware->SP() >> 6) & 1);
+    BIT(14, 16, (hardware->SP() >> 4) & 1);
+    BIT(15, 16, (hardware->SP() >> 2) & 1);
+    BIT(16, 16, (hardware->SP() >> 1) & 1);
+    BIT(17, 16, (hardware->SP() >> 0) & 1);
+    BIT(8, 19, hardware->HALT());
     wattr_off(window_, COLOR_FIELD, nullptr);
     wrefresh(window_);
 #undef BIT

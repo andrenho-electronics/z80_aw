@@ -17,6 +17,7 @@ void UI::init_curses()
         init_pair(1, COLOR_WHITE, COLOR_BLUE);
         init_pair(2, COLOR_BLACK, COLOR_CYAN);
         init_pair(3, COLOR_CYAN, COLOR_BLUE);
+        init_pair(4, COLOR_YELLOW, COLOR_BLUE);
     }
 }
 
@@ -40,10 +41,10 @@ void UI::execute()
 
 void UI::redraw()
 {
-    status.resize(LINES - 20, COLS - 25);
-    memory.resize(LINES - 20, 0, 0, COLS - 25);
-    source.resize(0, 0, LINES - 20, COLS / 2);
-    terminal.resize(0, COLS / 2, LINES - 20, 0);
+    status.resize(LINES - 19, COLS - 25);
+    memory.resize(LINES - 19, 0, 0, COLS - 25);
+    source.resize(0, 0, LINES - 19, COLS / 2);
+    terminal.resize(0, COLS / 2, LINES - 19, 0);
 
     status.redraw();
     memory.redraw();

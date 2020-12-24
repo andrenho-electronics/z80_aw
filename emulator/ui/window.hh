@@ -11,7 +11,7 @@ public:
     Window();
     ~Window();
 
-    void resize(int line, int col, int lines=0, int cols=0);
+    virtual void resize(int line, int col, int lines=0, int cols=0);
     virtual void redraw() const;
 
     virtual void update() const {}

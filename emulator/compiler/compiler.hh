@@ -20,6 +20,8 @@ struct CompiledCode {
     std::unordered_map<uint16_t, SourceLocation> locations;
 };
 
-std::pair<Result, CompiledCode> compile_assembly_code(ConfigFile const& cf);
+extern CompiledCode compiled_code;
+
+Result compile_assembly_code(ConfigFile const& cf);
 
 #endif //EMULATOR_COMPILER_HH

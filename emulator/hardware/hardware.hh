@@ -24,6 +24,7 @@ public:
     virtual uint16_t SP() const = 0;
     virtual uint8_t I() const = 0;
     virtual uint8_t R() const = 0;
+    virtual bool HALT() const = 0;
 
 protected:
     Hardware() = default;
