@@ -13,6 +13,19 @@ public:
     uint8_t get_memory(uint16_t addr) override { return memory_[addr]; }
 
     uint16_t AF() const override { return z80_.AF.W; }
+    uint16_t BC() const override { return z80_.BC.W; }
+    uint16_t DE() const override { return z80_.DE.W; }
+    uint16_t HL() const override { return z80_.HL.W; }
+    uint16_t AFx() const override { return z80_.AF1.W; }
+    uint16_t BCx() const override { return z80_.BC1.W; }
+    uint16_t DEx() const override { return z80_.DE1.W; }
+    uint16_t HLx() const override { return z80_.HL1.W; }
+    uint16_t IX() const override { return z80_.IX.W; }
+    uint16_t IY() const override { return z80_.IY.W; }
+    uint16_t PC() const override { return z80_.PC.W; }
+    uint16_t SP() const override { return z80_.SP.W; }
+    uint8_t I() const override { return z80_.I; }
+    uint8_t R() const override { return z80_.R; }
 
 private:
     Z80 z80_;
