@@ -18,6 +18,8 @@ public:
 
     void move_cursor(int rel);
 
+    void choose_file();
+
 private:
     WINDOW* subwindow_;
     size_t scroll_ = 0;

@@ -21,6 +21,7 @@ void UI::init_curses()
         init_pair(3, COLOR_CYAN, COLOR_BLUE);
         init_pair(4, COLOR_YELLOW, COLOR_BLUE);
         init_pair(5, COLOR_BLACK, COLOR_RED);
+        init_pair(6, COLOR_WHITE, COLOR_GREEN);
     }
 }
 
@@ -39,7 +40,7 @@ UI::~UI()
 void UI::execute()
 {
     int ch = getch();
-    printf("%d\n", ch);
+    // printf("%d\n", ch);
     switch (ch) {
         case KEY_PPAGE: case 60499:
             memory.change_page(-1);
@@ -56,6 +57,9 @@ void UI::execute()
         case 'g':
             memory.update_page(ask("New page?"));
             draw_status_bar();
+            break;
+        case 'f':
+            source.choose_file();
             break;
         case 'q':
             active_ = false;
@@ -94,6 +98,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Memory page ");
     attrset(COLOR_TERMINAL); printw(" g ");
     attrset(COLOR_FIELD); printw("Go to page ");
+    attrset(COLOR_TERMINAL); printw(" f ");
+    attrset(COLOR_FIELD); printw("Choose file ");
 }
 
 long UI::ask(std::string const &question)
