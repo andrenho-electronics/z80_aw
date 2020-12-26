@@ -116,7 +116,7 @@ static void load_binary_into_memory(uint16_t addr)
 
 static void cleanup()
 {
-    // unlink("listing.txt");
+    unlink("listing.txt");
     unlink("rom.bin");
 }
 
