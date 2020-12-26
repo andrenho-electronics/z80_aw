@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iostream>
+#include <climits>
 #include "compiler.hh"
 
 static std::string execute_compiler(std::string const& filename)
@@ -9,7 +10,7 @@ static std::string execute_compiler(std::string const& filename)
 #ifdef _WIN32
     std::string executable = "bin\\vasmz80_oldstyle.exe";
 #else
-#error  Implement this!
+    std::string executable = "/usr/local/bin/vasmz80_oldstyle";
 #endif
     std::string commandline = executable + " -chklabels -L listing.txt -Fbin -autoexp -o rom.bin " + filename + " 2>&1";
 
@@ -77,6 +78,7 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             std::string file_number_s = line.substr(1, 2);
             file_number = strtoul(file_number_s.c_str(), nullptr, 10);
             file_number += file_offset;
+            std::cout << line.substr(5) << "\n";
             cc.filename[file_number] = line.substr(5);
         }
     }

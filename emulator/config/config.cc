@@ -4,6 +4,7 @@
 #include <iostream>
 
 #include <getopt.h>
+#include <climits>
 
 Config::Config(int argc, char **argv)
 {
