@@ -18,7 +18,7 @@ public:
 
     void move_cursor(int rel);
 
-    void choose_file();
+    int choose_file();
 
 private:
     WINDOW* subwindow_;

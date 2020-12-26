@@ -3,7 +3,7 @@
 Terminal::Terminal()
 {
     background_color_ = COLOR_TERMINAL;
-    subwindow_ = derwin(window_, 1, 1, 0, 0);
+    subwindow_ = newwin(1, 1, 0, 0);
     scrollok(subwindow_, TRUE);
 }
 

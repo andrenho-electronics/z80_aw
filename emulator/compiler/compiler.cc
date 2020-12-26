@@ -80,6 +80,8 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             std::string file_number_s = line.substr(1, 2);
             file_number = strtoul(file_number_s.c_str(), nullptr, 10);
             file_number += file_offset;
+            while (cc.filename.size() <= file_number)
+                cc.filename.emplace_back("-");
             cc.filename[file_number] = line.substr(5);
         }
     }

@@ -82,21 +82,62 @@ void Source::pc_updated()
         scroll_ = std::max(source_location_.line - this->lines_ + 8, (size_t) 0);
 }
 
-void Source::choose_file()
+int Source::choose_file()
 {
-    int line = 4;
-    int col = COLS / 2 - 15;
-    int lines = LINES - 4;
-    int cols = 30;
-    WINDOW* wchoose = newwin(line, col, lines, cols);
-    box(wchoose, 0, 0);
-    std::string name = "Choose source file";
-    mvwprintw(window_, 0, cols_ / 2 - name.length() / 2, name.c_str());
-    wbkgd(window_, COLOR_DIALOG);
+    int h = compiled_code.filename.size() + 2;
 
-    wrefresh(window_);
-    int ch = getch();
+    int line = LINES / 2 - h / 2;
+    int col = COLS / 2 - 15;
+    int lines = h;
+    int cols = 30;
+    WINDOW* wchoose = newwin(lines, cols, line, col);
+    std::string name = "Choose source file";
+    wbkgd(wchoose, COLOR_DIALOG);
+
+    int selected = 0;
+
+    int ch;
+    do {
+        werase(wchoose);
+
+        box(wchoose, 0, 0);
+        mvwprintw(wchoose, 0, cols / 2 - name.length() / 2, name.c_str());
+
+        int i = 0;
+        for (auto const& filename: compiled_code.filename) {
+            mvwprintw(wchoose, i + 1, 1, "%s", filename.c_str());
+            if (selected == i)
+                mvwchgat(wchoose, i + 1, 1, cols - 2, 0, 0, nullptr);
+            ++i;
+        }
+        wrefresh(wchoose);
+
+        ch = getch();
+        if (ch == KEY_UP || ch == 60419) {
+            if (selected > 0)
+                --selected;
+        } else if (ch == KEY_DOWN || ch == 60418) {
+            if (selected < compiled_code.filename.size())
+                ++selected;
+        } else if (ch == 27) {
+            delwin(wchoose);
+            return -1;
+        }
+    } while (ch != KEY_ENTER && ch != 10);
+
+    source_location_.file = selected;
+
+    if (compiled_code.locations.at(hardware->PC()).file == selected) {
+        int ln = compiled_code.locations.at(hardware->PC()).line;
+        source_location_.line = ln;
+        scroll_ = ln - 4;
+    } else {
+        source_location_.line = 0;
+        scroll_ = 0;
+    }
+    update();
 
     delwin(wchoose);
+    return selected;
 }
 

@@ -21,7 +21,7 @@ void UI::init_curses()
         init_pair(3, COLOR_CYAN, COLOR_BLUE);
         init_pair(4, COLOR_YELLOW, COLOR_BLUE);
         init_pair(5, COLOR_BLACK, COLOR_RED);
-        init_pair(6, COLOR_WHITE, COLOR_GREEN);
+        init_pair(6, COLOR_BLACK, COLOR_WHITE);
     }
 }
 
@@ -60,6 +60,8 @@ void UI::execute()
             break;
         case 'f':
             source.choose_file();
+            redraw();
+            update();
             break;
         case 'q':
             active_ = false;
