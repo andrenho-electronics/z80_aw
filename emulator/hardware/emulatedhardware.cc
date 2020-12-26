@@ -7,3 +7,8 @@ EmulatedHardware::EmulatedHardware()
     z80_.User = this;
     ResetZ80(&z80_);
 }
+
+void EmulatedHardware::step()
+{
+    RunZ80(&z80_);
+}

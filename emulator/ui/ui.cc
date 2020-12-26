@@ -67,6 +67,11 @@ void UI::execute()
         case 'b':
             source.swap_breakpoint();
             break;
+        case 's':
+            hardware->step();
+            source.pc_updated();
+            update();
+            break;
         case 'q':
             active_ = false;
             break;
@@ -108,6 +113,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Choose file ");
     attrset(COLOR_TERMINAL); printw(" b ");
     attrset(COLOR_FIELD); printw("Add/remove breakpoint");
+    attrset(COLOR_TERMINAL); printw(" s ");
+    attrset(COLOR_FIELD); printw("Step");
 }
 
 long UI::ask(std::string const &question)

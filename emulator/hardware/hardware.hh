@@ -31,6 +31,8 @@ public:
     void remove_breakpoint(uint16_t addr);
     bool is_breakpoint(uint16_t addr) const;
 
+    virtual void step() = 0;
+
 protected:
     Hardware() = default;
     std::unordered_set<uint16_t> breakpoints_;

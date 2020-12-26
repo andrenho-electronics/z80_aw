@@ -28,6 +28,8 @@ public:
     uint8_t R() const override { return z80_.R; }
     bool    HALT() const override { return z80_.IFF & IFF_HALT; }
 
+    void step() override;
+
 private:
     Z80 z80_;
     uint32_t memory_[64 * 1024];

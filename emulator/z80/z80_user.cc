@@ -1,6 +1,7 @@
 #include "Z80.h"
 
 #include "../hardware/hardware.hh"
+#include "../ui/terminal.hh"
 
 void WrZ80(word Addr,byte Value)
 {
@@ -14,6 +15,8 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
+    if ((Port & 0xff) == 0x0)
+        global_terminal->print_char(Value);
 }
 
 byte InZ80(word Port)

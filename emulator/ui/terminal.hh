@@ -13,10 +13,12 @@ public:
 
     std::string name() const override { return "Terminal"; }
 
+    void print_char(uint8_t ch);
 private:
     WINDOW* subwindow_;
     int cursor_line_ = 0, cursor_col_ = 0;
 };
 
+extern Terminal* global_terminal;
 
 #endif //EMULATOR_TERMINAL_HH
