@@ -18,6 +18,8 @@ public:
 
     void move_cursor(int rel);
 
+    void swap_breakpoint();
+
     int choose_file();
 
 private:

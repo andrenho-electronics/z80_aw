@@ -16,12 +16,12 @@ void UI::init_curses()
         start_color();
         init_pair(0, COLOR_WHITE, COLOR_BLACK);
         init_pair(1, COLOR_WHITE, COLOR_BLUE);
-        init_pair(1, COLOR_WHITE, COLOR_BLUE);
         init_pair(2, COLOR_BLACK, COLOR_CYAN);
         init_pair(3, COLOR_CYAN, COLOR_BLUE);
         init_pair(4, COLOR_YELLOW, COLOR_BLUE);
         init_pair(5, COLOR_BLACK, COLOR_RED);
         init_pair(6, COLOR_BLACK, COLOR_WHITE);
+        init_pair(7, COLOR_WHITE, COLOR_RED);
     }
 }
 
@@ -63,6 +63,9 @@ void UI::execute()
             redraw();
             update();
             break;
+        case 'b':
+            source.swap_breakpoint();
+            break;
         case 'q':
             active_ = false;
             break;
@@ -102,6 +105,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Go to page ");
     attrset(COLOR_TERMINAL); printw(" f ");
     attrset(COLOR_FIELD); printw("Choose file ");
+    attrset(COLOR_TERMINAL); printw(" b ");
+    attrset(COLOR_FIELD); printw("Add/remove breakpoint");
 }
 
 long UI::ask(std::string const &question)

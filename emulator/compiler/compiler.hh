@@ -12,6 +12,10 @@ using Result = std::unordered_map<std::string, std::string>;
 struct SourceLocation {
     size_t file;
     size_t line;
+
+    bool operator==(SourceLocation const& other) const {
+        return file == other.file && line == other.line;
+    }
 };
 
 struct CompiledCode {

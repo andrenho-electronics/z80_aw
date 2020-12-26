@@ -141,3 +141,19 @@ int Source::choose_file()
     return selected;
 }
 
+void Source::swap_breakpoint()
+{
+    for (auto const& [addr, sl]: compiled_code.locations) {
+        if (sl == source_location_) {
+            if (hardware->is_breakpoint(addr)) {
+                hardware->remove_breakpoint(addr);
+                printf("Breakpoitn removed at %0X.\n", addr);
+            } else {
+                hardware->add_breakpoint(addr);
+                printf("Breakpoitn added at %0X.\n", addr);
+            }
+            return;
+        }
+    }
+}
+

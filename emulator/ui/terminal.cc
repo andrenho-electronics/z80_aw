@@ -15,13 +15,13 @@ Terminal::~Terminal()
 void Terminal::resize(int line, int col, int lines, int cols)
 {
     Window::resize(line, col, lines, cols);
-    wresize(subwindow_, this->lines_ - 1, this->cols_ - 1);
-    mvwin(subwindow_, 1, this->col_ + 1);
+    wresize(subwindow_, this->lines_ - 2, this->cols_ - 2);
+    mvwin(subwindow_, line + 1, col + 1);
 }
 
 void Terminal::update() const
 {
-    mvwchgat(subwindow_, cursor_line_, cursor_col_, ' ', 0, 5, nullptr);
+    // mvwchgat(subwindow_, cursor_line_, cursor_col_, ' ', 0, 5, nullptr);
     wrefresh(subwindow_);
 }
 
