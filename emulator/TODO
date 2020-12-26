@@ -11,8 +11,10 @@
   - send keypress (ok)
   - breakpoints (ok)
     - choose source file (ok)
-  - stack
+  - stack (ok)
 - debugging
   - run, stop at breakpoints
     - deal with keypresses
   - step over
+- reload
+  - show errors
