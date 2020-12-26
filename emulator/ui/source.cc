@@ -23,35 +23,62 @@ void Source::update() const
     wbkgd(subwindow_, background_color_);
     werase(subwindow_);
 
-    for (int i = 0; i < lines_; ++i) {
+    for (int line_number = 0; line_number < lines_; ++line_number) {
         std::string line;
         try {
-            line = compiled_code.source.at(source_location_.file).at(i + scroll_);
+            std::optional<uint16_t> addr;
+            line = compiled_code.source.at(source_location_.file).at(line_number + scroll_);
+            auto const& iaddr = compiled_code.rlocations.find({source_location_.file, line_number + scroll_ + 1 });
+            if (iaddr != compiled_code.rlocations.end())
+                addr = iaddr->second;
+            print_source_line(line_number, line, addr);
+            format_source_line(line_number, addr);
         } catch (std::out_of_range&) {
-            break;  // TODO - clear panel
-        }
-        int col = 0;
-        attron(COLOR_MEMORY);
-        for (int j = 0; j < this->cols_ - 2; ++j) {
-            if (j < line.length()) {
-                if (line[j] == '\t') {
-                    int next = ((col / 8) + 1) * 8;
-                    while (col < next)
-                        mvwaddch(subwindow_, i, col++, ' ');
-                } else {
-                    mvwaddch(subwindow_, i, col, line[j]);
-                    ++col;
-                }
-            }
-        }
-        if (source_location_.line == i + scroll_ + 1) {
-            mvwchgat(subwindow_, i, 0, this->cols_ - 1, 0, 2, nullptr);
+            break;
         }
     }
 
     move(cursor_line_ + 1, 1);
-
     wrefresh(subwindow_);
+}
+
+void Source::print_source_line(int line_number, std::string const &line_str, std::optional<uint16_t> const& addr) const
+{
+    int col = 6;
+    for (int j = 0; j < cols_ - 2; ++j) {
+        if (addr) {
+            wattr_on(subwindow_, COLOR_ADDRESS, nullptr);
+            mvwprintw(subwindow_, line_number, 0, "%04X: ", addr.value());
+            wattr_off(subwindow_, COLOR_ADDRESS, nullptr);
+        }
+        if (j < line_str.length()) {
+            if (line_str[j] == '\t') {
+                int next = (((col - 6) / 8) + 1) * 8 + 6;
+                while (col < next)
+                    mvwaddch(subwindow_, line_number, col++, ' ');
+            } else {
+                mvwaddch(subwindow_, line_number, col, line_str[j]);
+                ++col;
+            }
+        }
+    }
+}
+
+void Source::format_source_line(int line_number, std::optional<uint16_t> const& addr) const
+{
+    if (source_location_.line == line_number + scroll_ + 1) {  // line == PC
+        mvwchgat(subwindow_, line_number, 6, cols_ - 1, 0, 2, nullptr);
+        return;
+    } else {   // is breakpoint
+        if (addr) {
+            if (hardware->is_breakpoint(addr.value())) {
+                mvwchgat(subwindow_, line_number, 6, cols_ - 1, 0, 7, nullptr);
+                return;
+            }
+        }
+    }
+
+    // mvwchgat(subwindow_, line_number, 0, cols_ - 1, 0, 4, nullptr);
 }
 
 void Source::move_cursor(int rel)
@@ -71,8 +98,11 @@ void Source::move_cursor(int rel)
 
 void Source::pc_updated()
 {
+    size_t previous_file = source_location_.file;
     try {
         source_location_ = compiled_code.locations.at(hardware->PC());
+        if (source_location_.file != previous_file)
+            redraw();
     } catch (std::out_of_range& e) {
         mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.");
         return;
@@ -135,25 +165,35 @@ int Source::choose_file()
         source_location_.line = 0;
         scroll_ = 0;
     }
+    redraw();
     update();
 
     delwin(wchoose);
     return selected;
 }
 
-void Source::swap_breakpoint()
+void Source::swap_breakpoint() const
 {
     for (auto const& [addr, sl]: compiled_code.locations) {
-        if (sl == source_location_) {
+        if (sl.file == source_location_.file && sl.line == scroll_ + cursor_line_ + 1) {
             if (hardware->is_breakpoint(addr)) {
                 hardware->remove_breakpoint(addr);
-                printf("Breakpoitn removed at %0X.\n", addr);
+                update();
             } else {
                 hardware->add_breakpoint(addr);
-                printf("Breakpoitn added at %0X.\n", addr);
+                update();
             }
             return;
         }
+    }
+}
+
+std::string Source::name() const
+{
+    try {
+        return "Source [" + compiled_code.filename.at(source_location_.file) + "]";
+    } catch (std::out_of_range&) {
+        return "Source";
     }
 }
 

@@ -6,7 +6,7 @@ void UI::init_curses()
 {
     initscr();
 #if WIN32
-    resize_term(44, 130);
+    resize_term(44, 150);
 #endif
     noecho();
     keypad(stdscr, true);
@@ -22,6 +22,7 @@ void UI::init_curses()
         init_pair(5, COLOR_BLACK, COLOR_RED);
         init_pair(6, COLOR_BLACK, COLOR_WHITE);
         init_pair(7, COLOR_WHITE, COLOR_RED);
+        init_pair(8, COLOR_GREEN, COLOR_BLUE);
     }
 }
 
@@ -42,10 +43,10 @@ void UI::execute()
     int ch = getch();
     // printf("%d\n", ch);
     switch (ch) {
-        case KEY_PPAGE: case 60499:
+        case KEY_NPAGE: case 60498:
             memory.change_page(-1);
             break;
-        case KEY_NPAGE: case 60498:
+        case KEY_PPAGE: case 60499:
             memory.change_page(1);
             break;
         case KEY_UP: case 60419:
@@ -76,8 +77,8 @@ void UI::redraw()
 {
     draw_status_bar();
 
-    source.resize(0, 0, LINES - 20, COLS / 2);
-    terminal.resize(0, COLS / 2, LINES - 20, 0);
+    source.resize(0, 0, LINES - 20, COLS - 60);
+    terminal.resize(0, COLS - 60, LINES - 20, 0);
     status.resize(LINES - 20, COLS - 25, 19);
     memory.resize(LINES - 20, 0, 19, COLS - 25);
 

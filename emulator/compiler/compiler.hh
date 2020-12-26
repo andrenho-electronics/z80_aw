@@ -16,12 +16,19 @@ struct SourceLocation {
     bool operator==(SourceLocation const& other) const {
         return file == other.file && line == other.line;
     }
+
+    struct HashFunction {
+        size_t operator()(const SourceLocation& sl) const {
+            return std::hash<size_t>()(sl.file * 10000 + sl.line);
+        }
+    };
 };
 
 struct CompiledCode {
     std::vector<std::string>                     filename;
     std::vector<std::vector<std::string>>        source;    // index = filename index
     std::unordered_map<uint16_t, SourceLocation> locations;
+    std::unordered_map<SourceLocation, uint16_t, SourceLocation::HashFunction> rlocations;
 };
 
 extern CompiledCode compiled_code;

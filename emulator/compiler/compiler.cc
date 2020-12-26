@@ -77,7 +77,9 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             unsigned long addr = strtoul(addr_s.c_str(), nullptr, 16);
             if (addr == ULONG_MAX)
                 throw std::runtime_error("Invalid listing file format.");
-            cc.locations[addr] = { file_number, file_line };
+            SourceLocation sl = { file_number, file_line };
+            cc.locations[addr] = sl;
+            cc.rlocations[sl] = addr;
 
         } else if (section == Filenames && line[0] == 'F') {
             std::string file_number_s = line.substr(1, 2);
@@ -114,7 +116,7 @@ static void load_binary_into_memory(uint16_t addr)
 
 static void cleanup()
 {
-    unlink("listing.txt");
+    // unlink("listing.txt");
     unlink("rom.bin");
 }
 
