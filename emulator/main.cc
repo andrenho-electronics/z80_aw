@@ -5,7 +5,6 @@
 #include "compiler/compiler.hh"
 
 #include <iostream>
-#include <curses.h>
 
 int main(int argc, char* argv[])
 {
@@ -19,26 +18,18 @@ int main(int argc, char* argv[])
         abort();
     }
 
-
-    CompiledCode cc;
     try {
-        auto const [output, cc_] = compile_assembly_code(config.config_file());
-        cc = cc_;
+        Result r = compile_assembly_code(config.config_file());
     } catch (std::exception& e) {
         std::cerr << "Compilation error:\n\n" << e.what() << "\n";
         return EXIT_FAILURE;
     }
 
-    /*
-    initscr();
-    resize_term(40, 130);
-    noecho();
-    keypad(stdscr, true);
-    refresh();
+    UI::init_curses();
 
     UI ui;
-
-    while (ui.active())
+    while (ui.active()) {
+        ui.update();
         ui.execute();
-    */
+    }
 }

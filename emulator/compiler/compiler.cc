@@ -1,7 +1,12 @@
+#include <climits>
+#include <unistd.h>
+
 #include <fstream>
 #include <iostream>
-#include <climits>
+#include <regex>
 #include "compiler.hh"
+
+CompiledCode compiled_code;
 
 static std::string execute_compiler(std::string const& filename)
 {
@@ -68,7 +73,7 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             cc.source[file_number].push_back(source);
 
         } else if (section == Source && line[0] == ' ') {  // address
-            std::string addr_s = line.substr(22, 4);
+            std::string addr_s = line.substr(23, 4);
             unsigned long addr = strtoul(addr_s.c_str(), nullptr, 16);
             if (addr == ULONG_MAX)
                 throw std::runtime_error("Invalid listing file format.");
@@ -78,7 +83,8 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
             std::string file_number_s = line.substr(1, 2);
             file_number = strtoul(file_number_s.c_str(), nullptr, 10);
             file_number += file_offset;
-            std::cout << line.substr(5) << "\n";
+            while (cc.filename.size() <= file_number)
+                cc.filename.emplace_back("-");
             cc.filename[file_number] = line.substr(5);
         }
     }
@@ -88,24 +94,43 @@ static size_t load_listing(std::string const& filename, int file_offset, Compile
 
 static void load_binary_into_memory(uint16_t addr)
 {
+    std::ifstream f("rom.bin", std::ios_base::binary);
+    if (f.fail()) {
+        std::cerr << "File listing.txt does not exist or could not be opened.\n";
+        exit(1);
+    }
+
+    f.seekg(0, std::ios::end);
+    size_t length = f.tellg();
+    f.seekg(0, std::ios::beg);
+
+    std::vector<uint8_t> buffer;
+    buffer.resize(length);
+    f.read(reinterpret_cast<char *>(&buffer[0]), length);
+
+    for (uint8_t b: buffer)
+        hardware->set_memory(addr++, b);
 }
 
 static void cleanup()
 {
+    unlink("listing.txt");
+    unlink("rom.bin");
 }
 
-std::pair<Result, CompiledCode> compile_assembly_code(ConfigFile const& cf)
+Result compile_assembly_code(ConfigFile const& cf)
 {
     CompiledCode cc;
 
     Result result;
     int file_offset = 0;
+    cleanup();
     for (auto const& c: cf) {
         result[c.filename] = execute_compiler(c.filename);
-        file_offset += load_listing(c.filename, file_offset, cc);
+        file_offset += load_listing(c.filename, file_offset, compiled_code);
         load_binary_into_memory(c.memory_location);
         cleanup();
     }
 
-    return std::make_pair(result, cc);
+    return result;
 }
