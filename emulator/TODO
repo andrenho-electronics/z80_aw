@@ -2,13 +2,17 @@
 - compile code on initialization
 - read listing (ok)
 - save to memory (ok)
-- create user interface
-  - status
-  - memory
-  - code
-  - screen
-  - send keypress
-- hardware (emulated)
-- hardware (real)
-- breakpoints
-  - choose source file
+- hardware (emulated) (ok)
+- create user interface (ok)
+  - status (ok)
+  - memory (ok)
+  - code (ok)
+  - screen (ok)
+  - send keypress (ok)
+  - breakpoints (ok)
+    - choose source file (ok)
+  - stack
+- debugging
+  - run, stop at breakpoints
+    - deal with keypresses
+  - step over

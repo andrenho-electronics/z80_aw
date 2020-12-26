@@ -67,6 +67,11 @@ void UI::execute()
         case 'b':
             source.swap_breakpoint();
             break;
+        case 'k':
+            terminal.keypress();
+            redraw();
+            update();
+            break;
         case 's':
             hardware->step();
             source.pc_updated();
@@ -113,6 +118,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Choose file ");
     attrset(COLOR_TERMINAL); printw(" b ");
     attrset(COLOR_FIELD); printw("Add/remove breakpoint");
+    attrset(COLOR_TERMINAL); printw(" k ");
+    attrset(COLOR_FIELD); printw("Keypress");
     attrset(COLOR_TERMINAL); printw(" s ");
     attrset(COLOR_FIELD); printw("Step");
 }

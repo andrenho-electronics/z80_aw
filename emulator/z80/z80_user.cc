@@ -21,11 +21,15 @@ void OutZ80(word Port,byte Value)
 
 byte InZ80(word Port)
 {
-    return 0;
+    return global_terminal->last_keypress();
 }
 
 word LoopZ80(Z80 *R)
 {
+    if (global_terminal->keyboard_interrupt()) {
+        global_terminal->clear_keyboard_interrupt();
+        return 0xcf;
+    }
     return INT_QUIT;
 }
 

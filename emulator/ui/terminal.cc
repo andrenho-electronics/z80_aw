@@ -46,3 +46,20 @@ void Terminal::print_char(uint8_t ch)
     update();
 }
 
+void Terminal::keypress()
+{
+    int cols = 50;
+    WINDOW* wkey = newwin(5, cols, LINES / 2 - 3, COLS / 2 - cols / 2);
+    std::string name = " Keypress ";
+    std::string message = "Press a key to cause a keypress event";
+    wbkgd(wkey, COLOR_DIALOG);
+    box(wkey, 0, 0);
+    mvwprintw(wkey, 0, cols / 2 - name.length() / 2, name.c_str());
+    mvwprintw(wkey, 2, cols / 2 - message.length() / 2, message.c_str());
+    wrefresh(wkey);
+    int ch = getch();
+    last_keypress_ = ch;
+    keyboard_interrupt_ = true;
+    delwin(wkey);
+}
+
