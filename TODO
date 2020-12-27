@@ -3,7 +3,7 @@ Subprojects:
 
 # DEBUGGER
   - Adjust colors on Linux (ok)
-  - Ctrl+C on Linux
+  - Ctrl+C on Linux (ok)
   - Connect directly to debugger
     - Create computer serial emulator
     - Write subroutine to fetch registers

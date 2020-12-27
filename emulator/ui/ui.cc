@@ -10,6 +10,7 @@ void UI::init_curses()
 #endif
     noecho();
     keypad(stdscr, true);
+    raw();
     refresh();
 
     if (has_colors()) {
