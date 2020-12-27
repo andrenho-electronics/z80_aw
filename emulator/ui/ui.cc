@@ -1,6 +1,6 @@
 #include "ui.hh"
 
-#include <curses.h>
+#include <ncurses.h>
 
 void UI::init_curses()
 {

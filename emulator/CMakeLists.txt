@@ -3,9 +3,10 @@ project(emulator)
 
 set(CMAKE_CXX_STANDARD 20)
 
-include_directories(include include/pdcurses z80)
+include_directories(z80)
 link_directories(lib)
 if (WIN32)
+    include_directories(include include/pdcurses)
     link_libraries(pdcurses)
 else()
     link_libraries(ncurses)

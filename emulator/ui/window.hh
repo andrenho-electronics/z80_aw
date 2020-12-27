@@ -3,7 +3,7 @@
 
 #include <string>
 
-#include <curses.h>
+#include <ncurses.h>
 #include "colors.hh"
 
 class Window {
