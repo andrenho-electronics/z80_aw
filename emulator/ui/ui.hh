@@ -16,7 +16,8 @@ public:
     void update();
     static void draw_status_bar() ;
 
-    static long ask(std::string const& question) ;
+    static long ask(std::string const& question);
+    static void display_error(std::string const& error);
 
     static void init_curses();
 

@@ -25,8 +25,8 @@ reload:
     try {
         Result r = compile_assembly_code(config.config_file());
     } catch (std::exception& e) {
-        std::cerr << "Compilation error:\n\n" << e.what() << "\n";
-        return EXIT_FAILURE;
+        UI::display_error(std::string("Compilation error:\n\n") + e.what());
+        goto reload;
     }
 
     ui.initialize();

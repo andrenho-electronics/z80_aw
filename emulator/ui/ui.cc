@@ -23,6 +23,7 @@ void UI::init_curses()
         init_pair(6, COLOR_BLACK, COLOR_WHITE);
         init_pair(7, COLOR_WHITE, COLOR_RED);
         init_pair(8, COLOR_GREEN, COLOR_BLUE);
+        init_pair(9, COLOR_RED, COLOR_BLACK);
     }
 }
 
@@ -208,5 +209,17 @@ uint8_t UI::translate_char(int ch)
             return 13;
         default:
             return ch;
+    }
+}
+
+void UI::display_error(std::string const &error)
+{
+    attrset(COLOR_PAIR(9));
+    erase();
+    move(0, 0);
+    printw("%s", error.c_str());
+    if (getch() == 'q') {
+        endwin();
+        exit(0);
     }
 }
