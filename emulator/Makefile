@@ -1,7 +1,10 @@
 CFLAGS=-std=c11 -Wall -Wextra
+LDFLAGS=-lutil
+
+all: emulator
 
 emulator: main.o
-	gcc -o $@ $^ ${LIBS}
+	gcc -o $@ $^ ${LDFLAGS}
 
 .PHONY: clean
 clean:
