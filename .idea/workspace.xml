@@ -9,7 +9,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="48aabd61-0162-4521-954b-7721ee4be0d8" name="Default Changelist" comment="." />
+    <list default="true" id="48aabd61-0162-4521-954b-7721ee4be0d8" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/z80_aw.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/TODO" beforeDir="false" afterPath="$PROJECT_DIR$/TODO" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -72,6 +77,7 @@
       <workItem from="1607908604569" duration="8692000" />
       <workItem from="1608646768585" duration="373000" />
       <workItem from="1608647154963" duration="76000" />
+      <workItem from="1609086155137" duration="1892000" />
     </task>
     <task id="LOCAL-00001" summary=".">
       <created>1607944996268</created>

@@ -1,55 +1,42 @@
-- basic serial communication (ok)
-- create low level interface (ok)
-- create bus control (ok)
-- show status
-  - create state representation (current cycle, bus controller) (ok)
-  - show all pins (ok)
-  - show who is controlling the bus (no)
-- improve start - put CPU on reset, run one cycle, control bus (ok)
-- memory operations:
-  - read single byte (ok)
-  - dump (ok)
-  - write single byte (ok)
-  - upload file (ok)
-- external program for file upload (ok)
-- cpu
-  - cycle (ok)
-  - reset (ok)
-- fix line A5 on first port (ok)
-- remove bell from inputs (ok)
-- add help (ok)
-- ROM memory writing - use D4 (ok)
-- speed up communication (ok)
-- fix specific incorrect memory locations on upload (ok)
-- reduce RAM usage (ok)
-  - free available RAM (ok)
-  - reduce memory usage (https://jeelabs.org/2011/05/22/atmega-memory-use/) (ok)
-- write memory tests (ok)
-- fix NMI issue (ok)
-- debugger
-  - step (request bus) (ok)
-  - show instructions (ok)
-  - add listing (ok)
-- file upload
-  - optionally remove debugger (ok)
-  - block write data to memory (ok)
-  - communication interface (ok)
-  - remove unused writes (ok)
-- serial interface
-  - send key presses (interrupt) (ok)
-  - receive terminal changes (bus) (ok)
-- run
-  - run in debugger (ok)
-  - run without debugger
-    - serial i/o (ok)
-- debugger
-  - show registers
-    - show state: halted
-  - breakpoints
-  - step over
-- programming during run
-  - special commands
-- Z80 software
-  - better development cycle
-  - test sdcc
-  - shell
+Subprojects:
+------------
+
+# DEBUGGER
+  - Adjust colors on Linux
+  - Ctrl+C on Linux
+  - Connect directly to debugger
+    - Create computer serial emulator
+    - Write subroutine to fetch registers
+    - Connect to the real computer
+  - SD Card interface
+
+# OPERATING SYSTEM
+  - Welcome message
+  - Prompt
+  - Disk interface
+    - ROM disk interface
+  - ls
+
+# SD CARD
+  - Read/write from/to card using controller
+    - Create interface for controller debugger
+  - Exchange ROM for RAM, load boot sector on RAN
+  - Create IN/OUT commands for the Z80 be able to read/write data
+  - Create command to copy image to SD Card
+  - SD Card on debugger
+
+# VIDEO CARD
+  - Buy SMT32
+  - VGA output using SMT32
+  - Load VGA card using ATTINY2313
+  - Connect to Z80
+
+# DOCUMENTATION
+  - Improve README
+  - Create website
+  - Create videos
+
+# FUTURE STATE
+  - VGA graphics
+  - Audio card
+  - New compact computer
