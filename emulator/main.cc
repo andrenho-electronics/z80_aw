@@ -22,14 +22,14 @@ int main(int argc, char* argv[])
     UI ui;
 
 reload:
-    ui.initialize();
-
     try {
         Result r = compile_assembly_code(config.config_file());
     } catch (std::exception& e) {
         std::cerr << "Compilation error:\n\n" << e.what() << "\n";
         return EXIT_FAILURE;
     }
+
+    ui.initialize();
 
     while (ui.active()) {
         ui.update();

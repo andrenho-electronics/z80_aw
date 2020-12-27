@@ -106,7 +106,7 @@ void Source::pc_updated()
             redraw();
         }
     } catch (std::out_of_range& e) {
-        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.");
+        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.", hardware->PC());
         return;
     }
 

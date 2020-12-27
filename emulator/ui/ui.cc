@@ -31,7 +31,6 @@ void UI::initialize()
 {
     redraw();
     source.reset();
-    source.pc_updated();
     update();
 }
 
