@@ -9,6 +9,8 @@ public:
 
     void redraw() const override;
     void update() const override;
+
+    void set_running() const override;
 };
 
 #endif

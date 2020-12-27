@@ -46,7 +46,7 @@ void Terminal::print_char(uint8_t ch)
     update();
 }
 
-void Terminal::keypress()
+void Terminal::ask_keypress()
 {
     int cols = 50;
     WINDOW* wkey = newwin(5, cols, LINES / 2 - 3, COLS / 2 - cols / 2);
@@ -58,8 +58,13 @@ void Terminal::keypress()
     mvwprintw(wkey, 2, cols / 2 - message.length() / 2, message.c_str());
     wrefresh(wkey);
     int ch = getch();
-    last_keypress_ = ch;
-    keyboard_interrupt_ = true;
+    keypress(ch);
     delwin(wkey);
+}
+
+void Terminal::keypress(uint8_t key)
+{
+    last_keypress_ = key;
+    keyboard_interrupt_ = true;
 }
 

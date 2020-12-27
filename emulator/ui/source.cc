@@ -199,3 +199,10 @@ std::string Source::name() const
     }
 }
 
+void Source::set_running() const
+{
+    werase(subwindow_);
+    mvwprintw(subwindow_, 0, 0, "Running...");
+    wrefresh(subwindow_);
+}
+

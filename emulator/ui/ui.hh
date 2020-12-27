@@ -21,7 +21,11 @@ public:
     static void init_curses();
 
 private:
+    static uint8_t translate_char(int ch);
+
     void redraw();
+    void run();
+    void step();
 
     Status status;
     Memory memory;

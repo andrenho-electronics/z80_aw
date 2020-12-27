@@ -68,14 +68,23 @@ void UI::execute()
             source.swap_breakpoint();
             break;
         case 'k':
-            terminal.keypress();
+            terminal.ask_keypress();
             redraw();
             update();
             break;
         case 's':
-            hardware->step();
-            source.pc_updated();
-            update();
+            step();
+            break;
+        case 'c':
+            run();
+            break;
+        case 'n':
+            if (hardware->next_is_subroutine()) {
+                hardware->add_breakpoint_next();
+                run();
+            } else {
+                step();
+            }
             break;
         case 'q':
             active_ = false;
@@ -117,11 +126,15 @@ void UI::draw_status_bar()
     attrset(COLOR_TERMINAL); printw(" f ");
     attrset(COLOR_FIELD); printw("Choose file ");
     attrset(COLOR_TERMINAL); printw(" b ");
-    attrset(COLOR_FIELD); printw("Add/remove breakpoint");
+    attrset(COLOR_FIELD); printw("Add/remove breakpoint ");
     attrset(COLOR_TERMINAL); printw(" k ");
-    attrset(COLOR_FIELD); printw("Keypress");
+    attrset(COLOR_FIELD); printw("Keypress ");
     attrset(COLOR_TERMINAL); printw(" s ");
-    attrset(COLOR_FIELD); printw("Step");
+    attrset(COLOR_FIELD); printw("Step ");
+    attrset(COLOR_TERMINAL); printw(" n ");
+    attrset(COLOR_FIELD); printw("Next ");
+    attrset(COLOR_TERMINAL); printw(" c ");
+    attrset(COLOR_FIELD); printw("Continue ");
 }
 
 long UI::ask(std::string const &question)
@@ -135,4 +148,58 @@ long UI::ask(std::string const &question)
     getnstr(buf, sizeof buf);
     noecho();
     return strtol(buf, nullptr, 0);
+}
+
+void UI::step()
+{
+    hardware->step();
+    source.pc_updated();
+    update();
+}
+
+void UI::run()
+{
+    source.set_running();
+    memory.set_running();
+    status.set_running();
+
+    // redraw status bar
+    move(LINES - 1, 0);
+    clrtoeol();
+    attrset(COLOR_TERMINAL); printw("Ctrl+C ");
+    attrset(COLOR_FIELD); printw(" Stop execution ");
+
+    // run
+    nodelay(stdscr, TRUE);
+    hardware->step();  // skip current breakpoint
+    while (!hardware->is_breakpoint(hardware->PC())) {
+        hardware->step();
+        int ch = getch();
+        if (ch == 3) { // CTRL + C
+            break;
+        } else if (ch != EOF) {
+            terminal.keypress(translate_char(ch));
+            for (int i = 0; i < 100; ++i)  // allow time for the keypress to be registered
+                hardware->step();
+        }
+    }
+
+    // execution stopped, restore everything
+    nodelay(stdscr, FALSE);
+    redraw();
+    source.pc_updated();
+    update();
+    draw_status_bar();
+}
+
+uint8_t UI::translate_char(int ch)
+{
+    // printf("%0X\n", ch);
+    switch (ch) {
+        case KEY_ENTER:
+        case 10:
+            return 13;
+        default:
+            return ch;
+    }
 }

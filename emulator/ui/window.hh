@@ -15,6 +15,7 @@ public:
     virtual void redraw() const;
 
     virtual void update() const {}
+    virtual void set_running() const {}
 
     virtual std::string name() const = 0;
 

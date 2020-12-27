@@ -14,6 +14,8 @@ public:
     void change_page(int rel);
     void update_page(uint8_t page_);
 
+    void set_running() const override;
+
 private:
     uint8_t page = 0;
 };

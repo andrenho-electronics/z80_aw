@@ -27,7 +27,10 @@ public:
     virtual uint8_t R() const = 0;
     virtual bool HALT() const = 0;
 
+    bool next_is_subroutine() const;
+
     void add_breakpoint(uint16_t addr);
+    void add_breakpoint_next();
     void remove_breakpoint(uint16_t addr);
     bool is_breakpoint(uint16_t addr) const;
 

@@ -14,7 +14,9 @@ public:
     std::string name() const override { return "Terminal"; }
 
     void print_char(uint8_t ch);
-    void keypress();
+    void ask_keypress();
+
+    void keypress(uint8_t key);
 
     uint8_t last_keypress() const { return last_keypress_; }
 

@@ -57,3 +57,10 @@ void Status::update() const
     wrefresh(window_);
 #undef BIT
 }
+
+void Status::set_running() const
+{
+    werase(window_);
+    Window::redraw();
+    wrefresh(window_);
+}

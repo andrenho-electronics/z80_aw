@@ -13,8 +13,8 @@
     - choose source file (ok)
   - stack (ok)
 - debugging
-  - run, stop at breakpoints
-    - deal with keypresses
-  - step over
+  - run, stop at breakpoints (ok)
+    - deal with keypresses (ok)
+  - step over (ok)
 - reload
   - show errors

@@ -54,3 +54,10 @@ void Memory::update_page(uint8_t page_)
     this->page = page_;
     update();
 }
+
+void Memory::set_running() const
+{
+    werase(window_);
+    Window::redraw();
+    wrefresh(window_);
+}

@@ -1,4 +1,7 @@
 main:
+	ld	hl, 0x1234
+	push	hl
+
 	im	0			; interrupt type = 0
 	
 	ld	a, 0			; initialize OS variables
