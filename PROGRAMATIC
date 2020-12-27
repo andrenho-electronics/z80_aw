@@ -1,4 +1,18 @@
+Programatic interface for debugger:
+-----------------------------------
+REQ: [F0]                Request PC            RESP: [bb] [aa]
+REQ: [F1] [bb] [aa]      Read RAM address      RESP: [dd]
+REQ: [F2] [pp]           Read RAM page         RESP: [dd] * 256
+REQ: [F3] [kk]           Send keypress         RESP: [00]
+REQ: [F4]                Reset Z80             RESP: [00]
+REQ: [F5]                Step Z80              RESP: [bb] [aa] (new PC) [mm] (serial print char)
+REQ: [F6]                Retrieve registers    RESP: [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D']
+                                                     [E'] [H'] [L'] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
+REQ: [FE]                Upload ROM (see below)
+# TODO - other requests
+
 Programatic interface for file upload:
+--------------------------------------
 
 PC           MC
  Send programming command (0xFE)

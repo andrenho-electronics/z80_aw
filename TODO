@@ -5,7 +5,10 @@ Subprojects:
   - Adjust colors on Linux (ok)
   - Ctrl+C on Linux (ok)
   - Connect directly to debugger
+    - Create protocol (ok)
+    - Add serial debugging
     - Create computer serial emulator
+    - Upload memory
     - Write subroutine to fetch registers
     - Connect to the real computer
   - SD Card interface
