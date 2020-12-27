@@ -206,3 +206,12 @@ void Source::set_running() const
     wrefresh(subwindow_);
 }
 
+void Source::reset()
+{
+    scroll_ = 0;
+    cursor_line_ = 0;
+    source_location_ = {};
+    pc_updated();
+    update();
+}
+

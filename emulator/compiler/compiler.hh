@@ -29,6 +29,13 @@ struct CompiledCode {
     std::vector<std::vector<std::string>>        source;    // index = filename index
     std::unordered_map<uint16_t, SourceLocation> locations;
     std::unordered_map<SourceLocation, uint16_t, SourceLocation::HashFunction> rlocations;
+
+    void reset() {
+        filename.clear();
+        source.clear();
+        locations.clear();
+        rlocations.clear();
+    }
 };
 
 extern CompiledCode compiled_code;

@@ -30,6 +30,8 @@ public:
 
     void step() override;
 
+    void reset() override;
+
 private:
     Z80 z80_;
     uint32_t memory_[64 * 1024];

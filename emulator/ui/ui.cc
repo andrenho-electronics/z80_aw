@@ -27,10 +27,12 @@ void UI::init_curses()
 }
 
 
-UI::UI()
+void UI::initialize()
 {
     redraw();
+    source.reset();
     source.pc_updated();
+    update();
 }
 
 UI::~UI()
@@ -38,7 +40,7 @@ UI::~UI()
     endwin();
 }
 
-void UI::execute()
+bool UI::execute()
 {
     int ch = getch();
     // printf("%d\n", ch);
@@ -55,6 +57,8 @@ void UI::execute()
         case KEY_DOWN: case 60418:
             source.move_cursor(1);
             break;
+        case KEY_F(5): case 60429:
+            return true;  // reload
         case 'g':
             memory.update_page(ask("New page?"));
             draw_status_bar();
@@ -90,6 +94,8 @@ void UI::execute()
             active_ = false;
             break;
     }
+
+    return false;
 }
 
 void UI::redraw()
@@ -126,7 +132,7 @@ void UI::draw_status_bar()
     attrset(COLOR_TERMINAL); printw(" f ");
     attrset(COLOR_FIELD); printw("Choose file ");
     attrset(COLOR_TERMINAL); printw(" b ");
-    attrset(COLOR_FIELD); printw("Add/remove breakpoint ");
+    attrset(COLOR_FIELD); printw("Breakpoint ");
     attrset(COLOR_TERMINAL); printw(" k ");
     attrset(COLOR_FIELD); printw("Keypress ");
     attrset(COLOR_TERMINAL); printw(" s ");
@@ -135,6 +141,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Next ");
     attrset(COLOR_TERMINAL); printw(" c ");
     attrset(COLOR_FIELD); printw("Continue ");
+    attrset(COLOR_TERMINAL); printw(" F5 ");
+    attrset(COLOR_FIELD); printw("Reload ");
 }
 
 long UI::ask(std::string const &question)

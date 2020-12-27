@@ -24,6 +24,8 @@ public:
 
     void set_running() const override;
 
+    void reset();
+
 private:
     void print_source_line(int line_number, std::string const &line_str, std::optional<uint16_t> const& addr) const;
     void format_source_line(int line_number, std::optional<uint16_t> const& addr) const;

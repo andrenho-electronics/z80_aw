@@ -18,6 +18,12 @@ int main(int argc, char* argv[])
         abort();
     }
 
+    UI::init_curses();
+    UI ui;
+
+reload:
+    ui.initialize();
+
     try {
         Result r = compile_assembly_code(config.config_file());
     } catch (std::exception& e) {
@@ -25,11 +31,12 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 
-    UI::init_curses();
-
-    UI ui;
     while (ui.active()) {
         ui.update();
-        ui.execute();
+        if (ui.execute()) {
+            compiled_code.reset();
+            hardware->reset();
+            goto reload;
+        }
     }
 }

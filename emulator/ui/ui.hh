@@ -8,11 +8,11 @@
 
 class UI {
 public:
-    UI();
     ~UI();
 
+    void initialize();
     bool active() const { return active_; }
-    void execute();
+    bool execute();
     void update();
     static void draw_status_bar() ;
 

@@ -11,7 +11,7 @@ INPUTBUF	= 0xf800	; input buffer for INPUT (256 bytes)
 KEYBUF		= 0xf900	; keyboard input buffer (8 bytes)
 KEYBUF_SZ	= 0xf908	; keyboard input buffer size
 
-STACK_AREA	= 0xffff
+STACK_AREA	= 0xfffe
 
 	;
 	; interrupts
