@@ -3,6 +3,7 @@
 #include "hardware/hardware.hh"
 #include "hardware/emulatedhardware.hh"
 #include "compiler/compiler.hh"
+#include "hardware/realhardware.hh"
 
 #include <iostream>
 
@@ -12,8 +13,7 @@ int main(int argc, char* argv[])
     if (config.hardware_type() == Emulated) {
         hardware = std::make_unique<EmulatedHardware>();
     } else if (config.hardware_type() == Real) {
-        std::cerr << "Sorry, support for real hardware is not yet implemented.\n";
-        return EXIT_FAILURE;
+        hardware = std::make_unique<RealHardware>(config.serial_port());
     } else {
         abort();
     }

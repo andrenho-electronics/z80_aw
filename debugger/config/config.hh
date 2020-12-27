@@ -17,8 +17,9 @@ class Config {
 public:
     Config(int argc, char* argv[]);
 
-    HardwareType      hardware_type() const { return hardware_type_; }
-    ConfigFile const& config_file()   const { return config_file_; }
+    HardwareType       hardware_type() const { return hardware_type_; }
+    ConfigFile const&  config_file()   const { return config_file_; }
+    std::string const& serial_port() const { return serial_port_; }
 
 private:
     static void print_usage(std::string const& argv0);
