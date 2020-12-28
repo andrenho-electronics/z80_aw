@@ -38,8 +38,19 @@ void Memory::update() const
         uint8_t b = stack.at(i * 2 + 1);
         mvwprintw(window_, i + 3, 83, "%04X", (b << 8) | a);
     }
-
     wattr_off(window_, COLOR_MEMORY, nullptr);
+    
+    // memory areas
+    if (!hardware->matching_upload_checksum()) {
+        wattr_on(window_, COLOR_WARNING, nullptr);
+        wattr_on(window_, A_BLINK, nullptr);
+        mvwprintw(window_, 1, 62, "Upload required!");
+        wattr_off(window_, COLOR_WARNING, nullptr);
+        wattr_off(window_, A_BLINK, nullptr);
+    } else {
+        mvwprintw(window_, 1, 62, "                ");
+    }
+
     for (int i = 0; i < 16; ++i)
         mvwprintw(window_, i + 2, 3, "%02X", page);
 

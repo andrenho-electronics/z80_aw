@@ -73,3 +73,24 @@ void Hardware::add_breakpoint_next()
             break;
     }
 }
+
+void Hardware::add_to_upload_staging(std::vector<uint8_t> const& data, uint16_t addr)
+{
+    upload_staging_areas_.push_back({ data, addr });
+    
+    // calculate checksum
+    uint16_t checksum1 = 0, checksum2 = 0;
+    for (auto const& st: upload_staging_areas_) {
+        for (uint8_t b: st.data) {
+            checksum1 = (checksum1 + b) % 255;
+            checksum2 = (checksum2 + checksum1) % 255;
+        }
+    }
+    upload_staging_checksum_ = checksum1 | (checksum2 << 8);
+}
+
+bool Hardware::matching_upload_checksum() const
+{
+    return (get_memory(CHECKSUM_ADDR) == (upload_staging_checksum_ & 0xff))
+        && (get_memory(CHECKSUM_ADDR + 1) == (upload_staging_checksum_ >> 8));
+}

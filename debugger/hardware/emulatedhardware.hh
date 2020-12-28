@@ -10,8 +10,8 @@ public:
     EmulatedHardware();
 
     void                 set_memory(uint16_t addr, uint8_t data) override { memory_[addr] = data; }
-    uint8_t              get_memory(uint16_t addr) override { return memory_[addr]; }
-    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) override;
+    uint8_t              get_memory(uint16_t addr) const override { return memory_[addr]; }
+    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) const override;
     
     uint16_t AF() const override { return z80_.AF.W; }
     uint16_t BC() const override { return z80_.BC.W; }
@@ -30,8 +30,8 @@ public:
     bool    HALT() const override { return z80_.IFF & IFF_HALT; }
 
     void step() override;
-
     void reset() override;
+    void upload() override;
 
 private:
     Z80 z80_;

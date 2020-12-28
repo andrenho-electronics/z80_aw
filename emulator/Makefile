@@ -1,9 +1,9 @@
-CFLAGS=-std=c11 -Wall -Wextra
+CFLAGS=-std=c11 -Wall -Wextra -Iz80
 LDFLAGS=-lutil
 
 all: emulator
 
-emulator: main.o
+emulator: main.o z80/Z80.o
 	gcc -o $@ $^ ${LDFLAGS}
 
 .PHONY: clean

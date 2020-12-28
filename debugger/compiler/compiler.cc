@@ -110,8 +110,7 @@ static void load_binary_into_memory(uint16_t addr)
     buffer.resize(length);
     f.read(reinterpret_cast<char *>(&buffer[0]), length);
 
-    for (uint8_t b: buffer)
-        hardware->set_memory(addr++, b);
+    hardware->add_to_upload_staging(buffer, addr);
 }
 
 static void cleanup()
@@ -120,7 +119,7 @@ static void cleanup()
     unlink("rom.bin");
 }
 
-Result compile_assembly_code(Config cf)
+Result compile_assembly_code(Config const& cf)
 {
     CompiledCode cc;
 
@@ -130,9 +129,7 @@ Result compile_assembly_code(Config cf)
     for (auto const& c: cf.config_file()) {
         result[c.filename] = execute_compiler(c.filename);
         file_offset += load_listing(c.filename, file_offset, compiled_code);
-        if (cf.hardware_type() == Emulated)
-            load_binary_into_memory(c.memory_location);
-        // TODO - match binary on real hardware (?)
+        load_binary_into_memory(c.memory_location);
         cleanup();
     }
 

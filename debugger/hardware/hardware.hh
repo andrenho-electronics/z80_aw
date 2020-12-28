@@ -6,12 +6,14 @@
 #include <unordered_set>
 #include <vector>
 
+#define CHECKSUM_ADDR 0x7ffe
+
 class Hardware {
 public:
     virtual ~Hardware() = default;
     virtual void                 set_memory(uint16_t addr, uint8_t data) = 0;
-    virtual uint8_t              get_memory(uint16_t addr) = 0;
-    virtual std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) = 0;
+    virtual uint8_t              get_memory(uint16_t addr) const = 0;
+    virtual std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) const = 0;
 
     virtual uint16_t AF() const = 0;
     virtual uint16_t BC() const = 0;
@@ -39,10 +41,22 @@ public:
     bool is_breakpoint(uint16_t addr) const;
 
     virtual void step() = 0;
-
+    
+    void add_to_upload_staging(std::vector<uint8_t> const& data, uint16_t addr);
+    bool matching_upload_checksum() const;
+    virtual void upload() = 0;
+    
 protected:
     Hardware() = default;
+    
     std::unordered_set<uint16_t> breakpoints_;
+    
+    struct UploadStagingArea {
+        std::vector<uint8_t> data;
+        uint16_t addr;
+    };
+    std::vector<UploadStagingArea> upload_staging_areas_;
+    uint16_t                       upload_staging_checksum_ = 0;
 };
 
 extern std::unique_ptr<Hardware> hardware;

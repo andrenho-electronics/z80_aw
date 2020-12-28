@@ -25,6 +25,7 @@ void UI::init_curses()
         init_pair(7, COLOR_WHITE, COLOR_RED);
         init_pair(8, COLOR_GREEN, COLOR_BLUE);
         init_pair(9, COLOR_RED, COLOR_BLACK);
+        init_pair(10, COLOR_RED, COLOR_BLUE);
     }
 }
 
@@ -91,6 +92,10 @@ bool UI::execute()
                 step();
             }
             break;
+        case 'u':
+            hardware->upload();
+            update();
+            break;
         case 'q':
             active_ = false;
             break;
@@ -142,6 +147,8 @@ void UI::draw_status_bar()
     attrset(COLOR_FIELD); printw("Next ");
     attrset(COLOR_TERMINAL); printw(" c ");
     attrset(COLOR_FIELD); printw("Continue ");
+    attrset(COLOR_TERMINAL); printw(" u ");
+    attrset(COLOR_FIELD); printw("Upload ROM ");
     attrset(COLOR_TERMINAL); printw(" F5 ");
     attrset(COLOR_FIELD); printw("Reload ");
 }

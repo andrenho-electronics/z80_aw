@@ -6,10 +6,12 @@ Subprojects:
   - Ctrl+C on Linux (ok)
   - Connect directly to debugger
     - Create protocol (ok)
-    - Add serial debugging
-    - Create computer serial emulator
+    - Add serial debugging (ok)
+    - Create computer serial emulator (ok)
     - Upload memory
-    - Write subroutine to fetch registers
+    - Fetch registers
+    - Deal with keypresses / printing
+    - Write Z80 subroutine to fetch registers
     - Connect to the real computer
   - SD Card interface
 

@@ -8,11 +8,8 @@ public:
     explicit RealHardware(std::string const& serial_port);
     
     void                 set_memory(uint16_t addr, uint8_t data) override;
-    uint8_t              get_memory(uint16_t addr) override;
-    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) override;
-    
-    void reset() override;
-    void step() override;
+    uint8_t              get_memory(uint16_t addr) const override;
+    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) const override;
     
     uint16_t AF() const override { return 0; }
     uint16_t BC() const override { return 0; }
@@ -24,14 +21,20 @@ public:
     uint16_t HLx() const override { return 0; }
     uint16_t IX() const override { return 0; }
     uint16_t IY() const override { return 0; }
-    uint16_t PC() const override { return 0; }
+    uint16_t PC() const override { return pc_; }
     uint16_t SP() const override { return 0; }
     uint8_t I() const override { return 0; }
     uint8_t R() const override { return 0; }
     bool HALT() const override { return false; }
+    
+    void reset() override;
+    void step() override;
+    void upload() override;
 
 private:
     int fd = 0;
+    
+    uint16_t pc_ = 0x0;
     
     void open_serial_port(std::string const& serial_port);
     bool send_expect(uint8_t data, uint8_t expected) const;

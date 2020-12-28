@@ -8,7 +8,7 @@
 RealHardware::RealHardware(std::string const& serial_port)
 {
     open_serial_port(serial_port);
-    if (!send_expect(C_ACK, C_ACK_RESPONSE)) {
+    if (!send_expect(C_ACK, C_OK)) {
         fprintf(stderr, "Controller did not respond to acknowledgment.\n");
         exit(EXIT_FAILURE);
     }
@@ -48,27 +48,30 @@ void RealHardware::open_serial_port(std::string const& serial_port)
 
 void RealHardware::set_memory(uint16_t addr, uint8_t data)
 {
+    (void) addr; (void) data;
     throw std::runtime_error("This function cannot be called on the real hardware.");
 }
 
-uint8_t RealHardware::get_memory(uint16_t addr)
+uint8_t RealHardware::get_memory(uint16_t addr) const
 {
     return send({ C_RAM_BYTE, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8) }, 1).at(0);
 }
 
-std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz)
+std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
 {
     return send({ C_RAM_BLOCK, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8), (uint8_t)(sz & 0xff), (uint8_t)(sz >> 8) }, sz);
 }
 
 void RealHardware::reset()
 {
-
+    send_expect(C_RESET, C_OK);
 }
 
 void RealHardware::step()
 {
-
+    std::vector<uint8_t> s = send({ C_STEP }, 3);
+    pc_ = s[0] | (s[1] << 8);
+    // printed_char = s[2];
 }
 
 bool RealHardware::send_expect(uint8_t data, uint8_t expected) const
@@ -99,5 +102,10 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
         r.push_back(c);
     }
     return r;
+}
+
+void RealHardware::upload()
+{
+    // TODO
 }
 

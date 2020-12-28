@@ -17,7 +17,7 @@ int main(int argc, char* argv[])
     } else {
         abort();
     }
-
+    
     UI::init_curses();
     UI ui;
 
@@ -28,7 +28,9 @@ reload:
         UI::display_error(std::string("Compilation error:\n\n") + e.what());
         goto reload;
     }
-
+    if (config.hardware_type() == Emulated)
+        hardware->upload();
+    
     ui.initialize();
 
     while (ui.active()) {
