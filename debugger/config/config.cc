@@ -17,7 +17,7 @@ Config::Config(int argc, char **argv)
                 { nullptr,    0,                 nullptr, 0 },
         };
 
-        int c = getopt_long(argc, argv, "he:r:", long_options, &idx);
+        int c = getopt_long(argc, argv, "her:", long_options, &idx);
         if (c == -1)
             break;
 
@@ -47,12 +47,12 @@ Config::Config(int argc, char **argv)
         exit(1);
     }
 
-    if (optind != argc) {
+    if (optind != argc - 1) {
         print_usage(argv[0]);
         exit(1);
     }
 
-    config_file_ = load_config_file(argv[optind - 1]);
+    config_file_ = load_config_file(argv[optind]);
 }
 
 void Config::print_usage(std::string const& argv0)

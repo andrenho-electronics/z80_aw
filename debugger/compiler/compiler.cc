@@ -120,17 +120,19 @@ static void cleanup()
     unlink("rom.bin");
 }
 
-Result compile_assembly_code(ConfigFile const& cf)
+Result compile_assembly_code(Config cf)
 {
     CompiledCode cc;
 
     Result result;
     int file_offset = 0;
     cleanup();
-    for (auto const& c: cf) {
+    for (auto const& c: cf.config_file()) {
         result[c.filename] = execute_compiler(c.filename);
         file_offset += load_listing(c.filename, file_offset, compiled_code);
-        load_binary_into_memory(c.memory_location);
+        if (cf.hardware_type() == Emulated)
+            load_binary_into_memory(c.memory_location);
+        // TODO - match binary on real hardware (?)
         cleanup();
     }
 

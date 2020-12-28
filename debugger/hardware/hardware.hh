@@ -4,12 +4,14 @@
 #include <cstdint>
 #include <memory>
 #include <unordered_set>
+#include <vector>
 
 class Hardware {
 public:
     virtual ~Hardware() = default;
-    virtual void    set_memory(uint16_t addr, uint8_t data) = 0;
-    virtual uint8_t get_memory(uint16_t addr) = 0;
+    virtual void                 set_memory(uint16_t addr, uint8_t data) = 0;
+    virtual uint8_t              get_memory(uint16_t addr) = 0;
+    virtual std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) = 0;
 
     virtual uint16_t AF() const = 0;
     virtual uint16_t BC() const = 0;

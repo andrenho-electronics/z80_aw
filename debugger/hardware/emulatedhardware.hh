@@ -9,9 +9,10 @@ class EmulatedHardware : public Hardware {
 public:
     EmulatedHardware();
 
-    void    set_memory(uint16_t addr, uint8_t data) override { memory_[addr] = data; }
-    uint8_t get_memory(uint16_t addr) override { return memory_[addr]; }
-
+    void                 set_memory(uint16_t addr, uint8_t data) override { memory_[addr] = data; }
+    uint8_t              get_memory(uint16_t addr) override { return memory_[addr]; }
+    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) override;
+    
     uint16_t AF() const override { return z80_.AF.W; }
     uint16_t BC() const override { return z80_.BC.W; }
     uint16_t DE() const override { return z80_.DE.W; }

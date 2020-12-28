@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
 
 reload:
     try {
-        Result r = compile_assembly_code(config.config_file());
+        Result r = compile_assembly_code(config);
     } catch (std::exception& e) {
         UI::display_error(std::string("Compilation error:\n\n") + e.what());
         goto reload;

@@ -15,10 +15,12 @@ void Memory::update() const
     wattr_on(window_, COLOR_MEMORY, nullptr);
 
     // memory
+    std::vector<uint8_t> data = hardware->get_memory(page * 0x100, 256);
+    size_t i = 0;
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             uint16_t addr = x + (y * 0x10) + (page * 0x100);
-            uint8_t c = hardware->get_memory(addr);
+            uint8_t c = data[i++];
             if (addr == hardware->PC())
                 wattr_on(window_, COLOR_FIELD, nullptr);
             mvwprintw(window_, y + 2, 9 + (x * 3) + (x > 7 ? 2 : 0), "%02X", c);
@@ -29,10 +31,11 @@ void Memory::update() const
     }
 
     // stack
-    uint16_t sp = hardware->SP();
-    for (int i = 0; i < 12; ++i) {
-        uint8_t a = hardware->get_memory(sp++);
-        uint8_t b = hardware->get_memory(sp++);
+    constexpr size_t STACK_ITEMS = 12;
+    std::vector<uint8_t> stack = hardware->get_memory(hardware->SP(), STACK_ITEMS * 2);
+    for (size_t i = 0; i < 12; ++i) {
+        uint8_t a = stack.at(i * 2);
+        uint8_t b = stack.at(i * 2 + 1);
         mvwprintw(window_, i + 3, 83, "%04X", (b << 8) | a);
     }
 

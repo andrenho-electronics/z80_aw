@@ -5,10 +5,11 @@
 
 class RealHardware : public Hardware {
 public:
-    RealHardware(std::string const& serial_port);
+    explicit RealHardware(std::string const& serial_port);
     
-    void set_memory(uint16_t addr, uint8_t data) override;
-    uint8_t get_memory(uint16_t addr) override;
+    void                 set_memory(uint16_t addr, uint8_t data) override;
+    uint8_t              get_memory(uint16_t addr) override;
+    std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) override;
     
     void reset() override;
     void step() override;
@@ -28,6 +29,13 @@ public:
     uint8_t I() const override { return 0; }
     uint8_t R() const override { return 0; }
     bool HALT() const override { return false; }
+
+private:
+    int fd = 0;
+    
+    void open_serial_port(std::string const& serial_port);
+    bool send_expect(uint8_t data, uint8_t expected) const;
+    std::vector<uint8_t> send(std::vector<uint8_t> const& data, size_t expect) const;
 };
 
 #endif

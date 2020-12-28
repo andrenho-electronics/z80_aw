@@ -40,6 +40,6 @@ struct CompiledCode {
 
 extern CompiledCode compiled_code;
 
-Result compile_assembly_code(ConfigFile const& cf);
+Result compile_assembly_code(Config cf);
 
 #endif //EMULATOR_COMPILER_HH

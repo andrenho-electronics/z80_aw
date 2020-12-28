@@ -5,9 +5,13 @@
 #include <stdint.h>
 #include <unistd.h>
 
+#include "protocol.h"
+
 static int master;
 
 char last_comm = '\0';
+
+uint8_t memory[64 * 1024];
 
 uint8_t recv(bool* eof) {
     uint8_t c;
@@ -20,7 +24,8 @@ uint8_t recv(bool* eof) {
         last_comm = 'R';
         return c;
     } else {
-        *eof = true;
+        if (eof)
+            *eof = true;
         return 0;
     }
 }
@@ -50,9 +55,34 @@ int main()
     bool eof = false;
     while (!eof) {
         uint8_t c = recv(&eof);
-        send(c);
+        switch (c) {
+            case C_ACK:
+                send(C_ACK_RESPONSE);
+                break;
+            case C_RAM_BYTE: {
+                    uint8_t a = recv(NULL);
+                    uint8_t b = recv(NULL);
+                    send(memory[a | (b << 8)]);
+                }
+                break;
+            case C_RAM_BLOCK: {
+                    uint8_t a = recv(NULL);
+                    uint8_t b = recv(NULL);
+                    uint8_t c1 = recv(NULL);
+                    uint8_t c2 = recv(NULL);
+                    uint16_t addr = a | (b << 8);
+                    uint16_t sz = c1 | (c2 << 8);
+                    for (uint16_t i = 0; i < sz; ++i)
+                        send(memory[addr + i]);
+                }
+                break;
+            default:
+                fprintf(stderr, "Unexpected byte.");
+                goto exit;
+        }
     }
     
+exit:
     close(slave);
     close(master);
 }
