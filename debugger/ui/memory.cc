@@ -20,13 +20,14 @@ void Memory::update() const
     for (int y = 0; y < 16; ++y) {
         for (int x = 0; x < 16; ++x) {
             uint16_t addr = x + (y * 0x10) + (page * 0x100);
-            uint8_t c = data[i++];
+            uint8_t c = data[i];
             if (addr == hardware->PC())
                 wattr_on(window_, COLOR_FIELD, nullptr);
             mvwprintw(window_, y + 2, 9 + (x * 3) + (x > 7 ? 2 : 0), "%02X", c);
             if (addr == hardware->PC())
                 wattr_on(window_, COLOR_MEMORY, nullptr);
             mvwprintw(window_, y + 2, 62 + x + (x > 7 ? 1 : 0), "%c", (c >= 32 && c < 127) ? c : '.');
+            ++i;
         }
     }
 

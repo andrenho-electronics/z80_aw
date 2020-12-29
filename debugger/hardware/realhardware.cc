@@ -64,7 +64,9 @@ std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
 
 void RealHardware::reset()
 {
-    send_expect(C_RESET, C_OK);
+    if (!send_expect(C_RESET, C_OK)) {
+        throw std::runtime_error("Could not reset hardware.");
+    }
 }
 
 void RealHardware::step()
@@ -106,6 +108,23 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
 
 void RealHardware::upload()
 {
-    // TODO
+    for (auto const& st: upload_staging_areas_) {
+        // send upload command
+        if (!send_expect(C_UPLOAD, C_UPLOAD_ACK))
+            throw std::runtime_error("Could not upload code.");
+    
+        // send data
+        for (size_t i = 0; i < st.data.size(); i += 64) {
+            auto r = send({ (uint8_t) ((st.addr + i) & 0xff), (uint8_t) ((st.addr + i) >> 8) }, 1);
+            if (r.at(0) != C_UPLOAD_ACK)
+                throw std::runtime_error("Error uploading code.");
+            size_t n = (i + 64 > st.data.size()) ? st.data.size() % 64 : 64;
+            send({ (uint8_t) (n & 0xff), (uint8_t) (n >> 8) }, 0);
+            auto checksum = send(std::vector(st.data.begin() + i, st.data.begin() + i + n), 2);
+            // TODO - verify checksum
+        }
+        
+        // finalize
+        send({ 0, 0, 0, 0 }, 0);
+    }
 }
-

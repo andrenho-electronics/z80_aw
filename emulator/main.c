@@ -78,6 +78,12 @@ uint8_t recv(bool* eof) {
     }
 }
 
+uint16_t recv16() {
+    uint16_t a = recv(NULL);
+    uint16_t b = recv(NULL);
+    return a | (b << 8);
+}
+
 void send(uint8_t c) {
     if (last_comm != 'W')
         printf("\n\x1b[31m> ");
@@ -94,7 +100,7 @@ void send(uint8_t c) {
 static bool parse_input(bool* exit)
 {
     uint8_t c = recv(exit);
-    switch (c) {
+   switch (c) {
         case C_ACK:
             send(C_OK);
             break;
@@ -124,6 +130,20 @@ static bool parse_input(bool* exit)
             send(z80.PC.W & 0xff);
             send(z80.PC.W << 8);
             send(0);  // TODO - send printed character
+            break;
+        case C_UPLOAD:
+            send(C_UPLOAD_ACK);
+            for (;;) {
+                uint16_t addr = recv16();
+                send(C_UPLOAD_ACK);
+                uint16_t sz = recv16();
+                if (sz == 0)
+                    break;
+                for (uint16_t i = 0; i < sz; ++i)
+                    memory[addr + i] = recv(NULL);
+                send(0);  // TODO - checksum
+                send(0);
+            }
             break;
         default:
             fprintf(stderr, "Unexpected byte.");

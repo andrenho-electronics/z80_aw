@@ -10,4 +10,9 @@
 #define C_STEP         0xf6
 #define C_REGISTERS    0xf7
 
+// upload
+#define C_UPLOAD       0xfe
+#define C_UPLOAD_ACK   0x01
+#define C_UPLOAD_ERROR 0x02
+
 #endif
