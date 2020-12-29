@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
     if (config.hardware_type() == Emulated) {
         hardware = std::make_unique<EmulatedHardware>();
     } else if (config.hardware_type() == Real) {
-        hardware = std::make_unique<RealHardware>(config.serial_port());
+        hardware = std::make_unique<RealHardware>(config.serial_port(), config.log_file());
     } else {
         abort();
     }

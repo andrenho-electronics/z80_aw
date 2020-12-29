@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <optional>
 
 enum HardwareType { NotDefined, Emulated, Real };
 
@@ -17,9 +18,10 @@ class Config {
 public:
     Config(int argc, char* argv[]);
 
-    HardwareType       hardware_type() const { return hardware_type_; }
-    ConfigFile const&  config_file()   const { return config_file_; }
-    std::string const& serial_port() const { return serial_port_; }
+    [[nodiscard]] HardwareType                      hardware_type() const { return hardware_type_; }
+    [[nodiscard]] ConfigFile const&                 config_file()   const { return config_file_; }
+    [[nodiscard]] std::string const&                serial_port()   const { return serial_port_; }
+    [[nodiscard]] std::optional<std::string> const& log_file()      const { return log_file_; }
 
 private:
     static void print_usage(std::string const& argv0);
@@ -28,6 +30,7 @@ private:
     HardwareType hardware_type_ = NotDefined;
     ConfigFile   config_file_;
     std::string  serial_port_;
+    std::optional<std::string> log_file_;
 };
 
 #endif

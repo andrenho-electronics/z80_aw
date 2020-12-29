@@ -14,10 +14,11 @@ Config::Config(int argc, char **argv)
                 { "help",     no_argument,       nullptr, 'h' },
                 { "emulated", no_argument,       nullptr, 'e' },
                 { "real",     required_argument, nullptr, 'r' },
-                { nullptr,    0,                 nullptr, 0 },
+                { "log",      required_argument, nullptr, 'l' },
+                { nullptr,    0,       nullptr, 0 },
         };
 
-        int c = getopt_long(argc, argv, "her:", long_options, &idx);
+        int c = getopt_long(argc, argv, "her:l:", long_options, &idx);
         if (c == -1)
             break;
 
@@ -34,6 +35,9 @@ Config::Config(int argc, char **argv)
             case 'r':
                 hardware_type_ = Real;
                 serial_port_ = optarg;
+                break;
+            case 'l':
+                log_file_ = optarg;
                 break;
             case '?':
                 break;
@@ -58,7 +62,7 @@ Config::Config(int argc, char **argv)
 void Config::print_usage(std::string const& argv0)
 {
     std::cout << "Emulator for the Z80AW machine.\n";
-    std::cout << "Usage: " << argv0 << " [-e] | [-r PORT] CONFIGFILE\n";
+    std::cout << "Usage: " << argv0 << " [-e] | [-r PORT] [-l LOGFILE] CONFIGFILE\n";
     std::cout << "  Choose either `-e` for running an emulation, or `-r` to connect to the real hardware.\n";
     std::cout << "  A config file name in the following format must be given:\n";
     std::cout << "     ASSEMBLY_FILE_NAME:0x7000\n";

@@ -5,12 +5,22 @@
 #include <termios.h>
 #include <unistd.h>
 
-RealHardware::RealHardware(std::string const& serial_port)
+#include <iostream>
+#include <iomanip>
+
+RealHardware::RealHardware(std::string const& serial_port, std::optional<std::string> const& log_file)
 {
     open_serial_port(serial_port);
     if (!send_expect(C_ACK, C_OK)) {
         fprintf(stderr, "Controller did not respond to acknowledgment.\n");
         exit(EXIT_FAILURE);
+    }
+    
+    if (log_file) {
+        logfile_->open(*log_file);
+        if (!logfile_->is_open())
+            throw std::runtime_error("Could not open log file.");
+        *logfile_ << std::setfill('0') << std::setw(2) << std::right << std::uppercase << std::hex;
     }
 }
 
@@ -54,12 +64,14 @@ void RealHardware::set_memory(uint16_t addr, uint8_t data)
 
 uint8_t RealHardware::get_memory(uint16_t addr) const
 {
-    return send({ C_RAM_BYTE, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8) }, 1).at(0);
+    uint8_t c = send({ C_RAM_BYTE, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8) }, 1).at(0);
+    return c;
 }
 
 std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
 {
-    return send({ C_RAM_BLOCK, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8), (uint8_t)(sz & 0xff), (uint8_t)(sz >> 8) }, sz);
+    std::vector<uint8_t> r = send({ C_RAM_BLOCK, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8), (uint8_t)(sz & 0xff), (uint8_t)(sz >> 8) }, sz);
+    return r;
 }
 
 void RealHardware::reset()
@@ -83,6 +95,10 @@ bool RealHardware::send_expect(uint8_t data, uint8_t expected) const
     uint8_t c;
     if (read(fd, &c, 1) != 1)
         return false;
+    if (logfile_) {
+        *logfile_ << "WRITE: [" << (int) data << "]\n";
+        *logfile_ << "READ:  [" << (int) c << "]\n";
+    }
     if (c != expected)
         return false;
     return true;
@@ -90,10 +106,17 @@ bool RealHardware::send_expect(uint8_t data, uint8_t expected) const
 
 std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t expect) const
 {
+    if (logfile_)
+        *logfile_ << "WRITE: ";
     for (uint8_t byte: data) {
         if (write(fd, &byte, 1) != 1)
             throw std::runtime_error("Unable to write byte to controller.");
+        if (logfile_)
+            *logfile_ << "[" << (int) byte << "] ";
     }
+    
+    if (logfile_)
+        *logfile_ << "\nREAD:  ";
     
     std::vector<uint8_t> r;
     r.reserve(expect);
@@ -101,8 +124,14 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
         uint8_t c;
         if (read(fd, &c, 1) != 1)
             throw std::runtime_error("Unable to read byte from controller.");
+        if (logfile_)
+            *logfile_ << "[" << (int) c << "] ";
         r.push_back(c);
     }
+    
+    if (logfile_)
+        *logfile_ << "\n";
+    
     return r;
 }
 
