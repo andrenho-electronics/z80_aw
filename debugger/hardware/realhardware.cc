@@ -17,6 +17,7 @@ RealHardware::RealHardware(std::string const& serial_port, std::optional<std::st
     }
     
     if (log_file) {
+        logfile_ = std::ofstream();
         logfile_->open(*log_file);
         if (!logfile_->is_open())
             throw std::runtime_error("Could not open log file.");
@@ -154,6 +155,6 @@ void RealHardware::upload()
         }
         
         // finalize
-        send({ 0, 0, 0, 0 }, 0);
+        send({ 0, 0, 0, 0 }, 1);
     }
 }
