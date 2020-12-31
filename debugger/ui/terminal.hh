@@ -16,7 +16,7 @@ public:
     void print_char(uint8_t ch);
     void ask_keypress();
 
-    void keypress(uint8_t key);
+    static void keypress(uint8_t key);
 
 private:
     WINDOW* subwindow_;

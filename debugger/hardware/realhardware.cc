@@ -41,6 +41,7 @@ void RealHardware::open_serial_port(std::string const& serial_port)
     }
     cfsetospeed(&tty, 114583);
     cfsetispeed(&tty, 114583);
+    cfmakeraw(&tty);
     tty.c_iflag &= ~IGNBRK;
     tty.c_lflag = 0;
     tty.c_oflag = 0;
@@ -204,6 +205,6 @@ void RealHardware::update_registers()
 
 void RealHardware::register_keypress(uint8_t key)
 {
-    if (send({ C_KEYPRESS, key }, 1).at(0) != C_ACK)
+    if (send({ C_KEYPRESS, key }, 1).at(0) != C_OK)
         throw std::runtime_error("Error sending keypress.");
 }

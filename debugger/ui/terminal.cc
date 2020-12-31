@@ -62,6 +62,8 @@ void Terminal::ask_keypress()
 
 void Terminal::keypress(uint8_t key)
 {
+    if (key == 10)
+        return;
     hardware->register_keypress(key);
 }
 
