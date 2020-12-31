@@ -150,11 +150,31 @@ void RealHardware::upload()
                 throw std::runtime_error("Error uploading code.");
             size_t n = (i + 64 > st.data.size()) ? st.data.size() % 64 : 64;
             send({ (uint8_t) (n & 0xff), (uint8_t) (n >> 8) }, 0);
-            auto checksum = send(std::vector(st.data.begin() + i, st.data.begin() + i + n), 2);
-            // TODO - verify checksum
+            std::vector chunk(st.data.begin() + i, st.data.begin() + i + n);
+            auto checksum = send(chunk, 2);
+            if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk))
+                throw std::runtime_error("Chunk checksum does not match.");
         }
         
+        // send checksum
+        auto r = send({ CHECKSUM_ADDR & 0xff, (CHECKSUM_ADDR >> 8) & 0xff }, 1);
+        if (r.at(0) != C_UPLOAD_ACK)
+            throw std::runtime_error("Error uploading checksum.");
+        send({ 2, 0 }, 0);  // 2 bytes
+        send({ (uint8_t)(upload_staging_checksum_ & 0xff), (uint8_t)(upload_staging_checksum_ >> 8) }, 2);
+        // will not check checksum's checksum
+    
         // finalize
         send({ 0, 0, 0, 0 }, 1);
     }
+}
+
+uint16_t RealHardware::calculate_checksum(std::vector<uint8_t> const& data)
+{
+    uint16_t checksum1 = 0, checksum2 = 0;
+    for (uint8_t b : data) {
+        checksum1 = (checksum1 + b) % 255;
+        checksum2 = (checksum2 + checksum1) % 255;
+    }
+    return checksum1 | (checksum2 << 8);
 }

@@ -41,6 +41,8 @@ private:
     int fd = 0;
     uint16_t pc_ = 0x0;
     mutable std::optional<std::ofstream> logfile_;
+    
+    static uint16_t calculate_checksum(std::vector<uint8_t> const& data);
 };
 
 #endif

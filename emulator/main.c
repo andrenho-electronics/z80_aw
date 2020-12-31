@@ -139,10 +139,14 @@ static bool parse_input(bool* exit)
                 uint16_t sz = recv16();
                 if (sz == 0)
                     break;
-                for (uint16_t i = 0; i < sz; ++i)
+                uint16_t checksum1 = 0, checksum2 = 0;
+                for (uint16_t i = 0; i < sz; ++i) {
                     memory[addr + i] = recv(NULL);
-                send(0);  // TODO - checksum
-                send(0);
+                    checksum1 = (checksum1 + memory[addr + i]) % 255;
+                    checksum2 = (checksum2 + checksum1) % 255;
+                }
+                send(checksum1);
+                send(checksum2);
             }
             break;
         default:
