@@ -12,6 +12,7 @@ Subprojects:
     - Fetch registers (ok)
     - Deal with keypresses (ok)
     - Print chars
+    - Progress bar on upload
     - Write Z80 subroutine to fetch registers
     - Connect to the real computer
   - SD Card interface
