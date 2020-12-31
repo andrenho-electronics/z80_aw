@@ -128,30 +128,57 @@ static bool parse_input(bool* exit)
         case C_STEP:
             RunZ80(&z80);
             send(z80.PC.W & 0xff);
-            send(z80.PC.W << 8);
+            send(z80.PC.W >> 8);
             send(0);  // TODO - send printed character
             break;
-        case C_UPLOAD:
-            send(C_UPLOAD_ACK);
-            for (;;) {
-                uint16_t addr = recv16();
-                send(C_UPLOAD_ACK);
-                uint16_t sz = recv16();
-                if (sz == 0)
-                    break;
-                uint16_t checksum1 = 0, checksum2 = 0;
-                for (uint16_t i = 0; i < sz; ++i) {
-                    memory[addr + i] = recv(NULL);
-                    checksum1 = (checksum1 + memory[addr + i]) % 255;
-                    checksum2 = (checksum2 + checksum1) % 255;
-                }
-                send(checksum1);
-                send(checksum2);
-            }
-            break;
-        default:
-            fprintf(stderr, "Unexpected byte.");
-            *exit = true;
+       case C_REGISTERS:
+           send(z80.AF.B.h);
+           send(z80.AF.B.l);
+           send(z80.BC.B.h);
+           send(z80.BC.B.l);
+           send(z80.DE.B.h);
+           send(z80.DE.B.l);
+           send(z80.HL.B.h);
+           send(z80.HL.B.l);
+           send(z80.AF1.B.h);
+           send(z80.AF1.B.l);
+           send(z80.BC1.B.h);
+           send(z80.BC1.B.l);
+           send(z80.DE1.B.h);
+           send(z80.DE1.B.l);
+           send(z80.HL1.B.h);
+           send(z80.HL1.B.l);
+           send(z80.PC.W & 0xff);
+           send(z80.PC.W >> 8);
+           send(z80.IX.W & 0xff);
+           send(z80.IX.W >> 8);
+           send(z80.IY.W & 0xff);
+           send(z80.IY.W >> 8);
+           send(z80.I);
+           send(z80.R);
+           send((z80.IFF & IFF_HALT) ? 1 : 0);
+           break;
+       case C_UPLOAD:
+           send(C_UPLOAD_ACK);
+           for (;;) {
+               uint16_t addr = recv16();
+               send(C_UPLOAD_ACK);
+               uint16_t sz = recv16();
+               if (sz == 0)
+                   break;
+               uint16_t checksum1 = 0, checksum2 = 0;
+               for (uint16_t i = 0; i < sz; ++i) {
+                   memory[addr + i] = recv(NULL);
+                   checksum1 = (checksum1 + memory[addr + i]) % 255;
+                   checksum2 = (checksum2 + checksum1) % 255;
+               }
+               send(checksum1);
+               send(checksum2);
+           }
+           break;
+       default:
+           fprintf(stderr, "Unexpected byte.");
+           *exit = true;
     }
 }
 

@@ -8,7 +8,7 @@ Subprojects:
     - Create protocol (ok)
     - Add serial debugging (ok)
     - Create computer serial emulator (ok)
-    - Upload memory
+    - Upload memory (ok)
     - Fetch registers
     - Deal with keypresses / printing
     - Write Z80 subroutine to fetch registers

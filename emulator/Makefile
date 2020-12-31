@@ -8,6 +8,6 @@ emulator: main.o z80/Z80.o
 
 .PHONY: clean
 clean:
-	rm -f *.o emulator
+	rm -f *.o **/*.o emulator
 
 # vim:ts=8:sts=8:sw=8:noexpandtab
