@@ -9,8 +9,9 @@ Subprojects:
     - Add serial debugging (ok)
     - Create computer serial emulator (ok)
     - Upload memory (ok)
-    - Fetch registers
-    - Deal with keypresses / printing
+    - Fetch registers (ok)
+    - Deal with keypresses (ok)
+    - Print chars
     - Write Z80 subroutine to fetch registers
     - Connect to the real computer
   - SD Card interface

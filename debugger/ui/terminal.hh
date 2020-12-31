@@ -18,17 +18,10 @@ public:
 
     void keypress(uint8_t key);
 
-    uint8_t last_keypress() const { return last_keypress_; }
-
-    bool keyboard_interrupt() const { return keyboard_interrupt_; }
-    void clear_keyboard_interrupt() { keyboard_interrupt_ = false; }
-
 private:
     WINDOW* subwindow_;
     int     cursor_line_ = 0,
             cursor_col_ = 0;
-    bool    keyboard_interrupt_ = false;
-    uint8_t last_keypress_ = 0;
 };
 
 extern Terminal* global_terminal;

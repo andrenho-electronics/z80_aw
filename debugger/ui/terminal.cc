@@ -1,4 +1,5 @@
 #include "terminal.hh"
+#include "../hardware/hardware.hh"
 
 Terminal* global_terminal = nullptr;
 
@@ -64,7 +65,6 @@ void Terminal::ask_keypress()
 
 void Terminal::keypress(uint8_t key)
 {
-    last_keypress_ = key;
-    keyboard_interrupt_ = true;
+    hardware->register_keypress(key);
 }
 

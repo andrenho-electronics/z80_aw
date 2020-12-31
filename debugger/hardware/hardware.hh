@@ -39,6 +39,8 @@ public:
     virtual void upload() = 0;
     
     Registers const& registers() const { return registers_; }
+    
+    virtual void register_keypress(uint8_t key) = 0;
 
 protected:
     Hardware() = default;

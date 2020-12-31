@@ -2,6 +2,7 @@
 
 #include "../hardware/hardware.hh"
 #include "../ui/terminal.hh"
+#include "../hardware/emulatedhardware.hh"
 
 void WrZ80(word Addr,byte Value)
 {
@@ -21,13 +22,20 @@ void OutZ80(word Port,byte Value)
 
 byte InZ80(word Port)
 {
-    return global_terminal->last_keypress();
+    if ((Port & 0xff) == 0x1) {
+        auto* eh = dynamic_cast<EmulatedHardware*>(hardware.get());
+        return eh->last_keypress();
+    }
+    return 0;
 }
 
 word LoopZ80(Z80 *R)
 {
-    if (global_terminal->keyboard_interrupt()) {
-        global_terminal->clear_keyboard_interrupt();
+    (void) R;
+    
+    auto* eh = dynamic_cast<EmulatedHardware*>(hardware.get());
+    if (eh->keyboard_interrupt()) {
+        eh->clear_keyboard_interrupt();
         return 0xcf;
     }
     return INT_QUIT;
@@ -35,4 +43,5 @@ word LoopZ80(Z80 *R)
 
 void PatchZ80(Z80 *R)
 {
+    (void) R;
 }

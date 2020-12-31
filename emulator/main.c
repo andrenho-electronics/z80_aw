@@ -14,6 +14,8 @@
 
 static uint8_t memory[64 * 1024];
 static Z80 z80;
+static bool    keyboard_interrupt = false;
+static uint8_t last_keypress = 0;
 
 void WrZ80(word Addr,byte Value)
 {
@@ -35,18 +37,17 @@ void OutZ80(word Port,byte Value)
 
 byte InZ80(word Port)
 {
-    // return global_terminal->last_keypress();
+    if ((Port & 0xff) == 0x1)
+        return (uint8_t) last_keypress;
     return 0;
 }
 
 word LoopZ80(Z80 *R)
 {
-    /*
-    if (global_terminal->keyboard_interrupt()) {
-        global_terminal->clear_keyboard_interrupt();
+    if (keyboard_interrupt) {
+        keyboard_interrupt = false;
         return 0xcf;
     }
-     */
     return INT_QUIT;
 }
 
@@ -177,6 +178,12 @@ static bool parse_input(bool* exit)
                send(checksum1);
                send(checksum2);
            }
+           ResetZ80(&z80);
+           break;
+       case C_KEYPRESS:
+           last_keypress = recv(NULL);
+           keyboard_interrupt = true;
+           send(C_ACK);
            break;
        default:
            fprintf(stderr, "Unexpected byte.");

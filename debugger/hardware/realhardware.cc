@@ -199,3 +199,9 @@ void RealHardware::update_registers()
             static_cast<bool>(r.at(26)),
     };
 }
+
+void RealHardware::register_keypress(uint8_t key)
+{
+    if (send({ C_KEYPRESS, key }, 1).at(0) != C_ACK)
+        throw std::runtime_error("Error sending keypress.");
+}

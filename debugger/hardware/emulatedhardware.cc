@@ -48,3 +48,9 @@ void EmulatedHardware::update_registers()
             z80_.R, z80_.I, ((z80_.IFF & IFF_HALT) != 0),
     };
 }
+
+void EmulatedHardware::register_keypress(uint8_t key)
+{
+    keyboard_interrupt_ = true;
+    last_keypress_ = key;
+}

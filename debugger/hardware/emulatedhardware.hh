@@ -18,10 +18,18 @@ public:
     void upload() override;
     
     void update_registers() override;
+    
+    void register_keypress(uint8_t key) override;
+    
+    bool keyboard_interrupt() const { return keyboard_interrupt_; }
+    void clear_keyboard_interrupt() { keyboard_interrupt_ = false; }
+    uint8_t last_keypress() const { return last_keypress_; }
 
 private:
-    Z80 z80_;
+    Z80      z80_;
     uint32_t memory_[64 * 1024];
+    bool     keyboard_interrupt_;
+    uint8_t  last_keypress_;
 };
 
 #endif //EMULATOR_EMULATEDHARDWARE_HH
