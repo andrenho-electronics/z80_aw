@@ -16,6 +16,7 @@ static uint8_t memory[64 * 1024];
 static Z80 z80;
 static bool    keyboard_interrupt = false;
 static uint8_t last_keypress = 0;
+static int     last_printed_char = -1;
 
 void WrZ80(word Addr,byte Value)
 {
@@ -29,10 +30,8 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
-    /*
     if ((Port & 0xff) == 0x0)
-        global_terminal->print_char(Value);
-    */
+        last_printed_char = Value;
 }
 
 byte InZ80(word Port)
@@ -130,7 +129,12 @@ static bool parse_input(bool* exit)
             RunZ80(&z80);
             send(z80.PC.W & 0xff);
             send(z80.PC.W >> 8);
-            send(0);  // TODO - send printed character
+            if (last_printed_char != -1) {
+                send(last_printed_char);
+                last_printed_char = -1;
+            } else {
+                send(0);
+            }
             break;
        case C_REGISTERS:
            send(z80.AF.B.h);

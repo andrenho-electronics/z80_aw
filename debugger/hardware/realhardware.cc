@@ -85,7 +85,9 @@ void RealHardware::step()
 {
     std::vector<uint8_t> s = send({ C_STEP }, 3);
     pc_ = s[0] | (s[1] << 8);
-    // printed_char = s[2];
+    uint8_t char_to_print = s[2];
+    if (char_to_print != 0)
+        hardware->print_char(char_to_print);
 }
 
 bool RealHardware::send_expect(uint8_t data, uint8_t expected) const

@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_set>
 #include <vector>
+#include <functional>
 
 #define CHECKSUM_ADDR 0x7ffe
 
@@ -41,6 +42,9 @@ public:
     Registers const& registers() const { return registers_; }
     
     virtual void register_keypress(uint8_t key) = 0;
+    
+    void print_char(uint8_t chr);
+    void set_on_print_char(struct Terminal* terminal, std::function<void(struct Terminal&, uint8_t)> const& on_print_char);
 
 protected:
     Hardware() = default;
@@ -54,6 +58,9 @@ protected:
     std::vector<UploadStagingArea> upload_staging_areas_;
     uint16_t                       upload_staging_checksum_ = 0;
     Registers                      registers_ {};
+    
+    struct Terminal* terminal_ = nullptr;
+    std::function<void(struct Terminal&, uint8_t)> on_print_char_ = nullptr;
 };
 
 extern std::unique_ptr<Hardware> hardware;

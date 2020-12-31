@@ -1,14 +1,11 @@
 #include "terminal.hh"
 #include "../hardware/hardware.hh"
 
-Terminal* global_terminal = nullptr;
-
 Terminal::Terminal()
 {
     background_color_ = COLOR_TERMINAL;
     subwindow_ = newwin(1, 1, 0, 0);
     scrollok(subwindow_, TRUE);
-    global_terminal = this;
 }
 
 Terminal::~Terminal()

@@ -24,6 +24,4 @@ private:
             cursor_col_ = 0;
 };
 
-extern Terminal* global_terminal;
-
 #endif //EMULATOR_TERMINAL_HH

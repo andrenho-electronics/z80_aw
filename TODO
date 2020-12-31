@@ -11,7 +11,9 @@ Subprojects:
     - Upload memory (ok)
     - Fetch registers (ok)
     - Deal with keypresses (ok)
-    - Print chars
+    - Print chars (ok)
+    - Bug: Ctrl+C is not updating debugger
+    - Bug: enter is not printing correctly on real hardware
     - Progress bar on upload
     - Write Z80 subroutine to fetch registers
     - Connect to the real computer

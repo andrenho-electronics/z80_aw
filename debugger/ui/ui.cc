@@ -32,6 +32,7 @@ void UI::init_curses()
 
 void UI::initialize()
 {
+    hardware->set_on_print_char(&terminal, [](Terminal& terminal_, uint8_t data) { terminal_.print_char(data); });
     redraw();
     hardware->update_registers();
     source.reset();

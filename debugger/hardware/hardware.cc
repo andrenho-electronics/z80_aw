@@ -94,3 +94,14 @@ bool Hardware::matching_upload_checksum() const
     return (get_memory(CHECKSUM_ADDR) == (upload_staging_checksum_ & 0xff))
         && (get_memory(CHECKSUM_ADDR + 1) == (upload_staging_checksum_ >> 8));
 }
+
+void Hardware::print_char(uint8_t chr)
+{
+    on_print_char_(*terminal_, chr);
+}
+
+void Hardware::set_on_print_char(struct Terminal* terminal, std::function<void(struct Terminal&, uint8_t)> const& on_print_char)
+{
+    terminal_ = terminal;
+    on_print_char_ = on_print_char;
+}
