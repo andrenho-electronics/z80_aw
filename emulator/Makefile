@@ -1,4 +1,4 @@
-CFLAGS=-std=c11 -Wall -Wextra -Iz80 -g -O0
+CFLAGS=-std=c11 -Wall -Wextra -Iz80 -g -O0 -DLSB_FIRST
 LDFLAGS=-lutil
 
 all: emulator
