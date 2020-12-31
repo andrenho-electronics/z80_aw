@@ -21,10 +21,10 @@ void Memory::update() const
         for (int x = 0; x < 16; ++x) {
             uint16_t addr = x + (y * 0x10) + (page * 0x100);
             uint8_t c = data[i];
-            if (addr == hardware->PC())
+            if (addr == hardware->registers().PC)
                 wattr_on(window_, COLOR_FIELD, nullptr);
             mvwprintw(window_, y + 2, 9 + (x * 3) + (x > 7 ? 2 : 0), "%02X", c);
-            if (addr == hardware->PC())
+            if (addr == hardware->registers().PC)
                 wattr_on(window_, COLOR_MEMORY, nullptr);
             mvwprintw(window_, y + 2, 62 + x + (x > 7 ? 1 : 0), "%c", (c >= 32 && c < 127) ? c : '.');
             ++i;
@@ -33,7 +33,7 @@ void Memory::update() const
 
     // stack
     constexpr size_t STACK_ITEMS = 12;
-    std::vector<uint8_t> stack = hardware->get_memory(hardware->SP(), STACK_ITEMS * 2);
+    std::vector<uint8_t> stack = hardware->get_memory(hardware->registers().SP, STACK_ITEMS * 2);
     for (size_t i = 0; i < 12; ++i) {
         uint8_t a = stack.at(i * 2);
         uint8_t b = stack.at(i * 2 + 1);

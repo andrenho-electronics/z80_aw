@@ -21,7 +21,7 @@ bool Hardware::is_breakpoint(uint16_t addr) const
 
 bool Hardware::next_is_subroutine() const
 {
-    uint8_t next = hardware->get_memory(hardware->PC());
+    uint8_t next = hardware->get_memory(hardware->registers_.PC);
     switch (next) {
         case 0xcd:  // call
         case 0xdc:
@@ -48,7 +48,7 @@ bool Hardware::next_is_subroutine() const
 
 void Hardware::add_breakpoint_next()
 {
-    uint8_t next = hardware->get_memory(hardware->PC());
+    uint8_t next = hardware->get_memory(hardware->registers_.PC);
     switch (next) {
         case 0xcd:  // call
         case 0xdc:
@@ -59,7 +59,7 @@ void Hardware::add_breakpoint_next()
         case 0xec:
         case 0xe4:
         case 0xcc:
-            add_breakpoint(hardware->PC() + 3);
+            add_breakpoint(hardware->registers_.PC + 3);
             break;
         case 0xc7:  // rst
         case 0xcf:
@@ -69,7 +69,7 @@ void Hardware::add_breakpoint_next()
         case 0xef:
         case 0xf7:
         case 0xff:
-            add_breakpoint(hardware->PC() + 1);
+            add_breakpoint(hardware->registers_.PC + 1);
             break;
     }
 }

@@ -33,6 +33,7 @@ void UI::init_curses()
 void UI::initialize()
 {
     redraw();
+    hardware->update_registers();
     source.reset();
     update();
 }
@@ -169,6 +170,7 @@ long UI::ask(std::string const &question)
 void UI::step()
 {
     hardware->step();
+    hardware->update_registers();
     source.pc_updated();
     update();
 }
@@ -188,7 +190,7 @@ void UI::run()
     // run
     nodelay(stdscr, TRUE);
     hardware->step();  // skip current breakpoint
-    while (!hardware->is_breakpoint(hardware->PC())) {
+    while (!hardware->is_breakpoint(hardware->registers().PC)) {
         hardware->step();
         int ch = getch();
         if (ch == 3) { // CTRL + C
@@ -203,6 +205,7 @@ void UI::run()
     // execution stopped, restore everything
     nodelay(stdscr, FALSE);
     redraw();
+    hardware->update_registers();
     source.pc_updated();
     update();
     draw_status_bar();

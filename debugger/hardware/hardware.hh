@@ -8,28 +8,20 @@
 
 #define CHECKSUM_ADDR 0x7ffe
 
+struct Registers {
+    uint16_t AF, BC, DE, HL, AFx, BCx, DEx, HLx, IX, IY, PC, SP;
+    uint8_t R, I;
+    bool HALT;
+};
+
 class Hardware {
 public:
     virtual ~Hardware() = default;
     virtual void                 set_memory(uint16_t addr, uint8_t data) = 0;
     virtual uint8_t              get_memory(uint16_t addr) const = 0;
     virtual std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) const = 0;
-
-    virtual uint16_t AF() const = 0;
-    virtual uint16_t BC() const = 0;
-    virtual uint16_t DE() const = 0;
-    virtual uint16_t HL() const = 0;
-    virtual uint16_t AFx() const = 0;
-    virtual uint16_t BCx() const = 0;
-    virtual uint16_t DEx() const = 0;
-    virtual uint16_t HLx() const = 0;
-    virtual uint16_t IX() const = 0;
-    virtual uint16_t IY() const = 0;
-    virtual uint16_t PC() const = 0;
-    virtual uint16_t SP() const = 0;
-    virtual uint8_t I() const = 0;
-    virtual uint8_t R() const = 0;
-    virtual bool HALT() const = 0;
+    
+    virtual void update_registers() = 0;
 
     virtual void reset() = 0;
 
@@ -46,6 +38,8 @@ public:
     bool matching_upload_checksum() const;
     virtual void upload() = 0;
     
+    Registers const& registers() const { return registers_; }
+
 protected:
     Hardware() = default;
     
@@ -57,6 +51,7 @@ protected:
     };
     std::vector<UploadStagingArea> upload_staging_areas_;
     uint16_t                       upload_staging_checksum_ = 0;
+    Registers                      registers_ {};
 };
 
 extern std::unique_ptr<Hardware> hardware;

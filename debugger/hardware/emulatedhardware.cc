@@ -38,3 +38,13 @@ void EmulatedHardware::upload()
     set_memory(CHECKSUM_ADDR, upload_staging_checksum_ & 0xff);
     set_memory(CHECKSUM_ADDR + 1, upload_staging_checksum_ >> 8);
 }
+
+void EmulatedHardware::update_registers()
+{
+    registers_ = {
+            z80_.AF.W, z80_.BC.W, z80_.DE.W, z80_.HL.W,
+            z80_.AF1.W, z80_.BC1.W, z80_.DE1.W, z80_.HL1.W,
+            z80_.IX.W, z80_.IY.W, z80_.PC.W, z80_.SP.W,
+            z80_.R, z80_.I, ((z80_.IFF & IFF_HALT) != 0),
+    };
+}

@@ -148,14 +148,16 @@ static bool parse_input(bool* exit)
            send(z80.DE1.B.l);
            send(z80.HL1.B.h);
            send(z80.HL1.B.l);
-           send(z80.PC.W & 0xff);
-           send(z80.PC.W >> 8);
            send(z80.IX.W & 0xff);
            send(z80.IX.W >> 8);
            send(z80.IY.W & 0xff);
            send(z80.IY.W >> 8);
-           send(z80.I);
+           send(z80.PC.W & 0xff);
+           send(z80.PC.W >> 8);
+           send(z80.SP.W & 0xff);
+           send(z80.SP.W >> 8);
            send(z80.R);
+           send(z80.I);
            send((z80.IFF & IFF_HALT) ? 1 : 0);
            break;
        case C_UPLOAD:

@@ -100,13 +100,13 @@ void Source::pc_updated()
 {
     size_t previous_file = source_location_.file;
     try {
-        source_location_ = compiled_code.locations.at(hardware->PC());
+        source_location_ = compiled_code.locations.at(hardware->registers().PC);
         if (source_location_.file != previous_file) {
             scroll_ = 0;
             redraw();
         }
     } catch (std::out_of_range& e) {
-        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.", hardware->PC());
+        mvwprintw(subwindow_, 1, 1, "PC %04X does not point to any location in source code.", hardware->registers().PC);
         return;
     }
 
@@ -159,8 +159,8 @@ int Source::choose_file()
 
     source_location_.file = selected;
 
-    if (compiled_code.locations.at(hardware->PC()).file == selected) {
-        int ln = compiled_code.locations.at(hardware->PC()).line;
+    if (compiled_code.locations.at(hardware->registers().PC).file == selected) {
+        int ln = compiled_code.locations.at(hardware->registers().PC).line;
         source_location_.line = ln;
         scroll_ = ln - 4;
     } else {

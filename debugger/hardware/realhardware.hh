@@ -13,25 +13,11 @@ public:
     uint8_t              get_memory(uint16_t addr) const override;
     std::vector<uint8_t> get_memory(uint16_t addr, uint16_t sz) const override;
     
-    uint16_t AF() const override { return 0; }
-    uint16_t BC() const override { return 0; }
-    uint16_t DE() const override { return 0; }
-    uint16_t HL() const override { return 0; }
-    uint16_t AFx() const override { return 0; }
-    uint16_t BCx() const override { return 0; }
-    uint16_t DEx() const override { return 0; }
-    uint16_t HLx() const override { return 0; }
-    uint16_t IX() const override { return 0; }
-    uint16_t IY() const override { return 0; }
-    uint16_t PC() const override { return pc_; }
-    uint16_t SP() const override { return 0; }
-    uint8_t I() const override { return 0; }
-    uint8_t R() const override { return 0; }
-    bool HALT() const override { return false; }
-    
     void reset() override;
     void step() override;
     void upload() override;
+    
+    void update_registers() override;
 
 private:
     void open_serial_port(std::string const& serial_port);

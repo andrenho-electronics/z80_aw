@@ -77,9 +77,8 @@ std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
 
 void RealHardware::reset()
 {
-    if (!send_expect(C_RESET, C_OK)) {
+    if (!send_expect(C_RESET, C_OK))
         throw std::runtime_error("Could not reset hardware.");
-    }
 }
 
 void RealHardware::step()
@@ -177,4 +176,26 @@ uint16_t RealHardware::calculate_checksum(std::vector<uint8_t> const& data)
         checksum2 = (checksum2 + checksum1) % 255;
     }
     return checksum1 | (checksum2 << 8);
+}
+
+void RealHardware::update_registers()
+{
+    auto r = send({ C_REGISTERS }, 27);
+    registers_ = {
+            (uint16_t) (r.at(1) | (r.at(0) << 8)),
+            (uint16_t) (r.at(3) | (r.at(2) << 8)),
+            (uint16_t) (r.at(5) | (r.at(4) << 8)),
+            (uint16_t) (r.at(7) | (r.at(6) << 8)),
+            (uint16_t) (r.at(9) | (r.at(8) << 8)),
+            (uint16_t) (r.at(11) | (r.at(10) << 8)),
+            (uint16_t) (r.at(13) | (r.at(12) << 8)),
+            (uint16_t) (r.at(15) | (r.at(14) << 8)),
+            (uint16_t) (r.at(16) | (r.at(17) << 8)),
+            (uint16_t) (r.at(18) | (r.at(19) << 8)),
+            (uint16_t) (r.at(20) | (r.at(21) << 8)),
+            (uint16_t) (r.at(22) | (r.at(23) << 8)),
+            r.at(24),
+            r.at(25),
+            static_cast<bool>(r.at(26)),
+    };
 }
