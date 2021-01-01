@@ -140,6 +140,13 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
 
 void RealHardware::upload(std::function<void(double)> on_progress)
 {
+    on_progress(0.0);
+    
+    size_t total_bytes = 0;
+    for (auto const& st: upload_staging_areas_)
+        total_bytes += st.data.size();
+    
+    size_t bytes_sent = 0;
     for (auto const& st: upload_staging_areas_) {
         // send upload command
         if (!send_expect(C_UPLOAD, C_UPLOAD_ACK))
@@ -156,6 +163,8 @@ void RealHardware::upload(std::function<void(double)> on_progress)
             auto checksum = send(chunk, 2);
             if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk))
                 throw std::runtime_error("Chunk checksum does not match.");
+            bytes_sent += 64;
+            on_progress((double) bytes_sent / (double) total_bytes);
         }
         
         // send checksum
@@ -165,10 +174,12 @@ void RealHardware::upload(std::function<void(double)> on_progress)
         send({ 2, 0 }, 0);  // 2 bytes
         send({ (uint8_t)(upload_staging_checksum_ & 0xff), (uint8_t)(upload_staging_checksum_ >> 8) }, 2);
         // will not check checksum's checksum
-    
+        
         // finalize
         send({ 0, 0, 0, 0 }, 1);
     }
+    
+    on_progress(1.0);
 }
 
 uint16_t RealHardware::calculate_checksum(std::vector<uint8_t> const& data)

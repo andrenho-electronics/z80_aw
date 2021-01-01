@@ -44,6 +44,29 @@ UI::~UI()
     endwin();
 }
 
+static void on_upload_progress(double perc)
+{
+    static WINDOW* upload_box_ = nullptr;
+    static int upload_w_ = COLS - 20;
+    if (!upload_box_) {
+        upload_box_ = newwin(5, upload_w_, LINES / 2 - 3, COLS / 2 - (COLS - 20) / 2);
+        wbkgd(upload_box_, COLOR_DIALOG);
+        box(upload_box_, 0, 0);
+        std::string text = "Uploading...";
+        mvwprintw(upload_box_, 1, 1, "%s", text.c_str());
+    }
+    
+    if (perc < 0.999) {
+        wattr_on(upload_box_, A_REVERSE, nullptr);
+        mvwprintw(upload_box_, 3, 1, "%*s", (int)(((double) upload_w_ - 2) * perc), " ");
+        wattr_off(upload_box_, A_REVERSE, nullptr);
+        wrefresh(upload_box_);
+    } else {
+        delwin(upload_box_);
+        upload_box_ = nullptr;
+    }
+}
+
 bool UI::execute()
 {
     int ch = getch();
@@ -95,7 +118,8 @@ bool UI::execute()
             }
             break;
         case 'u':
-            hardware->upload();
+            hardware->upload(on_upload_progress);
+            redraw();
             update();
             break;
         case 'q':

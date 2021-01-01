@@ -37,7 +37,7 @@ public:
     
     void add_to_upload_staging(std::vector<uint8_t> const& data, uint16_t addr);
     bool matching_upload_checksum() const;
-    virtual void upload(std::function<void(double)> on_progress) = 0;
+    virtual void upload(std::function<void(double)> on_progress=[](double){}) = 0;
     
     Registers const& registers() const { return registers_; }
     
