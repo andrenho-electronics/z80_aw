@@ -173,7 +173,6 @@ void UI::step()
     hardware->step();
     hardware->update_registers();
     source.pc_updated();
-    update();
 }
 
 void UI::run()

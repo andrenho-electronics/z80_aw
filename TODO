@@ -16,7 +16,7 @@ Subprojects:
     - Bug: enter is not printing correctly on real hardware (ok)
     - Create script to download and install vasmz80_oldstyle (ok)
     - List commandline options from debugger (ok)
-    - Bug: RAM is being read twice for every step
+    - Bug: RAM is being read twice for every step (ok)
     - Progress bar on upload
     - Protect ROM in emulator mode - don't allow writing to ROM
     - Bug: fix warnings
