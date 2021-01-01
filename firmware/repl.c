@@ -253,6 +253,13 @@ static void repl_breakpoint()
 void repl_exec()
 {
     (void) repl_list;
+    (void) repl_help;
+    (void) repl_read_memory;
+    (void) repl_dump_memory;
+    (void) repl_powerdown;
+    (void) repl_init_z80;
+    (void) repl_keyboard;
+    (void) repl_breakpoint;
 
     uint8_t c = serial_recv();
     // serial_printhex8(c);
@@ -277,9 +284,8 @@ void repl_exec()
         case 'B': repl_breakpoint(); break;
         case 'C': debugger_continue(); break;
         case 'k': repl_keyboard(); break;
-#if ADD_TESTS
-        case 't': tests_run(); break;
-#endif
+        case '\n': case '\r':
+            break;
         case 'R':
             serial_printstr(PSTR(ANSI_CLRSCR));
             run();
@@ -295,12 +301,18 @@ void repl_exec()
         case 0xC:  // Ctrl+L
             serial_printstr(PSTR(ANSI_CLRSCR));
             break;
+
+#if ADD_TESTS
+        case 't': tests_run(); break;
+#endif  // ADD_TESTS
+
 #endif  // ADD_USER_INTERFACE
+
+#if ADD_PROGRAMATIC_INTERFACE
         case 0xfe:
             programatic_upload();
             break;
-        case '\n': case '\r':
-            break;
+#endif
         default:
             break;
     }
