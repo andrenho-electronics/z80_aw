@@ -15,7 +15,7 @@ Subprojects:
     - Bug: Ctrl+C is not updating debugger (ok)
     - Bug: enter is not printing correctly on real hardware (ok)
     - Create script to download and install vasmz80_oldstyle (ok)
-    - List commandline options from debugger
+    - List commandline options from debugger (ok)
     - Bug: RAM is being read twice for every step
     - Progress bar on upload
     - Protect ROM in emulator mode - don't allow writing to ROM

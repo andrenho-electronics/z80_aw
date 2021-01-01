@@ -62,12 +62,18 @@ Config::Config(int argc, char **argv)
 void Config::print_usage(std::string const& argv0)
 {
     std::cout << "Emulator for the Z80AW machine.\n";
-    std::cout << "Usage: " << argv0 << " [-e] | [-r PORT] [-l LOGFILE] CONFIGFILE\n";
-    std::cout << "  Choose either `-e` for running an emulation, or `-r` to connect to the real hardware.\n";
+    std::cout << "Usage: " << argv0 << " [OPTIONS...] CONFIGFILE\n";
+    std::cout << "\n";
+    std::cout << "Arguments:\n";
+    std::cout << "  -e, --emulated             run in emulated mode (does not connect to real computer)\n";
+    std::cout << "  -r, --real=SERIALPORT      connect to the real hardware through the serial port (ex. /dev/ttyUSB0)\n";
+    std::cout << "  -l, --log=FILE             log communication with the real hardware on FILE\n";
+    std::cout << "\n";
     std::cout << "  A config file name in the following format must be given:\n";
     std::cout << "     ASSEMBLY_FILE_NAME:0x7000\n";
     std::cout << "     ...\n";
-    std::cout << "  For the real hardware, a serial port (such as /dev/ttyUSB0) must be given.\n";
+    std::cout << "\n";
+    std::cout << "Project website: https://github.com/andrenho-electronics/z80_aw\n";
 }
 
 ConfigFile Config::load_config_file(char const *filename)
