@@ -28,7 +28,7 @@ std::vector<uint8_t> EmulatedHardware::get_memory(uint16_t addr, uint16_t sz) co
     return r;
 }
 
-void EmulatedHardware::upload()
+void EmulatedHardware::upload(std::function<void(double)> on_progress)
 {
     for (auto const& st: upload_staging_areas_) {
         uint16_t i = 0;

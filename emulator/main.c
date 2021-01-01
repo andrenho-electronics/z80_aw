@@ -1,3 +1,5 @@
+#define _GNU_SOURCE 1
+
 #include <pty.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -192,6 +194,7 @@ static bool parse_input(bool* exit)
                 }
                 send(checksum1);
                 send(checksum2);
+		usleep(200000);   // simulate slow ROM
             }
             printf("\n");
             ResetZ80(&z80);

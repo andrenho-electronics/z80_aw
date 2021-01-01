@@ -138,7 +138,7 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
     return r;
 }
 
-void RealHardware::upload()
+void RealHardware::upload(std::function<void(double)> on_progress)
 {
     for (auto const& st: upload_staging_areas_) {
         // send upload command

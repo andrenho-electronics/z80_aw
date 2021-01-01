@@ -15,7 +15,7 @@ public:
     
     void step() override;
     void reset() override;
-    void upload() override;
+    void upload(std::function<void(double)> on_progress) override;
     
     void update_registers() override;
     
