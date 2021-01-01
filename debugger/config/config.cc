@@ -56,7 +56,8 @@ Config::Config(int argc, char **argv)
         exit(1);
     }
 
-    config_file_ = load_config_file(argv[optind]);
+    source_path_ = find_source_path(argv[optind]);
+    config_file_ = load_config_file(source_path_ + "/" + argv[optind]);
 }
 
 void Config::print_usage(std::string const& argv0)
@@ -76,16 +77,18 @@ void Config::print_usage(std::string const& argv0)
     std::cout << "Project website: https://github.com/andrenho-electronics/z80_aw\n";
 }
 
-ConfigFile Config::load_config_file(char const *filename)
+ConfigFile Config::load_config_file(std::string const& filename)
 {
     ConfigFile cf;
 
+    // check if file exists and open stream
     std::ifstream f(filename);
     if (f.fail()) {
         std::cerr << "File " << filename << " does not exist or could not be opened.\n";
         exit(1);
     }
 
+    // read file
     std::string line;
     int nline = 1;
     while (std::getline(f, line)) {
@@ -108,4 +111,12 @@ ConfigFile Config::load_config_file(char const *filename)
     }
 
     return cf;
+}
+
+std::string Config::find_source_path(std::string const& filename)
+{
+    // find file directory
+    size_t slash = filename.find_last_of("/\\");
+    std::string path = filename.substr(0, slash);
+    return path;
 }

@@ -8,7 +8,7 @@
 
 CompiledCode compiled_code;
 
-static std::string execute_compiler(std::string const& filename)
+static std::string execute_compiler(std::string const& path, std::string const& filename)
 {
     char buffer[1024];
 
@@ -17,7 +17,7 @@ static std::string execute_compiler(std::string const& filename)
 #else
     std::string executable = "/usr/local/bin/vasmz80_oldstyle";
 #endif
-    std::string commandline = executable + " -chklabels -L listing.txt -Fbin -autoexp -o rom.bin " + filename + " 2>&1";
+    std::string commandline = "cd " + path + " && " + executable + " -chklabels -L listing.txt -Fbin -autoexp -o rom.bin " + filename + " 2>&1";
 
     FILE* pipe = popen(commandline.c_str(), "r");
     if (!pipe)
@@ -31,9 +31,9 @@ static std::string execute_compiler(std::string const& filename)
     return result;
 }
 
-static size_t load_listing(int file_offset, CompiledCode& cc)
+static size_t load_listing(std::string const& path, int file_offset, CompiledCode& cc)
 {
-    std::ifstream f("listing.txt");
+    std::ifstream f(path + "/listing.txt");
     if (f.fail()) {
         std::cerr << "File listing.txt does not exist or could not be opened.\n";
         exit(1);
@@ -94,9 +94,9 @@ static size_t load_listing(int file_offset, CompiledCode& cc)
     return max_file_number + 1;
 }
 
-static void load_binary_into_memory(uint16_t addr)
+static void load_binary_into_memory(std::string const& path, uint16_t addr)
 {
-    std::ifstream f("rom.bin", std::ios_base::binary);
+    std::ifstream f(path + "/rom.bin", std::ios_base::binary);
     if (f.fail()) {
         std::cerr << "File listing.txt does not exist or could not be opened.\n";
         exit(1);
@@ -113,10 +113,10 @@ static void load_binary_into_memory(uint16_t addr)
     hardware->add_to_upload_staging(buffer, addr);
 }
 
-static void cleanup()
+static void cleanup(std::string const& path)
 {
-    unlink("listing.txt");
-    unlink("rom.bin");
+    unlink((path + "/listing.txt").c_str());
+    unlink((path + "/rom.bin").c_str());
 }
 
 Result compile_assembly_code(Config const& cf)
@@ -125,12 +125,12 @@ Result compile_assembly_code(Config const& cf)
 
     Result result;
     int file_offset = 0;
-    cleanup();
+    cleanup(cf.source_path());
     for (auto const& c: cf.config_file()) {
-        result[c.filename] = execute_compiler(c.filename);
-        file_offset += load_listing(file_offset, compiled_code);
-        load_binary_into_memory(c.memory_location);
-        cleanup();
+        result[c.filename] = execute_compiler(cf.source_path(), c.filename);
+        file_offset += load_listing(cf.source_path(), file_offset, compiled_code);
+        load_binary_into_memory(cf.source_path(), c.memory_location);
+        cleanup(cf.source_path());
     }
 
     return result;
