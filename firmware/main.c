@@ -1,3 +1,4 @@
+#include "config.h"
 #include "ansi.h"
 #include "bus.h"
 #include "lowlevel.h"
@@ -16,8 +17,10 @@ int main()
     z80_init();
     z80_powerdown();
 
+#if ADD_USER_INTERFACE
     serial_printstr(PSTR(ANSI_CLRSCR));
     serial_putsstr(PSTR("Welcome to Z80-AW debugger. Type 'h' for help."));
+#endif
 
     for (;;)
         repl_exec();

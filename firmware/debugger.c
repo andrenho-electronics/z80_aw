@@ -1,5 +1,6 @@
 #include "debugger.h"
 
+#include "config.h"
 #include "ansi.h"
 #include "disassembler.h"
 #include "lowlevel.h"
@@ -14,7 +15,7 @@
 static uint16_t breakpoints[MAX_BREAKPOINTS];
 static uint8_t  breakpoint_count = 0;
 
-#if ADD_DEBUGGER
+#if ADD_DEBUGGER && ADD_USER_INTERFACE
 
 static void show_registers(uint16_t addr)
 {

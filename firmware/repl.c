@@ -2,6 +2,7 @@
 
 #include <util/delay.h>
 
+#include "config.h"
 #include "ansi.h"
 #include "debugger.h"
 #include "lowlevel.h"
@@ -258,6 +259,7 @@ void repl_exec()
     // serial_puts();
 
     switch (c) {
+#if ADD_USER_INTERFACE
         case 'h': repl_help(); break;
         case 's': repl_status(); break;
         case 'r': repl_read_memory(); break;
@@ -293,6 +295,7 @@ void repl_exec()
         case 0xC:  // Ctrl+L
             serial_printstr(PSTR(ANSI_CLRSCR));
             break;
+#endif  // ADD_USER_INTERFACE
         case 0xfe:
             programatic_upload();
             break;

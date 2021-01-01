@@ -2,11 +2,12 @@
 
 #include <util/delay.h>
 
+#include "config.h"
 #include "ansi.h"
 #include "memory.h"
 #include "serial.h"
 
-#if ADD_TESTS
+#if ADD_TESTS && ADD_USER_INTERFACE
 
 static uint8_t counter = 0;
 static uint8_t starter = 0;

@@ -20,7 +20,11 @@ Subprojects:
     - Progress bar on upload (ok)
     - Bug: fix warnings (ok)
     - Connect to the real computer
-    - Write Z80 subroutine to fetch registers
+      - Optionally disable user interface, debugger and programming interface
+      - Create custom terminal (deal with enter)
+      - Optional debugger / run
+      - Create programming commands
+      - Write Z80 subroutine to fetch registers
     - Protect ROM in emulator mode - don't allow writing to ROM
   - Generic Makefile, put all binaries in /bin (reorganize directories?)
   - SD Card interface
@@ -30,10 +34,6 @@ Subprojects:
   - Create wiki
   - Create website
   - Create videos
-
-# TERMINAL
-  - Create terminal
-  - Deal with enter
 
 # OPERATING SYSTEM
   - Welcome message
