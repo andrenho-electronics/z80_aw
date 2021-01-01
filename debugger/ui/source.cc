@@ -1,6 +1,8 @@
 #include "source.hh"
 #include "../compiler/compiler.hh"
 
+#include <stdexcept>
+
 Source::Source()
 {
     subwindow_ = newwin(1, 1, 0, 0);
@@ -51,7 +53,7 @@ void Source::print_source_line(int line_number, std::string const &line_str, std
             mvwprintw(subwindow_, line_number, 0, "%04X: ", addr.value());
             wattr_off(subwindow_, COLOR_ADDRESS, nullptr);
         }
-        if (j < line_str.length()) {
+        if (j < (long) line_str.length()) {
             if (line_str[j] == '\t') {
                 int next = (((col - 6) / 8) + 1) * 8 + 6;
                 while (col < next)
@@ -88,7 +90,7 @@ void Source::move_cursor(int rel)
             --scroll_;
         }
     } else if (cursor_line_ + rel >= lines_ - 2) {
-        if (scroll_ < lines_ - 2)
+        if ((long) scroll_ < lines_ - 2)
             ++scroll_;
     } else {
         cursor_line_ += rel;
@@ -149,7 +151,7 @@ int Source::choose_file()
             if (selected > 0)
                 --selected;
         } else if (ch == KEY_DOWN || ch == 60418) {
-            if (selected < compiled_code.filename.size())
+            if (selected < (long) compiled_code.filename.size())
                 ++selected;
         } else if (ch == 27) {
             delwin(wchoose);
@@ -159,7 +161,7 @@ int Source::choose_file()
 
     source_location_.file = selected;
 
-    if (compiled_code.locations.at(hardware->registers().PC).file == selected) {
+    if ((long) compiled_code.locations.at(hardware->registers().PC).file == selected) {
         int ln = compiled_code.locations.at(hardware->registers().PC).line;
         source_location_.line = ln;
         scroll_ = ln - 4;

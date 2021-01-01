@@ -31,7 +31,7 @@ static std::string execute_compiler(std::string const& filename)
     return result;
 }
 
-static size_t load_listing(std::string const& filename, int file_offset, CompiledCode& cc)
+static size_t load_listing(int file_offset, CompiledCode& cc)
 {
     std::ifstream f("listing.txt");
     if (f.fail()) {
@@ -128,7 +128,7 @@ Result compile_assembly_code(Config const& cf)
     cleanup();
     for (auto const& c: cf.config_file()) {
         result[c.filename] = execute_compiler(c.filename);
-        file_offset += load_listing(c.filename, file_offset, compiled_code);
+        file_offset += load_listing(file_offset, compiled_code);
         load_binary_into_memory(c.memory_location);
         cleanup();
     }
