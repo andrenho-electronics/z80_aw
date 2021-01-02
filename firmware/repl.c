@@ -255,6 +255,7 @@ void repl_exec()
     (void) repl_list;
     (void) repl_help;
     (void) repl_read_memory;
+    (void) repl_write_memory;
     (void) repl_dump_memory;
     (void) repl_powerdown;
     (void) repl_init_z80;
@@ -280,7 +281,7 @@ void repl_exec()
 #if ADD_DEBUGGER
         case 'l': repl_list(false); break;
         case 'L': repl_list(true); break;
-#endif
+#endif  // ADD_DEBUGGER
         case 'B': repl_breakpoint(); break;
         case 'C': debugger_continue(); break;
         case 'k': repl_keyboard(); break;
@@ -308,12 +309,11 @@ void repl_exec()
 
 #endif  // ADD_USER_INTERFACE
 
-#if ADD_PROGRAMATIC_INTERFACE
-        case 0xfe:
-            programatic_upload();
-            break;
-#endif
         default:
+#if ADD_PROGRAMMING_INTERFACE
+            if (c >= 0xf0)
+                programatic_command(c);
+#endif
             break;
     }
 

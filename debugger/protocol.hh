@@ -2,6 +2,8 @@
 #define PROTOCOL_HH
 
 #define C_OK           0x0f
+#define C_ERR          0x66
+
 #define C_ACK          0xf0
 #define C_RAM_BYTE     0xf2
 #define C_RAM_BLOCK    0xf3

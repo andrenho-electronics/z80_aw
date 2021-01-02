@@ -2,6 +2,7 @@
 
 #include "bus.h"
 #include "memory.h"
+#include "protocol.h"
 #include "serial.h"
 #include "z80.h"
 
@@ -13,6 +14,42 @@ void _delay_ms(int ms);
 
 #define P_ACK   0x1
 #define P_ERROR 0x2
+
+void programatic_command(uint8_t c)
+{
+    switch (c) {
+        case C_ACK:
+            serial_send(C_OK);
+            break;
+        case C_REGISTERS:
+            for (size_t i = 0; i < 20; ++i)  // TODO - send rest of the registers
+                serial_send(0);
+            serial_send(z80_last_pc & 0xff);
+            serial_send(z80_last_pc >> 8);
+            for (size_t i = 0; i < 5; ++i)
+                serial_send(0);
+            break;
+        case C_RAM_BYTE: {
+                uint8_t a = serial_recv();
+                uint8_t b = serial_recv();
+                serial_send(memory_read(a | (b << 8)));
+            }
+            break;
+        case C_RAM_BLOCK: {
+                uint8_t a = serial_recv();
+                uint8_t b = serial_recv();
+                uint8_t c1 = serial_recv();
+                uint8_t c2 = serial_recv();
+                uint16_t addr = a | (b << 8);
+                uint16_t sz = c1 | (c2 << 8);
+                for (uint16_t i = 0; i < sz; ++i)
+                    serial_send(memory_read(addr + i));
+            }
+            break;
+        default:
+            serial_send(C_ERR);
+    }
+}
 
 void programatic_upload()
 {

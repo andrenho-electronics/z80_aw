@@ -21,7 +21,7 @@ Subprojects:
     - Bug: fix warnings (ok)
     - Connect to the real computer
       - Optionally disable user interface, debugger and programming interface (ok)
-      - Create base operating system (simple I/O)
+      - Create base operating system (simple I/O) (ok)
       - Create custom terminal (deal with enter)
       - Optional debugger / run
       - Create programming commands

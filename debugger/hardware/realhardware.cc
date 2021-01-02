@@ -11,17 +11,18 @@
 RealHardware::RealHardware(std::string const& serial_port, std::optional<std::string> const& log_file)
 {
     open_serial_port(serial_port);
-    if (!send_expect(C_ACK, C_OK)) {
-        fprintf(stderr, "Controller did not respond to acknowledgment.\n");
-        exit(EXIT_FAILURE);
-    }
-    
+
     if (log_file) {
         logfile_ = std::ofstream();
         logfile_->open(*log_file);
         if (!logfile_->is_open())
             throw std::runtime_error("Could not open log file.");
         *logfile_ << std::setfill('0') << std::setw(2) << std::right << std::uppercase << std::hex;
+    }
+
+    if (!send_expect(C_ACK, C_OK)) {
+        fprintf(stderr, "Controller did not respond to acknowledgment.\n");
+        exit(EXIT_FAILURE);
     }
 }
 
@@ -101,6 +102,7 @@ bool RealHardware::send_expect(uint8_t data, uint8_t expected) const
     if (logfile_) {
         *logfile_ << "WRITE: [" << (int) data << "]\n";
         *logfile_ << "READ:  [" << (int) c << "]\n";
+        logfile_->flush();
     }
     if (c != expected)
         return false;
@@ -114,8 +116,10 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
     for (uint8_t byte: data) {
         if (write(fd, &byte, 1) != 1)
             throw std::runtime_error("Unable to write byte to controller.");
-        if (logfile_)
+        if (logfile_) {
             *logfile_ << "[" << (int) byte << "] ";
+            logfile_->flush();
+        }
     }
     
     if (logfile_)
@@ -127,8 +131,10 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
         uint8_t c;
         if (read(fd, &c, 1) != 1)
             throw std::runtime_error("Unable to read byte from controller.");
-        if (logfile_)
+        if (logfile_) {
             *logfile_ << "[" << (int) c << "] ";
+            logfile_->flush();
+        }
         r.push_back(c);
     }
     

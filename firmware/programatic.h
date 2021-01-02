@@ -1,6 +1,9 @@
 #ifndef PROGRAMATIC_H_
 #define PROGRAMATIC_H_
 
+#include <stdint.h>
+
+void programatic_command(uint8_t c);
 void programatic_upload();
 
 #endif
