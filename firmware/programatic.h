@@ -4,7 +4,6 @@
 #include <stdint.h>
 
 void programatic_command(uint8_t c);
-void programatic_upload();
 
 #endif
 

@@ -22,12 +22,14 @@ Subprojects:
     - Connect to the real computer
       - Optionally disable user interface, debugger and programming interface (ok)
       - Create base operating system (simple I/O) (ok)
-      - Create custom terminal (deal with enter)
-      - Optional debugger / run
       - Create programming commands
+      - Optional debugger / run
+      - Create custom terminal (deal with enter)
+      - Write new upload program (?)
       - Write Z80 subroutine to fetch registers
     - Bug: breakpoints not working (?)
     - Protect ROM in emulator mode - don't allow writing to ROM
+    - Allow uploading code during execution mode
   - Generic Makefile, put all binaries in /bin (reorganize directories?)
   - SD Card interface
 
