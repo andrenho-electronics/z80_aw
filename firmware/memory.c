@@ -152,8 +152,6 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 
 bool memory_write_page(uint16_t addr, uint8_t data[64], size_t count)
 {
-    if (addr % 64 != 0)
-        return false;
     if (z80_controls_bus())
         return false;
 

@@ -64,7 +64,7 @@ static void test_memory()
     serial_printstr(PSTR("Testing ROM (individual writes)...\r\n"));
     test_memory_block(0x0);
     serial_printstr(PSTR("Testing ROM (page writes)...\r\n"));
-    test_memory_page(0x7e00);
+    test_memory_page(0x7f00);
 
     serial_printstr(PSTR("Testing RAM...\r\n"));
     test_memory_block(0x8000);
