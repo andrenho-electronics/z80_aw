@@ -31,6 +31,8 @@ private:
     mutable std::optional<std::ofstream> logfile_;
     
     static uint16_t calculate_checksum(std::vector<uint8_t> const& data);
+    
+    void ensure_inbuf_empty() const;
 };
 
 #endif

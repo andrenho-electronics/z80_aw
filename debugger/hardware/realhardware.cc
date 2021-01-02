@@ -8,6 +8,7 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cstring>
 
 RealHardware::RealHardware(std::string const& serial_port, std::optional<std::string> const& log_file)
 {
@@ -20,6 +21,8 @@ RealHardware::RealHardware(std::string const& serial_port, std::optional<std::st
             throw std::runtime_error("Could not open log file.");
         *logfile_ << std::setfill('0') << std::setw(2) << std::right << std::uppercase << std::hex;
     }
+    
+    ensure_inbuf_empty();
 
     if (!send_expect(C_ACK, C_OK)) {
         fprintf(stderr, "Controller did not respond to acknowledgment.\n");
@@ -71,6 +74,7 @@ uint8_t RealHardware::get_memory(uint16_t addr) const
     if (logfile_)
         *logfile_ << "Getting memory at address " << addr << "\n";
     uint8_t c = send({ C_RAM_BYTE, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8) }, 1).at(0);
+    ensure_inbuf_empty();
     return c;
 }
 
@@ -79,6 +83,7 @@ std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
     if (logfile_)
         *logfile_ << "Getting memory at address " << addr << " (size " << (int) sz << ").\n";
     std::vector<uint8_t> r = send({ C_RAM_BLOCK, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8), (uint8_t)(sz & 0xff), (uint8_t)(sz >> 8) }, sz);
+    ensure_inbuf_empty();
     return r;
 }
 
@@ -88,6 +93,7 @@ void RealHardware::reset()
         *logfile_ << "Requesting reset.\n";
     if (!send_expect(C_RESET, C_OK))
         throw std::runtime_error("Could not reset hardware.");
+    ensure_inbuf_empty();
 }
 
 void RealHardware::step()
@@ -100,6 +106,7 @@ void RealHardware::step()
     uint8_t char_to_print = s[2];
     if (char_to_print != 0)
         hardware->print_char(char_to_print);
+    ensure_inbuf_empty();
 }
 
 bool RealHardware::send_expect(uint8_t data, uint8_t expected) const
@@ -217,6 +224,7 @@ void RealHardware::upload(std::function<void(double)> on_progress)
             throw std::runtime_error("Did not receive confirmation after uploading bytes.");
     }
     
+    ensure_inbuf_empty();
     on_progress(1.0);
 }
 
@@ -236,6 +244,7 @@ void RealHardware::update_registers()
         *logfile_ << "Requesting register update.\n";
 
     auto r = send({ C_REGISTERS }, 27);
+    ensure_inbuf_empty();
     registers_ = {
             (uint16_t) (r.at(1) | (r.at(0) << 8)),
             (uint16_t) (r.at(3) | (r.at(2) << 8)),
@@ -262,4 +271,31 @@ void RealHardware::register_keypress(uint8_t key)
 
     if (send({ C_KEYPRESS, key }, 1).at(0) != C_OK)
         throw std::runtime_error("Error sending keypress.");
+    ensure_inbuf_empty();
+}
+
+void RealHardware::ensure_inbuf_empty() const
+{
+    auto set_blocking = [this](bool should_block) {
+        termios tty {};
+        memset (&tty, 0, sizeof tty);
+        if (tcgetattr (fd, &tty) != 0) {
+            perror("tcgetattr");
+            exit(1);
+        }
+    
+        tty.c_cc[VMIN]  = should_block ? 1 : 0;
+        tty.c_cc[VTIME] = 2;            // 0.2 seconds read timeout
+    
+        if (tcsetattr (fd, TCSANOW, &tty) != 0) {
+            perror("tcsetattr");
+            exit(1);
+        }
+    };
+    
+    char c;
+    set_blocking(false);
+    if (read(fd, &c, 1) != 0)
+        throw std::runtime_error("Input buffer is not empty (and it should).");
+    set_blocking(true);
 }
