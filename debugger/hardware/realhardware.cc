@@ -92,6 +92,9 @@ void RealHardware::reset()
 
 void RealHardware::step()
 {
+    if (logfile_)
+        *logfile_ << "Step.\n";
+    
     std::vector<uint8_t> s = send({ C_STEP }, 3);
     pc_ = s[0] | (s[1] << 8);
     uint8_t char_to_print = s[2];
