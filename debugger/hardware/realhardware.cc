@@ -209,8 +209,8 @@ void RealHardware::upload(std::function<void(double)> on_progress)
         }
         
         // finalize
-        auto rr = send({ 0, 0, 0, 0 }, 1);
-        if (rr.at(0) != C_UPLOAD_ACK)
+        auto rr = send({ 0, 0, 0, 0 }, 2);
+        if (rr.at(0) != C_UPLOAD_ACK || rr.at(1) != C_UPLOAD_ACK)
             throw std::runtime_error("Did not receive confirmation after uploading bytes.");
     }
     

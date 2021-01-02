@@ -22,8 +22,6 @@ main:
 .continue:
 	halt				; wait for keypress		
 	jp	.continue
-	djnz	0
-	nop
 	
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab

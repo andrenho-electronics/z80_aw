@@ -92,7 +92,7 @@ void Hardware::add_to_upload_staging(std::vector<uint8_t> const& data, uint16_t 
 bool Hardware::matching_upload_checksum() const
 {
     return (get_memory(CHECKSUM_ADDR) == (upload_staging_checksum_ & 0xff))
-        && (get_memory(CHECKSUM_ADDR + 1) == (upload_staging_checksum_ >> 8));
+        && (get_memory(CHECKSUM_ADDR + 1) == (uint8_t) (upload_staging_checksum_ >> 8));
 }
 
 void Hardware::print_char(uint8_t chr)
