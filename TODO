@@ -23,6 +23,9 @@ Subprojects:
       - Optionally disable user interface, debugger and programming interface (ok)
       - Create base operating system (simple I/O) (ok)
       - Create programming commands
+        - Buffer is clear?
+        - Video output
+        - Keyboard input
       - Optional debugger / run
       - Create custom terminal (deal with enter)
       - Write new upload program (?)

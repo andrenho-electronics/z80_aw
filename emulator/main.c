@@ -194,8 +194,9 @@ static bool parse_input(bool* exit)
                 }
                 send(checksum1);
                 send(checksum2);
-		usleep(200000);   // simulate slow ROM
+                usleep(100000);   // simulate slow ROM
             }
+            send(C_UPLOAD_ACK);
             printf("\n");
             ResetZ80(&z80);
             break;

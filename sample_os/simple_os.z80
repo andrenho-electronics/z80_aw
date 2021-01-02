@@ -19,6 +19,12 @@ KEYBOARD = 0x1
 main:
 	im	0			; set interrupt type
 	ei				; enable interrupts
+
+	ld	a, '?'			; print question mark
+	out	(VIDEO), a
+	ld	a, ' '
+	out	(VIDEO), a
+
 .continue:
 	halt				; wait for keypress		
 	jp	.continue
