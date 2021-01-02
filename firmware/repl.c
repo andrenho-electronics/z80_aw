@@ -7,6 +7,7 @@
 #include "debugger.h"
 #include "lowlevel.h"
 #include "memory.h"
+#include "protocol.h"
 #include "programatic.h"
 #include "serial.h"
 #include "tests.h"
@@ -311,8 +312,12 @@ void repl_exec()
 
         default:
 #if ADD_PROGRAMMING_INTERFACE
-            if (c >= 0xf0)
+            if (c >= 0xf0) {
                 programatic_command(c);
+            } else {
+                serial_send(C_ERR);
+                for(;;);
+            }
 #endif
             break;
     }

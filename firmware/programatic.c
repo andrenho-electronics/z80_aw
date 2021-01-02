@@ -44,6 +44,7 @@ void programatic_command(uint8_t c)
             break;
         default:
             serial_send(C_ERR);
+            for(;;);
     }
 }
 
@@ -66,7 +67,7 @@ static void programatic_upload()
         serial_send(C_UPLOAD_ACK);
 
         // receive size
-        uint8_t block_size = serial_recv();
+        uint8_t block_size = serial_recv16();
         if (block_size == 0)
             break;
 
@@ -83,14 +84,16 @@ static void programatic_upload()
         memory_read_page(addr, rdata, block_size);
 
         // calculate checksum
-        uint16_t checksum1 = 0, checksum2 = 0;
-        for (int i = 0; i < block_size; ++i) {
+        uint8_t checksum1 = 0, checksum2 = 0;
+        for (size_t i = 0; i < block_size; ++i) {
             checksum1 = (checksum1 + rdata[i]) % 255;
             checksum2 = (checksum2 + checksum1) % 255;
         }
         serial_send(checksum1);
         serial_send(checksum2);
     }
+
+    serial_send(C_UPLOAD_ACK);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

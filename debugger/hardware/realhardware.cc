@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <sstream>
 
 RealHardware::RealHardware(std::string const& serial_port, std::optional<std::string> const& log_file)
 {
@@ -165,10 +166,17 @@ void RealHardware::upload(std::function<void(double)> on_progress)
                 throw std::runtime_error("Error uploading code.");
             size_t n = (i + 64 > st.data.size()) ? st.data.size() % 64 : 64;
             send({ (uint8_t) (n & 0xff), (uint8_t) (n >> 8) }, 0);
-            std::vector chunk(st.data.begin() + i, st.data.begin() + i + n);
+            std::vector<uint8_t> chunk(st.data.begin() + i, st.data.begin() + i + n);
             auto checksum = send(chunk, 2);
-            if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk))
-                throw std::runtime_error("Chunk checksum does not match - expected " + calculate_checksum(chunk) + ", received " + (checksum.at(0) | checksum.at(1) << 8));
+            if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk)) {
+                std::stringstream ss;
+                ss << std::hex 
+                   << "Chunk checksum does not match - expected "
+                   << calculate_checksum(chunk) 
+                   << ", received " 
+                   << (checksum.at(0) | checksum.at(1) << 8);
+                throw std::runtime_error(ss.str());
+            }
             bytes_sent += 64;
             on_progress((double) bytes_sent / (double) total_bytes);
         }
@@ -177,12 +185,24 @@ void RealHardware::upload(std::function<void(double)> on_progress)
         auto r = send({ CHECKSUM_ADDR & 0xff, (CHECKSUM_ADDR >> 8) & 0xff }, 1);
         if (r.at(0) != C_UPLOAD_ACK)
             throw std::runtime_error("Error uploading checksum.");
+        // TODO - this code is repeated
         send({ 2, 0 }, 0);  // 2 bytes
-        send({ (uint8_t)(upload_staging_checksum_ & 0xff), (uint8_t)(upload_staging_checksum_ >> 8) }, 2);
-        // will not check checksum's checksum
+        std::vector<uint8_t> chunk({ (uint8_t)(upload_staging_checksum_ & 0xff), (uint8_t)(upload_staging_checksum_ >> 8) });
+        auto checksum = send(chunk, 2);
+        if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk)) {
+            std::stringstream ss;
+            ss << std::hex 
+               << "Checksum's chunk checksum does not match - expected "
+               << calculate_checksum(chunk) 
+               << ", received " 
+               << (checksum.at(0) | checksum.at(1) << 8);
+            throw std::runtime_error(ss.str());
+        }
         
         // finalize
-        send({ 0, 0, 0, 0 }, 1);
+        auto rr = send({ 0, 0, 0, 0 }, 1);
+        if (rr.at(0) != C_UPLOAD_ACK)
+            throw std::runtime_error("Did not receive confirmation after uploading bytes.");
     }
     
     on_progress(1.0);
