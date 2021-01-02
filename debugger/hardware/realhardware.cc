@@ -68,18 +68,24 @@ void RealHardware::set_memory(uint16_t addr, uint8_t data)
 
 uint8_t RealHardware::get_memory(uint16_t addr) const
 {
+    if (logfile_)
+        *logfile_ << "Getting memory at address " << addr << "\n";
     uint8_t c = send({ C_RAM_BYTE, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8) }, 1).at(0);
     return c;
 }
 
 std::vector<uint8_t> RealHardware::get_memory(uint16_t addr, uint16_t sz) const
 {
+    if (logfile_)
+        *logfile_ << "Getting memory at address " << addr << " (size " << (int) sz << ").\n";
     std::vector<uint8_t> r = send({ C_RAM_BLOCK, (uint8_t)(addr & 0xff), (uint8_t)(addr >> 8), (uint8_t)(sz & 0xff), (uint8_t)(sz >> 8) }, sz);
     return r;
 }
 
 void RealHardware::reset()
 {
+    if (logfile_)
+        *logfile_ << "Requesting reset.\n";
     if (!send_expect(C_RESET, C_OK))
         throw std::runtime_error("Could not reset hardware.");
 }
@@ -147,6 +153,9 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
 
 void RealHardware::upload(std::function<void(double)> on_progress)
 {
+    if (logfile_)
+        *logfile_ << "Uploading memory.\n";
+
     on_progress(0.0);
     
     size_t total_bytes = 0;
@@ -220,6 +229,9 @@ uint16_t RealHardware::calculate_checksum(std::vector<uint8_t> const& data)
 
 void RealHardware::update_registers()
 {
+    if (logfile_)
+        *logfile_ << "Requesting register update.\n";
+
     auto r = send({ C_REGISTERS }, 27);
     registers_ = {
             (uint16_t) (r.at(1) | (r.at(0) << 8)),
@@ -242,6 +254,9 @@ void RealHardware::update_registers()
 
 void RealHardware::register_keypress(uint8_t key)
 {
+    if (logfile_)
+        *logfile_ << "Registering keypress " << (int)key << ".\n";
+
     if (send({ C_KEYPRESS, key }, 1).at(0) != C_OK)
         throw std::runtime_error("Error sending keypress.");
 }
