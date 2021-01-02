@@ -168,7 +168,7 @@ void RealHardware::upload(std::function<void(double)> on_progress)
             std::vector chunk(st.data.begin() + i, st.data.begin() + i + n);
             auto checksum = send(chunk, 2);
             if ((checksum.at(0) | checksum.at(1) << 8) != calculate_checksum(chunk))
-                throw std::runtime_error("Chunk checksum does not match.");
+                throw std::runtime_error("Chunk checksum does not match - expected " + calculate_checksum(chunk) + ", received " + (checksum.at(0) | checksum.at(1) << 8));
             bytes_sent += 64;
             on_progress((double) bytes_sent / (double) total_bytes);
         }
