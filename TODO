@@ -27,6 +27,7 @@ Subprojects:
       - Create custom terminal (deal with enter)
       - Write new upload program (?)
       - Write Z80 subroutine to fetch registers
+    - Bug: don't reload memory/registers when arrow up/down
     - Bug: breakpoints not working (?)
     - Protect ROM in emulator mode - don't allow writing to ROM
     - Allow uploading code during execution mode
