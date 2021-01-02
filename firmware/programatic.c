@@ -44,15 +44,16 @@ void programatic_command(uint8_t c)
             break;
         case C_STEP:
             {
-                debugger_step(false, true);
-                uint16_t pc = z80_last_pc;
+                uint16_t pc = z80_step();
                 serial_send(pc & 0xff);
                 serial_send(pc >> 8);
                 serial_send(0); // TODO - print char
             }
             break;
         case C_RESET:
+            z80_powerdown();
             z80_init();
+            z80_step();
             serial_send(C_OK);
             break;
         default:

@@ -167,13 +167,12 @@ uint16_t z80_step()
     }
 
     // update PC
-    uint16_t pc = z80_last_status.addr_bus;
+    bus_mc_release();
+    uint16_t pc = memory_read_addr();
 
     // run cycle until BUSACK
     while (busack == 1) {
         z80_clock_cycle(true);
-        set_ZCLK(1);
-        set_ZCLK(0);
         // TODO - check interrupts
         busack = get_BUSACK();
     }

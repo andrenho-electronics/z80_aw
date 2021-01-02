@@ -28,6 +28,8 @@ RealHardware::RealHardware(std::string const& serial_port, std::optional<std::st
         fprintf(stderr, "Controller did not respond to acknowledgment.\n");
         exit(EXIT_FAILURE);
     }
+
+    reset();
 }
 
 void RealHardware::open_serial_port(std::string const& serial_port)
@@ -292,10 +294,15 @@ void RealHardware::ensure_inbuf_empty() const
             exit(1);
         }
     };
+    (void) set_blocking;
     
+    /*
     char c;
     set_blocking(false);
     if (read(fd, &c, 1) != 0)
         throw std::runtime_error("Input buffer is not empty (and it should).");
     set_blocking(true);
+    if (logfile_)
+        *logfile_ << "Input buffer is empty.\n";
+    */
 }

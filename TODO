@@ -22,8 +22,8 @@ Subprojects:
     - Connect to the real computer
       - Optionally disable user interface, debugger and programming interface (ok)
       - Create base operating system (simple I/O) (ok)
-      - Create programming commands
-        - Buffer is clear?
+      - Create programming commands (ok)
+        - Buffer is clear? (ok - comment)
         - Video output
         - Keyboard input
       - Optional debugger / run
