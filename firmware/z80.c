@@ -156,4 +156,29 @@ z80_response:
     } while (get_IORQ() == 0);
 }
 
+uint16_t z80_step()
+{
+    bool busack = 1, m1 = 1;
+
+    // run cycle until M1
+    while (m1 == 1) {
+        z80_clock_cycle(false);
+        m1 = get_M1();
+    }
+
+    // update PC
+    uint16_t pc = z80_last_status.addr_bus;
+
+    // run cycle until BUSACK
+    while (busack == 1) {
+        z80_clock_cycle(true);
+        set_ZCLK(1);
+        set_ZCLK(0);
+        // TODO - check interrupts
+        busack = get_BUSACK();
+    }
+
+    return pc;
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab

@@ -42,6 +42,19 @@ void programatic_command(uint8_t c)
         case C_UPLOAD:
             programatic_upload();
             break;
+        case C_STEP:
+            {
+                debugger_step(false, true);
+                uint16_t pc = z80_last_pc;
+                serial_send(pc & 0xff);
+                serial_send(pc >> 8);
+                serial_send(0); // TODO - print char
+            }
+            break;
+        case C_RESET:
+            z80_init();
+            serial_send(C_OK);
+            break;
         default:
             serial_send(C_ERR);
             for(;;);
