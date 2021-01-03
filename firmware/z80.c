@@ -156,45 +156,4 @@ z80_response:
     } while (get_IORQ() == 0);
 }
 
-uint16_t z80_step()
-{
-    bool busack = 1, m1 = 1;
-
-    // run cycle until M1
-    while (m1 == 1) {
-        bus_mc_release();
-        set_BUSREQ(true);
-        set_ZCLK(1);
-        wait();
-        set_ZCLK(0);
-        wait();
-        bus_mc_release();
-        // z80_update_status();
-        // z80_clock_cycle(false);
-        m1 = get_M1();
-    }
-
-    // update PC
-    bus_mc_release();
-    uint16_t pc = memory_read_addr();
-    z80_last_pc = pc;
-
-    // run cycle until BUSACK
-    while (busack == 1) {
-        bus_mc_release();
-        set_BUSREQ(false);
-        set_ZCLK(1);
-        wait();
-        set_ZCLK(0);
-        wait();
-        bus_mc_release();
-        // z80_update_status();
-        // z80_clock_cycle(true);
-        // TODO - check interrupts
-        busack = get_BUSACK();
-    }
-
-    return pc;
-}
-
 // vim:ts=4:sts=4:sw=4:expandtab

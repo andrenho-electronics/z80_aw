@@ -22,8 +22,6 @@ void z80_bus_request();
 void z80_keypress(uint8_t key);
 void z80_update_status();
 
-uint16_t z80_step();   // this does not update the state
-
 extern Status   z80_last_status;
 extern uint16_t z80_last_pc;
 

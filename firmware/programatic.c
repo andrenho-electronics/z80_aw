@@ -1,12 +1,18 @@
 #include "programatic.h"
 
 #include "bus.h"
+#include "lowlevel.h"
 #include "memory.h"
 #include "protocol.h"
 #include "serial.h"
 #include "z80.h"
 
 static void programatic_upload();
+static uint16_t programatic_step();
+static void programatic_cycle(bool req_bus);
+
+static uint8_t last_video_output = 0,
+               last_key_pressed = 0;
 
 void programatic_command(uint8_t c)
 {
@@ -44,17 +50,23 @@ void programatic_command(uint8_t c)
             break;
         case C_STEP:
             {
-                uint16_t pc = z80_step();
+                uint16_t pc = programatic_step();
                 serial_send(pc & 0xff);
                 serial_send(pc >> 8);
-                serial_send(0); // TODO - print char
+                serial_send(last_video_output);
+                last_video_output = 0;
             }
             break;
         case C_RESET:
             z80_powerdown();
             z80_init();
-            z80_step();
+            programatic_step();
             serial_send(C_OK);
+            break;
+        case C_KEYPRESS: {
+                uint8_t k = serial_recv();
+                serial_send(C_OK);
+            }
             break;
         default:
             serial_send(C_ERR);
@@ -108,6 +120,54 @@ static void programatic_upload()
     }
 
     serial_send(C_UPLOAD_ACK);
+}
+
+static void programatic_io_requested()
+{
+    uint16_t addr = memory_read_addr();
+    if ((addr & 0xff) == 0x00) {   // video device
+        uint8_t data = addr >> 8;
+        last_video_output = data;
+    } else if ((addr & 0xff) == 0x01) {  // last keyboard press
+        memory_set_data(last_key_pressed);
+        programatic_cycle(false);
+    }
+}
+
+static void programatic_cycle(bool req_bus)
+{
+    bus_mc_release();
+    set_BUSREQ(!req_bus);
+    set_ZCLK(1);
+    set_ZCLK(0);
+    bool last_iorq = z80_last_status.iorq;
+    z80_update_status();
+    if (last_iorq == 1 && get_IORQ() == 0)
+        programatic_io_requested();
+}
+
+static uint16_t programatic_step()
+{
+    bool busack = 1, m1 = 1;
+
+    // run cycle until M1
+    while (m1 == 1) {
+        programatic_cycle(false);
+        m1 = get_M1();
+    }
+
+    // update PC
+    bus_mc_release();
+    uint16_t pc = memory_read_addr();
+    z80_last_pc = pc;
+
+    // run cycle until BUSACK
+    while (busack == 1) {
+        programatic_cycle(true);
+        busack = get_BUSACK();
+    }
+
+    return pc;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
