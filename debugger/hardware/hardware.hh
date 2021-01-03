@@ -28,9 +28,9 @@ public:
 
     bool next_is_subroutine() const;
 
-    void add_breakpoint(uint16_t addr);
+    virtual void add_breakpoint(uint16_t addr);
+    virtual void remove_breakpoint(uint16_t addr);
     void add_breakpoint_next();
-    void remove_breakpoint(uint16_t addr);
     bool is_breakpoint(uint16_t addr) const;
 
     virtual void step() = 0;

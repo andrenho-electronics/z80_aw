@@ -20,6 +20,9 @@ public:
     void update_registers() override;
     
     void register_keypress(uint8_t key) override;
+    
+    void add_breakpoint(uint16_t addr) override;
+    void remove_breakpoint(uint16_t addr) override;
 
 private:
     void open_serial_port(std::string const& serial_port);

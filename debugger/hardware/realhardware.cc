@@ -306,3 +306,19 @@ void RealHardware::ensure_inbuf_empty() const
         *logfile_ << "Input buffer is empty.\n";
     */
 }
+
+void RealHardware::add_breakpoint(uint16_t addr)
+{
+    auto r = send({ C_ADD_BKP, (uint8_t) (addr & 0xff), (uint8_t) (addr >> 8) }, 1);
+    if (r.at(0) != C_OK)
+        throw std::runtime_error("Error adding breakpoint.");
+    Hardware::add_breakpoint(addr);
+}
+
+void RealHardware::remove_breakpoint(uint16_t addr)
+{
+    auto r = send({ C_REMOVE_BKP, (uint8_t) (addr & 0xff), (uint8_t) (addr >> 8) }, 1);
+    if (r.at(0) != C_OK)
+        throw std::runtime_error("Error removing breakpoint.");
+    Hardware::remove_breakpoint(addr);
+}
