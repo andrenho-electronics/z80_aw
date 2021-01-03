@@ -19,7 +19,7 @@ void z80_powerdown();
 void z80_init();
 void z80_clock_cycle(bool request_bus);
 void z80_bus_request();
-void z80_keypress(uint8_t key);
+void z80_keypress(uint8_t key, bool output_debugging_info);
 void z80_update_status();
 
 extern Status   z80_last_status;

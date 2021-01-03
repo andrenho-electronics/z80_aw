@@ -64,7 +64,9 @@ void programatic_command(uint8_t c)
             serial_send(C_OK);
             break;
         case C_KEYPRESS: {
-                uint8_t k = serial_recv();
+                uint8_t key = serial_recv();
+                last_key_pressed = key;
+                z80_keypress(key, false);
                 serial_send(C_OK);
             }
             break;
