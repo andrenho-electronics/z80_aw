@@ -1,4 +1,0 @@
-http://www.z80.info/decoding.htm - decoding algorithm
-https://clrhome.org/table/ - opcode table
-http://www.z80.info/opcodes.txt - opcode list, ordered by hex
-http://www.z80.info/zip/z80b8400_OCR.pdf - datasheet with opcode table

@@ -1,7 +1,0 @@
-	; print [B] repetitions of char [A]
-CHRREP:
-	out	(VIDEO), A
-	djnz	CHRREP
-	ret
-
-; vim:ts=8:sts=8:sw=8:noexpandtab
