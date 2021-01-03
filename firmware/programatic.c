@@ -196,6 +196,8 @@ z80_response:
         memory_set_data(0xcf);
         programatic_cycle(false);
     } while (get_IORQ() == 0);
+
+    programatic_step();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

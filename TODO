@@ -24,8 +24,11 @@ Subprojects:
       - Create base operating system (simple I/O) (ok)
       - Create programming commands (ok)
         - Buffer is clear? (ok - comment)
-        - Video output
-        - Keyboard input
+        - Video output (ok)
+        - Keyboard input (ok)
+        - Continue / breakpoints
+          - Implement breakpoints
+          - Implement continue
       - Optional debugger / run
       - Create custom terminal (deal with enter)
       - Write new upload program (?)
