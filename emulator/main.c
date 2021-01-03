@@ -27,6 +27,8 @@ static uint16_t breakpoints[MAX_BREAKPOINTS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 static Mode     mode = M_STEP;
 
 static void send(uint8_t c);
+static uint8_t recv_nonblock();
+static void keypress();
 
 void WrZ80(word Addr,byte Value)
 {
@@ -59,6 +61,8 @@ byte InZ80(word Port)
 
 bool is_breakpoint(word w);
 
+word done();
+
 word LoopZ80(Z80 *R)
 {
     if (keyboard_interrupt) {
@@ -68,15 +72,33 @@ word LoopZ80(Z80 *R)
     if (mode == M_STEP) {
         return INT_QUIT;
     } else if (mode == M_CONTINUE) {
+        uint8_t c = recv_nonblock();
+        switch (c) {
+            case 0:
+                break;
+            case C_KEYPRESS:
+                keypress();
+                break;
+            case C_BREAK:
+                return done();
+            default:
+                send(C_ERR);
+                exit(EXIT_FAILURE);
+        }
         if (is_breakpoint(R->PC.W)) {
-            send(C_DONE);
-            send(z80.PC.W & 0xff);
-            send(z80.PC.W >> 8);
-            return INT_QUIT;
+            return done();
         } else {
             return INT_NONE;
         }
     }
+}
+
+word done()
+{
+    send(C_DONE);
+    send(z80.PC.W & 0xff);
+    send(z80.PC.W >> 8);
+    return INT_QUIT;
 }
 
 void PatchZ80(Z80 *R)
@@ -91,6 +113,8 @@ static int master;
 static char last_comm = '\0';
 
 static void z80_continue();
+
+static void keypress();
 
 uint8_t recv(bool* eof) {
     uint8_t c;
@@ -109,6 +133,15 @@ uint8_t recv(bool* eof) {
             *eof = true;
         return 0;
     }
+}
+
+static uint8_t recv_nonblock() {
+    uint8_t c;
+    int r = read(master, &c, 1);
+    if (r == 0)
+        return 0;
+    else
+        return c;
 }
 
 uint16_t recv16() {
@@ -235,10 +268,7 @@ static bool parse_input(bool* exit)
             ResetZ80(&z80);
             break;
         case C_KEYPRESS:
-            last_keypress = recv(NULL);
-            printf("Keypress: 0x%02x\n", last_keypress);
-            keyboard_interrupt = true;
-            send(C_OK);
+            keypress();
             break;
         case C_ADD_BKP: {
                 bool found = false;
@@ -268,6 +298,14 @@ static bool parse_input(bool* exit)
             fprintf(stderr, "Unexpected byte.");
             *exit = true;
     }
+}
+
+static void keypress()
+{
+    last_keypress = recv(NULL);
+    printf("Keypress: 0x%02x\n", last_keypress);
+    keyboard_interrupt = true;
+    send(C_OK);
 }
 
 bool is_breakpoint(word w)
