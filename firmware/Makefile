@@ -9,6 +9,8 @@ F_CPU=16500000UL   # running at 16.5 Mhz
 CC=avr-gcc
 CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections
 
+all: ${PROJECT}.hex
+
 ${PROJECT}.hex: ${PROJECT}.elf
 	avr-objcopy -j .text -j .data -O ihex $< $@
 	arm-linux-gnueabihf-size ${PROJECT}.hex

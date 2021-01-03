@@ -162,7 +162,10 @@ uint16_t z80_step()
 
     // run cycle until M1
     while (m1 == 1) {
-        z80_clock_cycle(false);
+        bus_mc_release();
+        set_BUSREQ(true);
+        z80_clock();
+        // z80_clock_cycle(false);
         m1 = get_M1();
     }
 
@@ -172,7 +175,10 @@ uint16_t z80_step()
 
     // run cycle until BUSACK
     while (busack == 1) {
-        z80_clock_cycle(true);
+        bus_mc_release();
+        set_BUSREQ(false);
+        z80_clock();
+        // z80_clock_cycle(true);
         // TODO - check interrupts
         busack = get_BUSACK();
     }
