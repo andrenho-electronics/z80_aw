@@ -168,7 +168,7 @@ uint16_t z80_step()
         wait();
         set_ZCLK(0);
         wait();
-        z80_update_status();
+        // z80_update_status();
         // z80_clock_cycle(false);
         m1 = get_M1();
     }
@@ -185,7 +185,7 @@ uint16_t z80_step()
         wait();
         set_ZCLK(0);
         wait();
-        z80_update_status();
+        // z80_update_status();
         // z80_clock_cycle(true);
         // TODO - check interrupts
         busack = get_BUSACK();
