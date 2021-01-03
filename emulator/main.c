@@ -14,11 +14,19 @@
 // Z80 EMULATOR CALLBACKS
 //
 
-static uint8_t memory[64 * 1024];
-static Z80 z80;
-static bool    keyboard_interrupt = false;
-static uint8_t last_keypress = 0;
-static int     last_printed_char = -1;
+#define MAX_BREAKPOINTS 10
+
+typedef enum { M_STEP, M_CONTINUE } Mode;
+
+static uint8_t  memory[64 * 1024];
+static Z80      z80;
+static bool     keyboard_interrupt = false;
+static uint8_t  last_keypress = 0;
+static int      last_printed_char = -1;
+static uint16_t breakpoints[MAX_BREAKPOINTS] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+static Mode     mode = M_STEP;
+
+static void send(uint8_t c);
 
 void WrZ80(word Addr,byte Value)
 {
@@ -32,16 +40,24 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
-    if ((Port & 0xff) == 0x0)
+    if ((Port & 0xff) == 0x0) {
         last_printed_char = Value;
+        if (mode == M_CONTINUE) {
+            send(C_PRINT);
+            send(last_printed_char);
+        }
+    }
 }
 
 byte InZ80(word Port)
 {
-    if ((Port & 0xff) == 0x1)
+    if ((Port & 0xff) == 0x1) {
         return (uint8_t) last_keypress;
+    }
     return 0;
 }
+
+bool is_breakpoint(word w);
 
 word LoopZ80(Z80 *R)
 {
@@ -49,7 +65,18 @@ word LoopZ80(Z80 *R)
         keyboard_interrupt = false;
         return 0xcf;
     }
-    return INT_QUIT;
+    if (mode == M_STEP) {
+        return INT_QUIT;
+    } else if (mode == M_CONTINUE) {
+        if (is_breakpoint(R->PC.W)) {
+            send(C_DONE);
+            send(z80.PC.W & 0xff);
+            send(z80.PC.W >> 8);
+            return INT_QUIT;
+        } else {
+            return INT_NONE;
+        }
+    }
 }
 
 void PatchZ80(Z80 *R)
@@ -62,6 +89,8 @@ void PatchZ80(Z80 *R)
 
 static int master;
 static char last_comm = '\0';
+
+static void z80_continue();
 
 uint8_t recv(bool* eof) {
     uint8_t c;
@@ -88,7 +117,7 @@ uint16_t recv16() {
     return a | (b << 8);
 }
 
-void send(uint8_t c) {
+static void send(uint8_t c) {
     /*
     if (last_comm != 'W')
         printf("\n\x1b[31m> ");
@@ -135,6 +164,7 @@ static bool parse_input(bool* exit)
              send(C_OK);
              break;
          case C_STEP:
+             mode = M_STEP;
              RunZ80(&z80);
              send(z80.PC.W & 0xff);
              send(z80.PC.W >> 8);
@@ -146,6 +176,10 @@ static bool parse_input(bool* exit)
                  send(0);
              }
              break;
+        case C_CONTINUE:
+            mode = M_CONTINUE;
+            RunZ80(&z80);
+            break;
         case C_REGISTERS:
             printf("Update registers\n");
             send(z80.AF.B.h);
@@ -206,10 +240,42 @@ static bool parse_input(bool* exit)
             keyboard_interrupt = true;
             send(C_OK);
             break;
+        case C_ADD_BKP: {
+                bool found = false;
+                for (int i = 0; i < MAX_BREAKPOINTS; ++i) {
+                    if (breakpoints[i] == 0) {
+                        breakpoints[i] = recv16();
+                        send(C_OK);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    recv16();
+                    send(C_ERR);
+                }
+            }
+            break;
+        case C_REMOVE_BKP: {
+                uint16_t addr = recv16();
+                for (int i = 0; i < MAX_BREAKPOINTS; ++i) {
+                    if (breakpoints[i] == addr)
+                        breakpoints[i] = 0;
+                }
+            }
+            break;
         default:
             fprintf(stderr, "Unexpected byte.");
             *exit = true;
     }
+}
+
+bool is_breakpoint(word w)
+{
+    for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
+        if (breakpoints[i] != 0 && breakpoints[i] != w)
+            return true;
+    return false;
 }
 
 //

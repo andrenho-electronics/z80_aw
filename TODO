@@ -26,6 +26,7 @@ Subprojects:
         - Buffer is clear? (ok - comment)
         - Video output (ok)
         - Keyboard input (ok)
+        - Cache ROM memory
         - Continue / breakpoints
           - Implement breakpoints
           - Implement continue
