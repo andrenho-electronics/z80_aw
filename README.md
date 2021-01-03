@@ -11,14 +11,14 @@ This project is a homemade Z80 computer. It consist of 4 boards:
 
 The computer is a Z80 processor linked to a 32k ROM memory IC, and a 32k RAM memory IC.
 
-![Controller](image/Computer.png)
+![Controller](images/Computer.png)
 
 ## Controller
 
 The controller allows provides a serial interface that allows the circuit to be controlled by a modern computer. It also allows a modern computer to server as a terminal (video and keyboard).
 
-![Controller schematic](image/Computer.png)
-![Controller](image/z80_controller.jpg)
+![Controller schematic](images/Computer.png)
+![Controller](images/z80_controller.jpg)
 
 Connecting to the debugger: FTDI driver must be installed
 
@@ -82,4 +82,4 @@ Pinout:
 48 - GND
 ```
 
-![Controller](image/Motherboard.png)
+![Controller](images/Motherboard.png)
