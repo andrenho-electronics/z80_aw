@@ -124,7 +124,7 @@ void z80_init()
     z80_clock_cycle(false);
 }
 
-void z80_keypress(uint8_t key, bool output_debugging_info)
+void z80_keypress(uint8_t key)
 {
     last_key_pressed = key;
 
@@ -135,8 +135,7 @@ void z80_keypress(uint8_t key, bool output_debugging_info)
     set_BUSREQ(1);
     for (int i = 0; i < 15; ++i) {
         z80_clock();
-        if (output_debugging_info)
-            repl_status();
+        repl_status();
         if (get_IORQ() == 0)
             goto z80_response;
     }
@@ -146,17 +145,14 @@ void z80_keypress(uint8_t key, bool output_debugging_info)
 z80_response:
     set_INT(1);
 
-    if (output_debugging_info) {
-        serial_send('-');
-        serial_puts();
-    }
+    serial_send('-');
+    serial_puts();
 
     do {
         memory_set_data(0xcf);
         z80_clock();
         z80_last_status.data_bus = 0xcf;
-        if (output_debugging_info)
-            repl_status();
+        repl_status();
     } while (get_IORQ() == 0);
 }
 

@@ -232,7 +232,7 @@ static void repl_keyboard()
     uint8_t key = serial_recv();
     serial_printhex8(key);
     serial_puts();
-    z80_keypress(key, true);
+    z80_keypress(key);
 }
 
 static void repl_breakpoint()

@@ -10,6 +10,7 @@
 static void programatic_upload();
 static uint16_t programatic_step();
 static void programatic_cycle(bool req_bus);
+static void programatic_keypress(uint8_t key);
 
 static uint8_t last_video_output = 0,
                last_key_pressed = 0;
@@ -65,8 +66,7 @@ void programatic_command(uint8_t c)
             break;
         case C_KEYPRESS: {
                 uint8_t key = serial_recv();
-                last_key_pressed = key;
-                z80_keypress(key, false);
+                programatic_keypress(key);
                 serial_send(C_OK);
             }
             break;
@@ -170,6 +170,32 @@ static uint16_t programatic_step()
     }
 
     return pc;
+}
+
+static void programatic_keypress(uint8_t key)
+{
+    last_key_pressed = key;
+    
+    bus_mc_release();
+    
+    // fire interrupt
+    set_INT(0);
+    set_BUSREQ(1);
+    for (int i = 0; i < 15; ++i) {
+        programatic_cycle(false);
+        if (get_IORQ() == 0)
+            goto z80_response;
+    }
+    set_INT(1);   // a interrupt request was not accepted by Z80
+    return;
+
+z80_response:
+    set_INT(1);
+    
+    do {
+        memory_set_data(0xcf);
+        programatic_cycle(false);
+    } while (get_IORQ() == 0);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
