@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 #include "protocol.h"
 #include "z80/Z80.h"
@@ -45,8 +46,8 @@ void OutZ80(word Port,byte Value)
     if ((Port & 0xff) == 0x0) {
         last_printed_char = Value;
         if (mode == M_CONTINUE) {
-            send(C_PRINT);
-            send(last_printed_char);
+            // send(C_PRINT);
+            // send(last_printed_char);
         }
     }
 }
@@ -116,23 +117,13 @@ static void z80_continue();
 
 static void keypress();
 
-uint8_t recv(bool* eof) {
+uint8_t recv() {
     uint8_t c;
-    int r = read(master, &c, 1);
-    if (r > 0) {
-        /*
-        if (last_comm != 'R')
-            printf("\n\x1b[32m< ");
-        printf("[%02X] ", c);
-        fflush(stdout);
-        last_comm = 'R';
-        */
-        return c;
-    } else {
-        if (eof)
-            *eof = true;
-        return 0;
-    }
+    int r;
+    do {
+        r = read(master, &c, 1);
+    } while (r == -1);
+    return c;
 }
 
 static uint8_t recv_nonblock() {
@@ -145,8 +136,8 @@ static uint8_t recv_nonblock() {
 }
 
 uint16_t recv16() {
-    uint16_t a = recv(NULL);
-    uint16_t b = recv(NULL);
+    uint16_t a = recv();
+    uint16_t b = recv();
     return a | (b << 8);
 }
 
@@ -173,17 +164,17 @@ static bool parse_input(bool* exit)
              send(C_OK);
              break;
          case C_RAM_BYTE: {
-             uint8_t a = recv(NULL);
-             uint8_t b = recv(NULL);
+             uint8_t a = recv();
+             uint8_t b = recv();
              printf("Read RAM byte (addr: 0x%04x)\n", a | (b << 8));
              send(memory[a | (b << 8)]);
          }
              break;
          case C_RAM_BLOCK: {
-             uint8_t a = recv(NULL);
-             uint8_t b = recv(NULL);
-             uint8_t c1 = recv(NULL);
-             uint8_t c2 = recv(NULL);
+             uint8_t a = recv();
+             uint8_t b = recv();
+             uint8_t c1 = recv();
+             uint8_t c2 = recv();
              uint16_t addr = a | (b << 8);
              uint16_t sz = c1 | (c2 << 8);
              printf("Read RAM block (addr: 0x%04x, size: 0x%x)\n", addr, sz);
@@ -255,7 +246,7 @@ static bool parse_input(bool* exit)
                     break;
                 uint16_t checksum1 = 0, checksum2 = 0;
                 for (uint16_t i = 0; i < sz; ++i) {
-                    memory[addr + i] = recv(NULL);
+                    memory[addr + i] = recv();
                     checksum1 = (checksum1 + memory[addr + i]) % 255;
                     checksum2 = (checksum2 + checksum1) % 255;
                 }
@@ -302,7 +293,7 @@ static bool parse_input(bool* exit)
 
 static void keypress()
 {
-    last_keypress = recv(NULL);
+    last_keypress = recv();
     printf("Keypress: 0x%02x\n", last_keypress);
     keyboard_interrupt = true;
     send(C_OK);
@@ -328,6 +319,10 @@ int main()
     int e = openpty(&master, &slave, name, NULL, NULL);
     if (e < 0) {
         perror("openpty");
+        return EXIT_FAILURE;
+    }
+    if (fcntl(master, F_SETFL, FNDELAY) < 0) {
+        perror("fcntl");
         return EXIT_FAILURE;
     }
     

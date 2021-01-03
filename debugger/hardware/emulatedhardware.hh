@@ -24,6 +24,10 @@ public:
     bool keyboard_interrupt() const { return keyboard_interrupt_; }
     void clear_keyboard_interrupt() { keyboard_interrupt_ = false; }
     uint8_t last_keypress() const { return last_keypress_; }
+    
+    void start_running() override;
+    void stop_running() override;
+    void evaluate_events() override;
 
 private:
     Z80      z80_;

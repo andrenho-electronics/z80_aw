@@ -56,3 +56,18 @@ void EmulatedHardware::register_keypress(uint8_t key)
     keyboard_interrupt_ = true;
     last_keypress_ = key;
 }
+
+void EmulatedHardware::start_running()
+{
+
+}
+
+void EmulatedHardware::stop_running()
+{
+
+}
+
+void EmulatedHardware::evaluate_events()
+{
+
+}

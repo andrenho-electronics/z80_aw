@@ -213,6 +213,19 @@ void UI::run()
 
     // run
     nodelay(stdscr, TRUE);
+    hardware->start_running();
+    for (;;) {
+        hardware->evaluate_events();
+        int ch = getch();
+        if (ch == 3) {  // CTRL + C
+            hardware->stop_running();
+            break;
+        } else if (ch != EOF) {
+            Terminal::keypress(translate_char(ch));
+        }
+    }
+    
+    /*
     hardware->step();  // skip current breakpoint
     while (!hardware->is_breakpoint(hardware->registers().PC)) {
         hardware->step();
@@ -225,6 +238,7 @@ void UI::run()
                 hardware->step();
         }
     }
+    */
 
     // execution stopped, restore everything
     nodelay(stdscr, FALSE);

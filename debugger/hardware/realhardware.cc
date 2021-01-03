@@ -148,8 +148,7 @@ std::vector<uint8_t> RealHardware::send(std::vector<uint8_t> const& data, size_t
     r.reserve(expect);
     for (size_t i = 0; i < expect; ++i) {
         uint8_t c;
-        if (read(fd, &c, 1) != 1)
-            throw std::runtime_error("Unable to read byte from controller.");
+        while (read(fd, &c, 1) == -1) {}
         if (logfile_) {
             *logfile_ << "[" << (int) c << "] ";
             logfile_->flush();
@@ -278,24 +277,6 @@ void RealHardware::register_keypress(uint8_t key)
 
 void RealHardware::ensure_inbuf_empty() const
 {
-    auto set_blocking = [this](bool should_block) {
-        termios tty {};
-        memset (&tty, 0, sizeof tty);
-        if (tcgetattr (fd, &tty) != 0) {
-            perror("tcgetattr");
-            exit(1);
-        }
-    
-        tty.c_cc[VMIN]  = should_block ? 1 : 0;
-        tty.c_cc[VTIME] = 2;            // 0.2 seconds read timeout
-    
-        if (tcsetattr (fd, TCSANOW, &tty) != 0) {
-            perror("tcsetattr");
-            exit(1);
-        }
-    };
-    (void) set_blocking;
-    
     /*
     char c;
     set_blocking(false);
@@ -305,6 +286,24 @@ void RealHardware::ensure_inbuf_empty() const
     if (logfile_)
         *logfile_ << "Input buffer is empty.\n";
     */
+}
+
+void RealHardware::set_blocking(bool should_block) const
+{
+    termios tty {};
+    memset (&tty, 0, sizeof tty);
+    if (tcgetattr (fd, &tty) != 0) {
+        perror("tcgetattr");
+        exit(1);
+    }
+    
+    tty.c_cc[VMIN]  = should_block ? 1 : 0;
+    tty.c_cc[VTIME] = 2;            // 0.2 seconds read timeout
+    
+    if (tcsetattr (fd, TCSANOW, &tty) != 0) {
+        perror("tcsetattr");
+        exit(1);
+    }
 }
 
 void RealHardware::add_breakpoint(uint16_t addr)
@@ -321,4 +320,21 @@ void RealHardware::remove_breakpoint(uint16_t addr)
     if (r.at(0) != C_OK)
         throw std::runtime_error("Error removing breakpoint.");
     Hardware::remove_breakpoint(addr);
+}
+
+void RealHardware::start_running()
+{
+    send({ C_CONTINUE }, 0);
+    set_blocking(false);
+}
+
+void RealHardware::stop_running()
+{
+    send({ C_BREAK }, 0);
+    set_blocking(true);
+}
+
+void RealHardware::evaluate_events()
+{
+
 }

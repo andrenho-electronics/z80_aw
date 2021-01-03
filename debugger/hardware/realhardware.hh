@@ -23,6 +23,10 @@ public:
     
     void add_breakpoint(uint16_t addr) override;
     void remove_breakpoint(uint16_t addr) override;
+    
+    void start_running() override;
+    void stop_running() override;
+    void evaluate_events() override;
 
 private:
     void open_serial_port(std::string const& serial_port);
@@ -36,6 +40,7 @@ private:
     static uint16_t calculate_checksum(std::vector<uint8_t> const& data);
     
     void ensure_inbuf_empty() const;
+    void set_blocking(bool should_block) const;
 };
 
 #endif

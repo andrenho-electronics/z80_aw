@@ -45,6 +45,10 @@ public:
     
     void print_char(uint8_t chr);
     void set_on_print_char(struct Terminal* terminal, std::function<void(struct Terminal&, uint8_t)> const& on_print_char);
+    
+    virtual void start_running() = 0;
+    virtual void stop_running() = 0;
+    virtual void evaluate_events() = 0;
 
 protected:
     Hardware() = default;
