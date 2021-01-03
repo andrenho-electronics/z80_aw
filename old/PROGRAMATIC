@@ -1,0 +1,53 @@
+Programatic interface for debugger:
+-----------------------------------
+REQ: [F0]                     Hello (ACK)           RESP: [0F] (ack)
+REQ: [F1]                     Request PC            RESP: [bb] [aa]
+REQ: [F2] [bb] [aa]           Read RAM address      RESP: [dd]
+REQ: [F3] [bb] [aa] [c2] [c1] Read RAM address      RESP: [dd]
+REQ: [F4] [kk]                Send keypress         RESP: [OK]
+REQ: [F5]                     Reset Z80             RESP: [OK]
+REQ: [F6]                     Step Z80              RESP: [bb] [aa] (new PC) [mm] (serial print char)
+REQ: [F7]                     Retrieve registers    RESP: [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D']
+                                                     [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
+REQ: [F8] [bb] [aa]           Add breakpoint        RESP: [OK]
+REQ: [F9] [bb] [aa]           Remove breakpoint     RESP: [OK]
+REQ: [FA]                     Continue              RESP: [C_PRINT] [ch]
+                                                          [C_DONE] [PCb] [PCa]
+                              (during continue, the MCU will accept: keypress, break)
+REQ: [FB]                     Break during exeuction
+REQ: [FE]                     Upload ROM (see below)
+# TODO - other requests
+
+Programatic interface for file upload:
+--------------------------------------
+
+PC           MC
+ Send programming command (0xFE)
+ ------------>
+ Ack (0x1) or error (0x2)
+ <------------
+ 
+ Send initial addr (2 bytes)
+ ------------>
+ Ack (0x1) or error (0x2)
+ <------------
+ Block size (max 64 bytes, or 0 for ending)
+ ------------>
+ Blocks of 64 bytes
+ ------------>
+ Checksum
+ <------------
+ (repeat...)
+
+ Finish (0x0) or ask for verification (0x1)
+ ------------>
+ Send all data
+ <------------
+
+ Number of bytes to rewrite (2 bytes)
+ ------------>
+ Addr (2 bytes) + Data (1 byte)
+ ------------>
+ Ack (0x1) or error (0x2)
+ <-----------
+ (repeat)

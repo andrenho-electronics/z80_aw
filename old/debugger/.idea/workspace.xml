@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
+    <generated>
+      <config projectName="debugger" targetName="all" />
+      <config projectName="debugger" targetName="debugger" />
+    </generated>
+  </component>
+  <component name="CMakeSettings">
+    <configurations>
+      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" ENABLED="true" />
+    </configurations>
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="99363909-9b5b-455c-b195-0b72a9da7553" name="Default Changelist" comment=".">
+      <change beforePath="$PROJECT_DIR$/hardware/emulatedhardware.cc" beforeDir="false" afterPath="$PROJECT_DIR$/hardware/emulatedhardware.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hardware/emulatedhardware.hh" beforeDir="false" afterPath="$PROJECT_DIR$/hardware/emulatedhardware.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hardware/hardware.hh" beforeDir="false" afterPath="$PROJECT_DIR$/hardware/hardware.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hardware/realhardware.cc" beforeDir="false" afterPath="$PROJECT_DIR$/hardware/realhardware.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/hardware/realhardware.hh" beforeDir="false" afterPath="$PROJECT_DIR$/hardware/realhardware.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ui/ui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/ui/ui.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../emulator/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/../emulator/main.c" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
+  <component name="ExternalProjectsData">
+    <projectState path="$PROJECT_DIR$">
+      <ProjectState />
+    </projectState>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="g1b0znpe" />
+  </component>
+  <component name="MakefileLocalSettings">
+    <option name="availableProjects">
+      <map>
+        <entry>
+          <key>
+            <ExternalProjectPojo>
+              <option name="name" value="debugger" />
+              <option name="path" value="$PROJECT_DIR$" />
+            </ExternalProjectPojo>
+          </key>
+          <value>
+            <list>
+              <ExternalProjectPojo>
+                <option name="name" value="debugger" />
+                <option name="path" value="$PROJECT_DIR$" />
+              </ExternalProjectPojo>
+            </list>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="projectSyncType">
+      <map>
+        <entry key="$PROJECT_DIR$" value="RE_IMPORT" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectId" id="1mG5vWQWHLZCv4kpeVpGagKrXzM" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+  </component>
+  <component name="RunManager" selected="Makefile Application.all">
+    <configuration name="all" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-r /dev/pts/6 -l temp.log ../z80_os/emulator_cfg.conf" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="debugger" TARGET_NAME="all" CONFIG_NAME="all" version="1" RUN_PATH="$PROJECT_DIR$/debugger">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_daemonize" />
+      </method>
+    </configuration>
+    <configuration name="debugger" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="debugger" TARGET_NAME="debugger" CONFIG_NAME="debugger" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="clean" type="MAKEFILE_TARGET_RUN_CONFIGURATION" factoryName="Makefile" temporary="true">
+      <makefile filename="$PROJECT_DIR$/Makefile" target="clean" workingDirectory="" arguments="">
+        <envs />
+      </makefile>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Makefile Application.all" />
+      <item itemvalue="Makefile Application.debugger" />
+      <item itemvalue="Makefile.clean" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Makefile.clean" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="99363909-9b5b-455c-b195-0b72a9da7553" name="Default Changelist" comment="" />
+      <created>1609107318188</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1609107318188</updated>
+      <workItem from="1609107319247" duration="1159000" />
+      <workItem from="1609112925853" duration="544000" />
+      <workItem from="1609113478951" duration="654000" />
+      <workItem from="1609114163959" duration="7137000" />
+      <workItem from="1609146233478" duration="1991000" />
+      <workItem from="1609172251646" duration="18803000" />
+      <workItem from="1609519809987" duration="3827000" />
+      <workItem from="1609613084828" duration="12301000" />
+    </task>
+    <task id="LOCAL-00001" summary=".">
+      <created>1609107760466</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1609107760467</updated>
+    </task>
+    <task id="LOCAL-00002" summary=".">
+      <created>1609117385188</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1609117385188</updated>
+    </task>
+    <task id="LOCAL-00003" summary=".">
+      <created>1609148085295</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1609148085295</updated>
+    </task>
+    <task id="LOCAL-00004" summary=".">
+      <created>1609239753699</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1609239753699</updated>
+    </task>
+    <task id="LOCAL-00005" summary=".">
+      <created>1609521791855</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1609521791855</updated>
+    </task>
+    <task id="LOCAL-00006" summary=".">
+      <created>1609522452193</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1609522452193</updated>
+    </task>
+    <task id="LOCAL-00007" summary=".">
+      <created>1609614545245</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1609614545245</updated>
+    </task>
+    <task id="LOCAL-00008" summary=".">
+      <created>1609678464861</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1609678464861</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="." />
+    <option name="LAST_COMMIT_MESSAGE" value="." />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/compiler/compiler.cc</url>
+          <line>108</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CLionNativeAppRunConfigurationType">
+        <watch expression="buffer" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
+  </component>
+</project>

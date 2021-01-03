@@ -1,0 +1,125 @@
+#!/usr/bin/env python3
+
+import argparse
+import os
+import serial
+import sys
+import time
+
+PROGRAMMING = 0xfe
+ACK         = 0x1
+
+def to_int_array(b):
+    return [x for x in b]
+
+class MySerial:
+    def __init__(self, port):
+        self.serial = serial.Serial(port, 114583, timeout=None)
+
+    def send(self, data):
+        if type(data) == int:
+            self.serial.write(bytes([data]))
+        else:
+            self.serial.write(data)
+
+    def send16(self, data):
+        self.send(data & 0xff)
+        self.send((data >> 8) & 0xff)
+
+    def recv_as_int(self, n_bytes=1):
+        if n_bytes == 1:
+            return int.from_bytes(self.serial.read(), 'little')
+
+    def recv16(self):
+        r = self.recv_as_int()
+        r |= self.recv_as_int() << 8
+        return r
+
+    def set_timeout(self, t):
+        ser.timeout = t
+
+
+def break_file_in_64_byte_blocks(contents):
+    blocks = []
+    for b in range(0, len(contents), 64):
+        blocks.append(contents[b:b+64])
+    return blocks
+
+
+def checksum(block):
+    checksum1 = 0
+    checksum2 = 0
+    for b in to_int_array(block):
+        checksum1 = (checksum1 + b) % 255
+        checksum2 = (checksum2 + checksum1) % 255
+    return checksum1 | (checksum2 << 8)
+
+#
+# MAIN
+#
+
+def auto_int(x):
+    return int(x, 0)
+
+# get arguments
+parser = argparse.ArgumentParser()
+parser.add_argument('port', help='Port to connect to', nargs='?', default='/dev/ttyUSB0')
+parser.add_argument('--dest', type=auto_int, nargs=1, default=[0])
+args = parser.parse_args()
+
+print('Opening connection...')
+ser = MySerial(args.port)
+
+print('Reading file contents...')
+contents = sys.stdin.buffer.read()
+if len(contents) >= 32 * 1024:
+    print('File must be smaller than ROM (32k).')
+    sys.exit(1)
+
+# negotiate
+print('Sending programming command...')
+ser.send(PROGRAMMING)
+r = ser.recv_as_int()
+if r != ACK:
+    print('Error writing to controller: ' + str(r))
+    sys.exit(1)
+
+print('Sending initial address...')
+ser.send16(args.dest[0])  # initial address
+r = ser.recv_as_int()
+if r != ACK:
+    print('Error writing to controller: ' + str(r))
+    sys.exit(1)
+
+ser.set_timeout(None)
+
+# separate file in blocks
+print('Breaking file in blocks...')
+blocks = break_file_in_64_byte_blocks(contents)
+
+# send blocks
+print('Sending bytes...')
+invalid_blocks = []
+for i, block in enumerate(blocks):
+    # printProgressBar(i + 1, len(blocks), prefix='Upload:', suffix='Complete', decimals=0)
+    print("Writing block " + str(i+1) + " of " + str(len(blocks)) + " (" + str(len(block)) + " bytes)")
+    chk = checksum(block)
+    ser.send(len(block))
+    ser.send(block)
+    remote_chk = ser.recv16()
+    print("Write/read checksum: ", chk, remote_chk)
+    if remote_chk != chk:
+        invalid_blocks.append(i)
+
+print('Finished, finalizing write...')
+ser.send(0)
+ser.send(0)
+r = ser.recv_as_int()
+if r != ACK:
+    print('Error writing to controller: ' + str(r))
+    sys.exit(1)
+
+# check for errors
+if len(invalid_blocks) > 0:
+    print('There were errors writing to ROM memory. Please verify the checksums above.')
+    sys.exit(1)

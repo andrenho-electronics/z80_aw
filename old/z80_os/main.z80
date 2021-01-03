@@ -1,0 +1,21 @@
+main:
+	ld	hl, 0x1234
+	push	hl
+
+	im	0			; interrupt type = 0
+	
+	ld	a, 0			; initialize OS variables
+	ld	(KEYBUF_SZ), a		; KEYBUF_SZ = 0
+
+.next:
+	ld	hl, str_welcome		; print welcome message
+	call	PRINT
+
+	call	INPUTSTR		; wait for keypress
+
+	jp	MONITOR			; open monitor
+
+str_welcome:
+	db	"Welcome to Z80AW-OS!", 13, 0
+
+; vim:ts=8:sts=8:sw=8:noexpandtab

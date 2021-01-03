@@ -1,0 +1,77 @@
+Subprojects:
+------------
+
+# DEBUGGER
+  - Adjust colors on Linux (ok)
+  - Ctrl+C on Linux (ok)
+  - Connect directly to debugger
+    - Create protocol (ok)
+    - Add serial debugging (ok)
+    - Create computer serial emulator (ok)
+    - Upload memory (ok)
+    - Fetch registers (ok)
+    - Deal with keypresses (ok)
+    - Print chars (ok)
+    - Bug: Ctrl+C is not updating debugger (ok)
+    - Bug: enter is not printing correctly on real hardware (ok)
+    - Create script to download and install vasmz80_oldstyle (ok)
+    - List commandline options from debugger (ok)
+    - Bug: RAM is being read twice for every step (ok)
+    - Progress bar on upload (ok)
+    - Bug: fix warnings (ok)
+    - Connect to the real computer
+      - Optionally disable user interface, debugger and programming interface (ok)
+      - Create base operating system (simple I/O) (ok)
+      - Create programming commands (ok)
+        - Buffer is clear? (ok - comment)
+        - Video output (ok)
+        - Keyboard input (ok)
+        - Cache ROM memory
+        - Continue / breakpoints
+          - Implement breakpoints
+          - Implement continue
+      - Optional debugger / run
+      - Create custom terminal (deal with enter)
+      - Write new upload program (?)
+      - Write Z80 subroutine to fetch registers
+    - Bug: don't reload memory/registers when arrow up/down
+    - Bug: breakpoints not working (?)
+    - Protect ROM in emulator mode - don't allow writing to ROM
+    - Allow uploading code during execution mode
+  - Generic Makefile, put all binaries in /bin (reorganize directories?)
+  - SD Card interface
+
+# DOCUMENTATION
+  - Improve README
+  - Create wiki
+  - Create website
+  - Create videos
+
+# OPERATING SYSTEM
+  - Welcome message
+  - Prompt
+  - Disk interface
+    - ROM disk interface
+  - ls
+
+# SD CARD
+  - Read/write from/to card using controller
+    - Create interface for controller debugger
+  - Exchange ROM for RAM, load boot sector on RAN
+  - Create IN/OUT commands for the Z80 be able to read/write data
+  - Create command to copy image to SD Card
+  - SD Card on debugger
+
+# VIDEO CARD
+  - Buy SMT32
+  - VGA output using SMT32
+  - Load VGA card using ATTINY2313
+  - Connect to Z80
+
+# FUTURE STATE
+  - VGA graphics
+  - Audio card
+  - TinyBASIC
+  - SDCC support for debugger
+  - CP/M or CP/M emulation layer?
+  - New compact computer

@@ -1,0 +1,81 @@
+	;
+	; shell main procedure
+	;
+shell:
+ 	call	shell_print_prompt
+	call	shell_get_command
+	call	shell_execute_command
+	jp	shell
+
+
+	;
+	; print prompt
+	;
+shell_print_prompt:
+	ld	hl, .str_prompt
+	call	PRINT
+	ret
+.str_prompt:
+	string	"% "
+
+	;
+	; get command from user
+	;
+shell_get_command:
+	ld	b, 0		; B = string size
+	ld	hl, INPUTBUF	; HL = string pointer
+
+.next:	ei
+	halt			; wait for keypress (key = A)
+	push	bc
+	push	hl
+	call	INPUTCHR
+	ld	a, l
+	pop	hl
+	pop	bc
+
+	cp	32		; if c >= 32 && c < 127 && n_chars < 50:
+	jp	m, .skip
+	cp	127
+	jp	p, .skip
+	; TODO - check nchars < 50
+
+	out	(VIDEO), a	; add_char
+	ld	(hl), a
+	inc	hl
+	inc	b
+	jp	.next
+
+.skip:	cp	127		; else if c == '\b' and n_chars > 0:
+	jp	nz, .skip2
+	; TODO - check nchars > 0
+
+	ld	a, 8		; remove char
+	out	(VIDEO), a
+	ld	a, ' '
+	out	(VIDEO), a
+	ld	a, 8
+	out	(VIDEO), a
+	dec	hl
+	dec	b
+
+.skip2:	cp	13		; else if c == '\n':
+	jp	nz, .skip3
+	ld	a, 10
+	out	(VIDEO), a
+	ld	a, 13
+	out	(VIDEO), a
+	ld	(hl), 0
+	ret
+
+.skip3
+	jp	.next
+
+
+	;
+	; execute command given by user
+	;
+shell_execute_command:
+	ret
+
+; vim:ts=8:sts=8:sw=8:noexpandtab

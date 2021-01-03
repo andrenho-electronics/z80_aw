@@ -1,0 +1,13 @@
+	include bios.z80
+
+	org	MONITOR
+
+monitor:
+	call	welcome_banner
+.next:	call	prompt_exec
+	jp	.next
+
+	include	welcome.z80
+	include prompt.z80
+
+; vim:ts=8:sts=8:sw=8:noexpandtab

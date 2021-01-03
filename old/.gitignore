@@ -1,0 +1,7 @@
+.*.swp
+*.o
+*.elf
+*.bin
+*.a
+debugger/debugger
+emulator/emulator
