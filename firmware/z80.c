@@ -177,6 +177,7 @@ uint16_t z80_step()
     // update PC
     bus_mc_release();
     uint16_t pc = memory_read_addr();
+    z80_last_pc = pc;
 
     // run cycle until BUSACK
     while (busack == 1) {
