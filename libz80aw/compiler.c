@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <libgen.h>
+#include <unistd.h>
 
 #include "contrib/map.h"
 
@@ -109,12 +111,18 @@ typedef struct {
 
 static void find_project_path(char const* filename, char* path, size_t path_sz)
 {
-
+    char filename_copy[512];
+    strncpy(filename_copy, filename, sizeof filename_copy);
+    strncpy(path, dirname(filename_copy), path_sz);
 }
 
 static void cleanup(const char* path)
 {
-
+    char filename[512];
+    snprintf(filename, sizeof filename, "%s/listing.txt", path);
+    unlink(filename);
+    snprintf(filename, sizeof filename, "%s/rom.bin", path);
+    unlink(filename);
 }
 
 static SourceFile* load_project_file(char const* project_file, const char* path)
@@ -134,7 +142,6 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
 
 static void load_binary(DebugInformation* di, char* path)
 {
-
 }
 
 DebugInformation* compile_vasm(const char* project_file)
