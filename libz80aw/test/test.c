@@ -65,7 +65,9 @@ int main(int argc, char* argv[])
     // compiler
     //
     DebugInformation* di = compile_vasm("z80src/project.toml");
-    debug_free(di);
+    if (di) {
+        debug_free(di);
+    }
     
     //
     // finalize

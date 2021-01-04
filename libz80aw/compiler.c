@@ -4,8 +4,10 @@
 #include <stdio.h>
 #include <libgen.h>
 #include <unistd.h>
+#include <toml.h>
 
 #include "contrib/map.h"
+#include "z80aw_priv.h"
 
 typedef struct DebugInformation {
     char**       filenames;
@@ -25,18 +27,22 @@ typedef struct DebugInformation {
 void debug_free(DebugInformation* di)
 {
     // filenames
-    for (char** f_ptr = di->filenames; f_ptr; ++f_ptr)
-        free(*f_ptr);
-    free(di->filenames);
+    if (di->filenames) {
+        for (char** f_ptr = di->filenames; f_ptr; ++f_ptr)
+            free(*f_ptr);
+        free(di->filenames);
+    }
     
     // sources
-    for (char*** sl_ptr = di->source; sl_ptr; ++sl_ptr) {
-        for (char** src_ptr = *sl_ptr; src_ptr; ++src_ptr)
-            free(*src_ptr);
-        free(*sl_ptr);
+    if (di->source) {
+        for (char*** sl_ptr = di->source; sl_ptr; ++sl_ptr) {
+            for (char** src_ptr = *sl_ptr; src_ptr; ++src_ptr)
+                free(*src_ptr);
+            free(*sl_ptr);
+        }
+        free(di->source_nlines);
+        free(di->source);
     }
-    free(di->source_nlines);
-    free(di->source);
     
     // maps
     map_deinit(&di->location_map);
@@ -127,6 +133,23 @@ static void cleanup(const char* path)
 
 static SourceFile* load_project_file(char const* project_file, const char* path)
 {
+    FILE* fp = fopen(project_file, "r");
+    if (!fp) {
+        z80aw_set_error("Project file '%s' could not be opened.", project_file);
+        return NULL;
+    }
+    
+    const char errbuf[512];
+    toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
+    fclose(fp);
+    
+    if (!conf) {
+        z80aw_set_error("Error loading project file '%s': %s", project_file, errbuf);
+        return NULL;
+    }
+    
+    // ....
+    
     return NULL;
 }
 
@@ -157,6 +180,8 @@ DebugInformation* compile_vasm(const char* project_file)
     int file_offset = 0;
     
     SourceFile* source_files = load_project_file(project_file, file_path);
+    if (!source_files)
+        return NULL;
     bool error_found = false;
     for (SourceFile* source_file = source_files; source_file; ++source_file) {
         if (!error_found) {
