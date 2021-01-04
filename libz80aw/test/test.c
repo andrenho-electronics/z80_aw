@@ -24,8 +24,14 @@ int main(int argc, char* argv[])
     };
     z80aw_init(&cfg);
     
-    ASSERT("Invalid command", zsend_expect(0, 0) == -1);
+    ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
     ASSERT("Error message", strcmp(z80aw_last_error(), "No error.") != 0);
+    
+    zsend_noreply(Z_ACK_REQUEST);
+    if (config.log_to_stdout) printf("\n");
+    ASSERT("Empty buffer (not empty)", !z_empty_buffer());
+    zrecv();
+    ASSERT("Empty buffer (empty)", z_empty_buffer());
     
     ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
     

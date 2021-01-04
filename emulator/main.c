@@ -78,6 +78,9 @@ int main(int argc, char* argv[])
     
     while (1) {
         switch (recv()) {
+            case Z_ACK_REQUEST:
+                send(Z_ACK_RESPONSE);
+                break;
             case Z_EXIT_EMULATOR:
                 send(Z_OK);
                 exit(EXIT_SUCCESS);

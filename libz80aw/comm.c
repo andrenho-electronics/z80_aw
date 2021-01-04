@@ -4,9 +4,9 @@
 #include <fcntl.h>
 #include <termios.h>
 #include <unistd.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 
 static int fd = -1;
 static bool log_to_stdout = false;
@@ -33,8 +33,8 @@ void open_serial_port(char const* port, bool log_to_stdout_)
     tty.c_iflag &= ~IGNBRK;
     tty.c_lflag = 0;
     tty.c_oflag = 0;
-    tty.c_cc[VMIN] = 1;   // should block
-    tty.c_cc[VTIME] = 5;
+    tty.c_cc[VMIN] = 0;   // should block
+    tty.c_cc[VTIME] = 0;
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);
     tty.c_cflag |= (CLOCAL | CREAD);
     tty.c_cflag &= ~(PARENB | PARODD);
@@ -82,11 +82,18 @@ int zsend_expect(uint8_t byte, uint8_t expect)
 
 int zrecv()
 {
-    int r;
+    fd_set set;
+    struct timeval timeout;
+    FD_ZERO(&set);
+    FD_SET(fd, &set);
+    timeout.tv_sec = 5;    // 5 seconds
+    timeout.tv_usec = 0;
+    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
+    if (r == 0)
+        ERROR("Did not receive a response from controller in 5 seconds.");
+    
     uint8_t c;
-    do {
-        r = read(fd, &c, 1);
-    } while (r == -1 && errno == EAGAIN);
+    r = read(fd, &c, 1);
     if (log_to_stdout) {
         printf("\e[0;33m%02X \e[0m", c);
         fflush(stdout);
@@ -94,4 +101,25 @@ int zrecv()
     if (r == -1)
         ERROR("Cannot read byte from controller");
     return c;
+}
+
+bool z_empty_buffer()
+{
+    // wait for file descriptor
+    fd_set set;
+    struct timeval timeout;
+    FD_ZERO(&set);
+    FD_SET(fd, &set);
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 10000;   // 0.01 sec
+    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
+    return r == 0;
+}
+
+void z_assert_empty_buffer()
+{
+    if (!z_empty_buffer()) {
+        fprintf(stderr, "Serial buffer is not empty.\n");
+        exit(EXIT_FAILURE);
+    }
 }

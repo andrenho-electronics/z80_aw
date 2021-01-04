@@ -11,4 +11,7 @@ int zsend_noreply(uint8_t byte);
 int zsend_expect(uint8_t byte, uint8_t expect);
 int zrecv();
 
+bool z_empty_buffer();
+void z_assert_empty_buffer();
+
 #endif //LIBZ80AW_COMM_H
