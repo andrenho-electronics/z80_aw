@@ -69,6 +69,8 @@ int main(int argc, char* argv[])
         debug_free(di);
     }
     
+    // TODO - test failure
+    
     //
     // finalize
     //
