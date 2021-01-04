@@ -7,7 +7,7 @@
 #include <wait.h>
 
 static volatile bool wait_for_emulator = true;
-static char* serial_port = "";
+static char serial_port[256];
 
 void initialize_emulator()
 {
@@ -32,8 +32,8 @@ int main()
     signal(SIGUSR1, continue_tests);
     initialize_emulator();
     while (wait_for_emulator);
-    FILE* f = fopen("../emulator/.port", "r");
-    getline(&serial_port, NULL, f);
+    FILE* f = fopen("./.port", "r");
+    fread(serial_port, sizeof serial_port, 256, f);
     fclose(f);
     printf("Serial port: %s\n", serial_port);
     

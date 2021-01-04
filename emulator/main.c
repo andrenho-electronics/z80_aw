@@ -57,7 +57,7 @@ uint8_t recv() {
 static void send_port_to_test()
 {
     FILE* fp = fopen("./.port", "w");
-    fprintf(fp, "%s", serial_port_name);
+    fprintf(fp, "%s\n", serial_port_name);
     fclose(fp);
     printf("Sending signal to test...\n");
     kill(test_pid, SIGUSR1);
