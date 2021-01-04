@@ -103,6 +103,14 @@ int zrecv()
     return c;
 }
 
+int zrecv16() {
+    int b = zrecv();
+    int a = zrecv();
+    if (a < 0) return a;
+    if (b < 0) return b;
+    return a | (b << 8);
+}
+
 bool z_empty_buffer()
 {
     // wait for file descriptor

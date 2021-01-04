@@ -77,14 +77,20 @@ int main(int argc, char* argv[])
         send_port_to_test();
     
     while (1) {
-        switch (recv()) {
+        uint8_t c = recv();
+        switch (c) {
             case Z_ACK_REQUEST:
                 send(Z_ACK_RESPONSE);
                 break;
             case Z_EXIT_EMULATOR:
                 send(Z_OK);
                 exit(EXIT_SUCCESS);
+            case Z_CTRL_INFO:
+                send(0xff);
+                send(0xff);
+                break;
             default:
+                fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
                 send(Z_INVALID_CMD);
                 exit(EXIT_FAILURE);
         }

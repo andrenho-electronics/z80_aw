@@ -10,6 +10,7 @@ void close_serial_port();
 int zsend_noreply(uint8_t byte);
 int zsend_expect(uint8_t byte, uint8_t expect);
 int zrecv();
+int zrecv16();
 
 bool z_empty_buffer();
 void z_assert_empty_buffer();

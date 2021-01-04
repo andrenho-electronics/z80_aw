@@ -2,6 +2,7 @@
 
 #include <stdarg.h>
 #include <stdio.h>
+#include <protocol.h>
 
 #include "comm.h"
 
@@ -31,4 +32,12 @@ void z80aw_set_error(char* fmt, ...)
 const char* z80aw_last_error()
 {
     return last_error;
+}
+
+Z80AW_ControllerInfo z80aw_controller_info()
+{
+    Z80AW_ControllerInfo c;
+    zsend_noreply(Z_CTRL_INFO);
+    c.free_memory = zrecv16();
+    return c;
 }

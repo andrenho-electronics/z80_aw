@@ -9,8 +9,8 @@
 #include "../comm.h"
 #include "testutil.h"
 
-#define ASSERT(msg, expr)                       \
-    printf("%s... ", msg);                       \
+#define ASSERT(msg, expr)  \
+    printf("%s... ", msg); \
     if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31m❌\e[0m\n"); exit(1); }
 
 int main(int argc, char* argv[])
@@ -23,6 +23,8 @@ int main(int argc, char* argv[])
             .log_to_stdout = config.log_to_stdout,
     };
     z80aw_init(&cfg);
+    
+    ASSERT("Controller info - free memory", z80aw_controller_info().free_memory > 10);
     
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
     ASSERT("Error message", strcmp(z80aw_last_error(), "No error.") != 0);
