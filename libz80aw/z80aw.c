@@ -5,6 +5,7 @@
 #include <protocol.h>
 
 #include "comm.h"
+#include "z80aw_priv.h"
 
 static char last_error[256] = "No error.";
 static bool log_to_stdout = false;
@@ -40,4 +41,57 @@ Z80AW_ControllerInfo z80aw_controller_info()
     zsend_noreply(Z_CTRL_INFO);
     c.free_memory = zrecv16();
     return c;
+}
+
+int z80aw_write_byte(uint16_t addr, uint8_t data)
+{
+    int r = z80aw_write_block(addr, 1, &data);
+    if (r < 0)
+        return r;
+    return 0;
+}
+
+int z80aw_read_byte(uint16_t addr)
+{
+    uint8_t c;
+    int r = z80aw_read_block(addr, 1, &c);
+    if (r < 0)
+        return r;
+    return c;
+}
+
+int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
+{
+    uint16_t checksum = z80aw_checksum(sz, data);
+    zsend_noreply(addr & 0xff);
+    zsend_noreply(addr >> 8);
+    zsend_noreply(sz & 0xff);
+    zsend_noreply(sz >> 8);
+    for (uint16_t i = 0; i < sz; ++i)
+        zsend_noreply(data[i]);
+    uint16_t rchecksum = zrecv16();
+    if (checksum != rchecksum)
+        ERROR("When writing to memory, received checksum (0x%x) does not match with calculated checksum (0x%x).", rchecksum, checksum);
+    return 0;
+}
+
+int z80aw_read_block(uint16_t addr, uint16_t sz, uint8_t* data)
+{
+    zsend_noreply(addr & 0xff);
+    zsend_noreply(addr >> 8);
+    zsend_noreply(sz & 0xff);
+    zsend_noreply(sz >> 8);
+    for (uint16_t i = 0; i < sz; ++i)
+        data[i] = zrecv();
+    return 0;
+}
+
+uint16_t z80aw_checksum(size_t sz, uint8_t const* data)
+{
+    uint16_t checksum1 = 0, checksum2 = 0;
+    for (size_t i = 0; i < sz; ++i) {
+        checksum1 = (checksum1 + data[i]) % 255;
+        checksum2 = (checksum2 + checksum1) % 255;
+    }
+    return checksum1 | (checksum2 << 8);
 }

@@ -86,7 +86,7 @@ int main(int argc, char* argv[])
                 send(Z_OK);
                 exit(EXIT_SUCCESS);
             case Z_CTRL_INFO:
-                send(0xff);
+                send(0x00);
                 send(0xff);
                 break;
             default:

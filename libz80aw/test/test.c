@@ -24,8 +24,6 @@ int main(int argc, char* argv[])
     };
     z80aw_init(&cfg);
     
-    ASSERT("Controller info - free memory", z80aw_controller_info().free_memory > 10);
-    
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
     ASSERT("Error message", strcmp(z80aw_last_error(), "No error.") != 0);
     
@@ -34,6 +32,21 @@ int main(int argc, char* argv[])
     ASSERT("Empty buffer (not empty)", !z_empty_buffer());
     zrecv();
     ASSERT("Empty buffer (empty)", z_empty_buffer());
+    
+    ASSERT("Controller info - free memory", z80aw_controller_info().free_memory > 10);
+    
+    uint8_t chk[] = { 0xfa, 0x80, 0x0, 0x79, 0xab };
+    ASSERT("Checksum", z80aw_checksum(sizeof chk, chk) == 0x87a0);
+    
+    ASSERT("Write byte", z80aw_write_byte(0x8, 0xfa) == 0);
+    ASSERT("Read byte", z80aw_read_byte(0x8) == 0xfa);
+    
+    uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
+    for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
+        block[i] = (i + 1) & 0xff;
+    ASSERT("Write block", z80aw_write_block(0x100, MAX_BLOCK_SIZE, block) == 0);
+    ASSERT("Read block", z80aw_read_block(0x100, MAX_BLOCK_SIZE, rblock) == 0);
+    ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
     
     ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
     
