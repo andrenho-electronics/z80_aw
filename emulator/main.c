@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <signal.h>
 
+#include "protocol.h"
+
 static int master;
 static char serial_port_name[256];
 static int test_pid = 0;
@@ -19,10 +21,10 @@ void get_options(int argc, char* argv[])
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
-                printf("Being run from test process on pid %d.\n", test_pid);
+                printf("emulator: Being run from test process on pid %d.\n", test_pid);
                 break;
             default:
-                fprintf(stderr, "Invalid option.\n");
+                fprintf(stderr, "emulator: Invalid option.\n");
                 exit(EXIT_FAILURE);
         }
     }
@@ -42,10 +44,10 @@ void open_serial()
         exit(EXIT_FAILURE);
     }
     
-    printf("Listening in port: %s\n", serial_port_name);
+    printf("emulator: Listening in port: %s\n", serial_port_name);
 }
 
-uint8_t recv() {
+static uint8_t recv() {
     uint8_t c;
     int r;
     do {
@@ -54,12 +56,16 @@ uint8_t recv() {
     return c;
 }
 
+static void send(uint8_t c) {
+    write(master, &c, 1);
+}
+
 static void send_port_to_test()
 {
     FILE* fp = fopen("./.port", "w");
-    fprintf(fp, "%s\n", serial_port_name);
+    fprintf(fp, "%s", serial_port_name);
     fclose(fp);
-    printf("Sending signal to test...\n");
+    printf("emulator: Sending signal to test...\n");
     kill(test_pid, SIGUSR1);
 }
 
@@ -69,6 +75,12 @@ int main(int argc, char* argv[])
     open_serial();
     if (test_pid)
         send_port_to_test();
-    while (1)
-        recv();
+    
+    while (1) {
+        switch (recv()) {
+            case Z_EXIT_EMULATOR:
+                send(Z_OK);
+                exit(EXIT_SUCCESS);
+        }
+    }
 }

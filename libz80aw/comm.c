@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 static int fd = -1;
 
@@ -44,4 +45,42 @@ void open_serial_port(const char* port)
 void close_serial_port()
 {
     close(fd);
+}
+
+int zsend_noreply(uint8_t byte)
+{
+    // TODO - logging
+    if (write(fd, &byte, 1) != 1)
+        return -1;    // TODO - deal with errors
+    return 0;
+}
+
+int zsend_expect(uint8_t byte, uint8_t expect)
+{
+    // send byte
+    int r = zsend_noreply(byte);
+    if (r != 0)
+        return r;
+    
+    // receive response
+    int c = zrecv();
+    if (c < 0)
+        return r;
+        
+    // check response
+    if (c != expect)
+        return -1;   // TODO
+    return 0;
+}
+
+int zrecv()
+{
+    int r;
+    uint8_t c;
+    do {
+        r = read(fd, &c, 1);
+    } while (r == -1 && errno == EAGAIN);
+    if (r == -1)
+        return -1;  // TODO
+    return c;
 }

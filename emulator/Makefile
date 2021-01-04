@@ -1,6 +1,6 @@
 OBJ = main.o
 EXE = emulator
-CPPFLAGS = -Wall -Wextra -g -O0
+CPPFLAGS = -Wall -Wextra -g -O0 -I../common
 LDFLAGS = -lutil
 
 all: $(EXE)
