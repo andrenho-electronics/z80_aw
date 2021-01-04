@@ -16,6 +16,8 @@ typedef struct DebugInformation {
     size_t       n_symbols;
     bool         success;
     char*        output;
+    uint8_t*     binary;
+    size_t       binary_sz;
 } DebugInformation;
 
 void debug_free(DebugInformation* di)
@@ -38,12 +40,10 @@ void debug_free(DebugInformation* di)
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
     
-    // symbols
+    // other
     free(di->symbols);
-    
-    // output
     free(di->output);
-    
+    free(di->binary);
     free(di);
 }
 
@@ -102,8 +102,71 @@ bool debug_output(DebugInformation* di, char* buf, size_t bufsz)
 // VASM compilation
 //
 
-DebugInformation* compile_vasm(const char* project_file)
+typedef struct {
+    char*    source_file;
+    uint16_t address;
+} SourceFile;
+
+static void find_project_path(char const* filename, char* path, size_t path_sz)
+{
+
+}
+
+static void cleanup(const char* path)
+{
+
+}
+
+static SourceFile* load_project_file(char const* project_file, const char* path)
+{
+    return NULL;
+}
+
+static bool execute_compiler(DebugInformation* di, const char* file_path, SourceFile source_file)
 {
     return 0;
 }
+
+static int load_listing(DebugInformation* di, const char* path, int file_offset)
+{
+    return 0;
+}
+
+static void load_binary(DebugInformation* di, char* path)
+{
+
+}
+
+DebugInformation* compile_vasm(const char* project_file)
+{
+    DebugInformation* di = calloc(1, sizeof(struct DebugInformation));
+    map_init(&di->location_map);
+    map_init(&di->rlocation_map);
+    
+    char file_path[512];
+    find_project_path(project_file, file_path, sizeof file_path);
+    cleanup(file_path);
+    
+    int file_offset = 0;
+    
+    SourceFile* source_files = load_project_file(project_file, file_path);
+    bool error_found = false;
+    for (SourceFile* source_file = source_files; source_file; ++source_file) {
+        if (!error_found) {
+            bool result = execute_compiler(di, file_path, *source_file);
+            if (result) {
+                file_offset += load_listing(di, file_path, file_offset);
+                load_binary(di, file_path);
+            } else {
+                error_found = true;
+            }
+            cleanup(file_path);
+        }
+        free(source_file->source_file);
+    }
+    free(source_files);
+    
+    return di;
+}
+
 
