@@ -2,16 +2,14 @@
 
 #include <stdlib.h>
 
-typedef struct Z80AW {
-} Z80AW;
+#include "comm.h"
 
-Z80AW* z80aw_init(Z80AW_Config* cfg)
+void z80aw_init(Z80AW_Config* cfg)
 {
-    Z80AW* z80aw = calloc(1, sizeof(Z80AW));
-    return z80aw;
+    open_serial_port(cfg->serial_port);
 }
 
-void z80aw_free(Z80AW* z80aw)
+void z80aw_close()
 {
-    free(z80aw);
+    close_serial_port();
 }

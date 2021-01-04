@@ -1,5 +1,4 @@
-OBJ = z80aw.o
-ADD = test.o     # makes clion happy
+OBJ = z80aw.o comm.o
 DLL = libz80aw.so
 CPPFLAGS = -fPIC -Wall -Wextra -g -O0
 
@@ -8,7 +7,7 @@ all: $(DLL)
 $(DLL): $(OBJ)
 	$(CC) $^ -shared -o $@
 
-tests: test.c $(DLL)
+tests: test.o $(DLL)
 	$(CC) $^ -o $@
 
 check: tests
