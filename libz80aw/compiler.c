@@ -5,6 +5,8 @@
 #include <libgen.h>
 #include <unistd.h>
 #include <toml.h>
+#include <limits.h>
+#include <sys/param.h>
 
 #include "contrib/map.h"
 #include "z80aw_priv.h"
@@ -187,6 +189,18 @@ static int execute_compiler(DebugInformation* di, const char* file_path, SourceF
     return pclose(pipe) == 0 ? 1 : 0;
 }
 
+static void ensure_file_count(DebugInformation* di, size_t file_number)
+{
+    while (di->n_filenames < (file_number + 1)) {
+        ++di->n_filenames;
+        di->filenames = realloc(di->filenames, sizeof(di->filenames) * di->n_filenames);
+        di->source = realloc(di->source, sizeof(di->source) * di->n_filenames);
+        di->source[di->n_filenames - 1] = strdup("");
+        di->source_nlines = realloc(di->source_nlines, sizeof(di->source_nlines) * di->n_filenames);
+        di->source_nlines[di->n_filenames - 1] = 0;
+    }
+}
+
 static int load_listing(DebugInformation* di, const char* path, int file_offset)
 {
     char filename[512];
@@ -199,6 +213,64 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     typedef enum { SOURCE, FILENAMES, OTHER } Section;
     Section section = SOURCE;
     
+    int max_file_number = 0;
+    char line[2048];
+    while (fgets(line, sizeof line, fp)) {
+        // chomp enter
+        while (line[strlen(line) - 1] == '\n' || line[strlen(line) - 1] == '\r')
+            line[strlen(line) - 1] = '\0';
+        
+        // parse line
+        if (strlen(line) == 0)
+            continue;
+        if (strcmp(line, "Sections:") == 0 || strcmp(line, "Symbols:") == 0) {
+            section = OTHER;   // TODO - add symbols
+        } else if (strcmp(line, "Sources:") == 0) {
+            section = FILENAMES;
+        } else if (section == SOURCE && line[0] == 'F') {  // regular source file
+            char buf[10];
+            strncpy(buf, &line[1], 2); buf[2] = '\0';
+            size_t file_number = strtoul(buf, NULL, 10);
+            strncpy(buf, &line[4], 4); buf[4] = '\0';
+            size_t file_line = strtoul(buf, NULL, 10);
+            const char* source = &line[15];   // TODO - remove ENTER
+            if (file_number == ULONG_MAX || file_line == ULONG_MAX)
+                ERROR("Invalid listing file format.");
+            
+            // adjust file offset (to permit reading multiple files)
+            file_number += file_offset;
+            max_file_number = MAX(max_file_number, file_number);
+    
+            // adjust source count
+            ensure_file_count(di, file_number);
+    
+            // add source line
+            int line_number = ++di->source_nlines[file_number];
+            di->source[file_number] = realloc(di->source[file_number], line_number * sizeof(char*));
+            di->source[file_number][line_number] = strdup(source);
+    
+            // ...
+        } else if (section == SOURCE && line[0] == ' ') {  // address
+        } else if (section == FILENAMES && line[0] == 'F') {
+            char bf[10];
+            strncpy(bf, &line[1], 2);
+            bf[2] = '\0';
+            size_t file_number = strtoul(bf, NULL, 10) + file_offset;
+            ensure_file_count(di, file_number);
+            di->filenames[file_number] = strdup(&line[5]);
+            
+            /*
+            std::string file_number_s = line.substr(1, 2);
+            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
+            file_number += file_offset;
+            while (cc.filename.size() <= file_number)
+                cc.filename.emplace_back("-");
+            cc.filename[file_number] = line.substr(5);
+             */
+        }
+    }
+    
+    return max_file_number + 1;
     /*
     enum Section { Source, Filenames, Other };
 
@@ -207,12 +279,6 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     size_t file_number, file_line;
     Section section = Source;
     while (std::getline(f, line)) {
-        if (line.empty())
-            continue;
-        if (line == "Sections:" || line == "Symbols:") {
-            section = Other;
-        } else if (line == "Sources:") {
-            section = Filenames;
         } else if (section == Source && line[0] == 'F') {   // regular source line
             // read line
             std::string file_number_s = line.substr(1, 2);
@@ -254,7 +320,6 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
 
     return max_file_number + 1;
      */
-    return 0;
 }
 
 static int load_binary(DebugInformation* di, char* path)
@@ -315,4 +380,16 @@ DebugInformation* compile_vasm(const char* project_file)
     return di;
 }
 
-
+void debug_print(DebugInformation* di)
+{
+    size_t i = 0;
+    printf("{\n");
+    
+    printf("  filenames: [");
+    char* f;
+    while ((f = debug_filename(di, i++)))
+        printf("\"%s\", ", f);
+    printf("],\n");
+    
+    printf("}\n");
+}

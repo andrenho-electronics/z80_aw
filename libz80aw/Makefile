@@ -15,6 +15,9 @@ tests: $(TEST_OBJ) $(DLL)
 check: test
 	./tests
 
+check-leaks: test
+	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./tests
+
 .PHONY: clean
 clean:
 	rm -f *.o **/*.o $(DLL) tests

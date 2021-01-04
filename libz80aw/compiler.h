@@ -28,6 +28,9 @@ SourceLocation debug_location(DebugInformation* di, uint16_t addr);        // fi
 int            debug_rlocation(DebugInformation* di, SourceLocation sl);   // -1 if not found
 DebugSymbol*   debug_symbol(DebugInformation* di, size_t i);
 
-bool         debug_output(DebugInformation* di, char* buf, size_t bufsz);
+bool           debug_output(DebugInformation* di, char* buf, size_t bufsz);
+
+void           debug_print(DebugInformation* di);
+
 
 #endif //LIBZ80AW_COMPILER_H
