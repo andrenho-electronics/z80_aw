@@ -1,0 +1,5 @@
+[project]
+sources = [
+    { source = "project1.z80", addr = 0x0 },
+    { source = "project2.z80", addr = 0x1000 },
+]

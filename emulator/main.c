@@ -10,9 +10,10 @@
 
 #include "protocol.h"
 
-static int master;
-static char serial_port_name[256];
-static int test_pid = 0;
+static int     master;
+static char    serial_port_name[256];
+static int     test_pid = 0;
+static uint8_t memory[64 * 1024];
 
 void get_options(int argc, char* argv[])
 {
@@ -56,8 +57,19 @@ static uint8_t recv() {
     return c;
 }
 
+static uint16_t recv16() {
+    int a = recv();
+    int b = recv();
+    return a | (b << 8);
+}
+
 static void send(uint8_t c) {
     write(master, &c, 1);
+}
+
+static void send16(uint16_t v) {
+    send(v & 0xff);
+    send(v >> 8);
 }
 
 static void send_port_to_test()
@@ -67,6 +79,16 @@ static void send_port_to_test()
     fclose(fp);
     printf("emulator: Sending signal to test...\n");
     kill(test_pid, SIGUSR1);
+}
+
+static uint16_t checksum(size_t sz, uint8_t const* data)
+{
+    uint16_t checksum1 = 0, checksum2 = 0;
+    for (size_t i = 0; i < sz; ++i) {
+        checksum1 = (checksum1 + data[i]) % 255;
+        checksum2 = (checksum2 + checksum1) % 255;
+    }
+    return checksum1 | (checksum2 << 8);
 }
 
 int main(int argc, char* argv[])
@@ -86,8 +108,23 @@ int main(int argc, char* argv[])
                 send(Z_OK);
                 exit(EXIT_SUCCESS);
             case Z_CTRL_INFO:
-                send(0x00);
-                send(0xff);
+                send16(0x800);
+                break;
+            case Z_READ_BLOCK: {
+                    uint16_t addr = recv16();
+                    uint16_t sz = recv16();
+                    for (size_t i = 0; i < sz; ++i)
+                        send(memory[i + addr]);
+                }
+                break;
+            case Z_WRITE_BLOCK: {
+                    uint16_t addr = recv16();
+                    uint16_t sz = recv16();
+                    for (size_t i = 0; i < sz; ++i)
+                        memory[i + addr] = recv();
+                    uint16_t chk = checksum(sz, &memory[addr]);
+                    send16(chk);
+                }
                 break;
             default:
                 fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);

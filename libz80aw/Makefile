@@ -1,12 +1,13 @@
-OBJ      = z80aw.o comm.o
+OBJ      = z80aw.o comm.o compiler.o contrib/map.o
 TEST_OBJ = test/test.o test/testutil.o
 DLL      = libz80aw.so
+TOML_LIB = ../contrib/tomlc99/libtoml.a
 CPPFLAGS = -fPIC -Wall -Wextra -g -O0 -I../common
 
 all: $(DLL)
 
 $(DLL): $(OBJ)
-	$(CC) $^ -shared -o $@
+	$(CC) $^ $(TOML_LIB) -shared -o $@
 
 tests: $(TEST_OBJ) $(DLL)
 	$(CC) $^ -o $@

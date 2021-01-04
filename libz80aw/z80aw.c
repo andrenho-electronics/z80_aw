@@ -13,6 +13,7 @@ static bool log_to_stdout = false;
 void z80aw_init(Z80AW_Config* cfg)
 {
     open_serial_port(cfg->serial_port, cfg->log_to_stdout);
+    log_to_stdout = cfg->log_to_stdout;
 }
 
 void z80aw_close()
@@ -40,6 +41,7 @@ Z80AW_ControllerInfo z80aw_controller_info()
     Z80AW_ControllerInfo c;
     zsend_noreply(Z_CTRL_INFO);
     c.free_memory = zrecv16();
+    z_assert_empty_buffer();
     return c;
 }
 
@@ -63,6 +65,7 @@ int z80aw_read_byte(uint16_t addr)
 int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
 {
     uint16_t checksum = z80aw_checksum(sz, data);
+    zsend_noreply(Z_WRITE_BLOCK);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
     zsend_noreply(sz & 0xff);
@@ -72,17 +75,20 @@ int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
     uint16_t rchecksum = zrecv16();
     if (checksum != rchecksum)
         ERROR("When writing to memory, received checksum (0x%x) does not match with calculated checksum (0x%x).", rchecksum, checksum);
+    z_assert_empty_buffer();
     return 0;
 }
 
 int z80aw_read_block(uint16_t addr, uint16_t sz, uint8_t* data)
 {
+    zsend_noreply(Z_READ_BLOCK);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
     zsend_noreply(sz & 0xff);
     zsend_noreply(sz >> 8);
     for (uint16_t i = 0; i < sz; ++i)
         data[i] = zrecv();
+    z_assert_empty_buffer();
     return 0;
 }
 

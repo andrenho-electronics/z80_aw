@@ -104,8 +104,8 @@ int zrecv()
 }
 
 int zrecv16() {
-    int b = zrecv();
     int a = zrecv();
+    int b = zrecv();
     if (a < 0) return a;
     if (b < 0) return b;
     return a | (b << 8);
