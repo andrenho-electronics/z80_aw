@@ -1,4 +1,5 @@
 #include "comm.h"
+#include "z80aw_priv.h"
 
 #include <fcntl.h>
 #include <termios.h>
@@ -8,14 +9,17 @@
 #include <errno.h>
 
 static int fd = -1;
+static bool log_to_stdout = false;
 
-void open_serial_port(const char* port)
+void open_serial_port(char const* port, bool log_to_stdout_)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         perror("open");
         exit(EXIT_FAILURE);
     }
+    
+    log_to_stdout = log_to_stdout_;
     
     // set interface attributes
     struct termios tty;
@@ -49,9 +53,12 @@ void close_serial_port()
 
 int zsend_noreply(uint8_t byte)
 {
-    // TODO - logging
+    if (log_to_stdout) {
+        printf("\e[0;34m%02X \e[0m", byte);
+        fflush(stdout);
+    }
     if (write(fd, &byte, 1) != 1)
-        return -1;    // TODO - deal with errors
+        ERROR("Cannot write byte 0x%02X to controller", byte);
     return 0;
 }
 
@@ -69,7 +76,7 @@ int zsend_expect(uint8_t byte, uint8_t expect)
         
     // check response
     if (c != expect)
-        return -1;   // TODO
+        ERROR("Response does not match: expected 0x%02X, found 0x%02X", expect, c);
     return 0;
 }
 
@@ -80,7 +87,11 @@ int zrecv()
     do {
         r = read(fd, &c, 1);
     } while (r == -1 && errno == EAGAIN);
+    if (log_to_stdout) {
+        printf("\e[0;33m%02X \e[0m", c);
+        fflush(stdout);
+    }
     if (r == -1)
-        return -1;  // TODO
+        ERROR("Cannot read byte from controller");
     return c;
 }

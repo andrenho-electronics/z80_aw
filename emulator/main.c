@@ -81,6 +81,9 @@ int main(int argc, char* argv[])
             case Z_EXIT_EMULATOR:
                 send(Z_OK);
                 exit(EXIT_SUCCESS);
+            default:
+                send(Z_INVALID_CMD);
+                exit(EXIT_FAILURE);
         }
     }
 }
