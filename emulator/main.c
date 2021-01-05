@@ -48,12 +48,25 @@ void open_serial()
     printf("emulator: Listening in port: %s\n", serial_port_name);
 }
 
+static void exit_if_parent_died()
+{
+    if (getppid() == 1)   // parent has died, lets die too
+        exit(1);
+}
+
 static uint8_t recv() {
-    uint8_t c;
+    fd_set set;
+    struct timeval timeout;
+    FD_ZERO(&set);
+    FD_SET(master, &set);
+    timeout.tv_sec = 5;    // 5 seconds
+    timeout.tv_usec = 0;
     int r;
-    do {
-        r = read(master, &c, 1);
-    } while (r == -1);
+    while ((r = select(FD_SETSIZE, &set, NULL, NULL, &timeout)) == 0)
+        exit_if_parent_died();
+    
+    uint8_t c;
+    read(master, &c, 1);
     return c;
 }
 
@@ -106,6 +119,7 @@ int main(int argc, char* argv[])
                 break;
             case Z_EXIT_EMULATOR:
                 send(Z_OK);
+                usleep(200000);
                 exit(EXIT_SUCCESS);
             case Z_CTRL_INFO:
                 send16(0x800);
