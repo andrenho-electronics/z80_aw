@@ -295,7 +295,7 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             
         } else if (section == SYMBOLS) {
             for (size_t i = 0; i < sizeof rx / sizeof(int); ++i) {
-                regmatch_t m[5];
+                regmatch_t m[5] = { 0 };
                 int r = regexec(&regex[i], line, sizeof m, m, 0);
                 if (r == 0 && m[1].rm_so != -1 && m[2].rm_so != -1) {  // match
                     char symbol_name[512] = { 0 };
