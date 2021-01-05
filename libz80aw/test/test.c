@@ -26,6 +26,26 @@ int main(int argc, char* argv[])
     z80aw_init(&cfg);
     
     //
+    // compiler
+    //
+    DebugInformation* di = compile_vasm("z80src/project.toml");
+    ASSERT("DebugInformation is not null", di);
+    ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
+    printf("Compiler output:\n\e[0;33m");
+    debug_print(di);
+    printf("\e[0m\n");
+    
+    DebugInformation* di_error = compile_vasm("z80src/project_error.toml");
+    ASSERT("DebugInformation is not null", di_error);
+    {
+        char error_msg[4096];
+        ASSERT("Compiler output is not successful", !debug_output(di_error, error_msg, sizeof error_msg));
+        printf("Compiler error output:\n");
+        printf("\e[0;33m%s\e[0m\n\n", error_msg);
+    }
+    debug_free(di_error);
+    
+    //
     // generic commands
     //
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
@@ -62,20 +82,10 @@ int main(int argc, char* argv[])
     ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
     
     //
-    // compiler
-    //
-    DebugInformation* di = compile_vasm("z80src/project.toml");
-    if (di) {
-        debug_print(di);
-        debug_free(di);
-    }
-    
-    // TODO - test failure
-    
-    //
     // finalize
     //
     ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
     
+    debug_free(di);
     z80aw_close();
 }

@@ -113,7 +113,7 @@ static void cleanup(const char* path)
     unlink(filename);
 }
 
-static SourceFile* load_project_file(char const* project_file, const char* path)
+static SourceFile* load_project_file(char const* project_file)
 {
     FILE* fp = fopen(project_file, "r");
     if (!fp)
@@ -166,7 +166,7 @@ static int execute_compiler(DebugInformation* di, const char* file_path, SourceF
         di->output = realloc(di->output, strlen(di->output) + strlen(buffer) + 1);
         strcat(di->output, buffer);
     }
-    return pclose(pipe) == 0 ? 1 : 0;
+    return pclose(pipe) == 0 ? 0 : 1;
 }
 
 static void ensure_file_count(DebugInformation* di, size_t file_number)
@@ -325,6 +325,7 @@ DebugInformation* compile_vasm(const char* project_file)
     map_init(&di->location_map);
     map_init(&di->rlocation_map);
     di->output = strdup("");
+    di->success = true;
     
     char file_path[512];
     find_project_path(project_file, file_path, sizeof file_path);
@@ -332,20 +333,21 @@ DebugInformation* compile_vasm(const char* project_file)
     
     int file_offset = 0;
     
-    SourceFile* source_files = load_project_file(project_file, file_path);
+    SourceFile* source_files = load_project_file(project_file);
     if (!source_files)
         return NULL;
     bool error_found = false;
     for (SourceFile* source_file = source_files; source_file->source_file; ++source_file) {
         if (!error_found) {
             int result = execute_compiler(di, file_path, source_file);
-            if (result == 1) {
+            if (result == 0) {
                 file_offset += load_listing(di, file_path, file_offset);
                 load_binary(di, file_path, source_file->address);
-            } else if (result == 0) {
+            } else if (result == 1) {
+                di->success = false;
                 error_found = true;
             } else {
-                free(di);
+                debug_free(di);
                 di = NULL;
                 error_found = true;   // will return null
             }
