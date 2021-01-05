@@ -14,7 +14,7 @@
 typedef struct DebugInformation {
     char**       filenames;
     size_t       n_filenames;
-    map_char_t   source_map;
+    map_str_t    source_map;
     map_int_t    location_map;     // key: address, value: source location
     map_int_t    rlocation_map;    // key: source location, value: address
     DebugSymbol* symbols;
@@ -32,10 +32,16 @@ void debug_free(DebugInformation* di)
         free(di->filenames[i]);
     free(di->filenames);
     
+    // source
+    const char *key;
+    map_iter_t iter = map_iter(&di->source_map);
+    while ((key = map_next(&di->source_map, &iter)))
+        free(*map_get(&di->source_map, key));
+    map_deinit(&di->source_map);
+    
     // maps
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
-    map_deinit(&di->source_map);
     
     // other
     free(di->symbols);
@@ -52,11 +58,17 @@ char* debug_filename(DebugInformation* di, size_t i)
         return NULL;
 }
 
+size_t debug_file_count(DebugInformation* di)
+{
+    return di->n_filenames;
+}
+
 char* debug_sourceline(DebugInformation* di, SourceLocation sl)
 {
     char key[16];
     snprintf(key, sizeof key, "%zd:%zu", sl.file, sl.line);
-    return map_get(&di->source_map, key);
+    char** value = map_get(&di->source_map, key);
+    return value ? *value : NULL;
 }
 
 SourceLocation debug_location(DebugInformation* di, uint16_t addr)
@@ -232,9 +244,10 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             // add source line
             char key[16];
             snprintf(key, sizeof key, "%zd:%zu", file_number, file_line);
-            map_set(&di->source_map, key, source);
+            map_set(&di->source_map, key, strdup(source));
     
         } else if (section == SOURCE && line[0] == ' ') {  // address
+        
         } else if (section == FILENAMES && line[0] == 'F') {
             char bf[10];
             strncpy(bf, &line[1], 2);
@@ -242,15 +255,6 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             size_t file_number = strtoul(bf, NULL, 10) + file_offset;
             ensure_file_count(di, file_number);
             di->filenames[file_number] = strdup(&line[5]);
-            
-            /*
-            std::string file_number_s = line.substr(1, 2);
-            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
-            file_number += file_offset;
-            while (cc.filename.size() <= file_number)
-                cc.filename.emplace_back("-");
-            cc.filename[file_number] = line.substr(5);
-             */
         }
     }
     
@@ -370,14 +374,23 @@ DebugInformation* compile_vasm(const char* project_file)
 
 void debug_print(DebugInformation* di)
 {
-    size_t i = 0;
     printf("{\n");
     
-    printf("  filenames: [");
-    char* f;
-    while ((f = debug_filename(di, i++)))
-        printf("\"%s\", ", f);
+    printf("  filenames: [ ");
+    for (size_t i = 0; i < debug_file_count(di); ++i)
+        printf("\"%s\", ", debug_filename(di, i));
     printf("],\n");
+    
+    printf("  sources: {\n");
+    for (size_t i = 0; i < debug_file_count(di); ++i) {
+        printf("    { \"%s\" : [\n", debug_filename(di, i));
+        size_t j = 1;
+        char* line;
+        while ((line = debug_sourceline(di, (SourceLocation) { .file = i, .line = j++ })))
+            printf("      \"%s\",\n", line);
+        printf("    ] },\n");
+    }
+    printf("  },\n");
     
     printf("}\n");
 }

@@ -23,6 +23,7 @@ void              debug_free(DebugInformation* di);
 
 // all queries below are null terminated
 char*          debug_filename(DebugInformation* di, size_t i);
+size_t         debug_file_count(DebugInformation* di);
 char*          debug_sourceline(DebugInformation* di, SourceLocation sl);
 SourceLocation debug_location(DebugInformation* di, uint16_t addr);        // file = -1 if location is not found
 int            debug_rlocation(DebugInformation* di, SourceLocation sl);   // -1 if not found
