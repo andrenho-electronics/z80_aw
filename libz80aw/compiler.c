@@ -1,11 +1,12 @@
 #include "compiler.h"
 
+#include <limits.h>
+#include <regex.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <libgen.h>
 #include <unistd.h>
 #include <toml.h>
-#include <limits.h>
 #include <sys/param.h>
 
 #include "contrib/map.h"
@@ -214,12 +215,21 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     if (!fp)
         ERROR("File '%s' could not be open.", filename);
     
-    typedef enum { SOURCE, FILENAMES, OTHER } Section;
-    Section section = SOURCE;
+    regex_t regex[2];
+    int rx[] = {
+            regcomp(&regex[1], "^([^\\s][A-z0-9_]+)\\s*EXPR\\s*\\([[:digit:]]+=((0x)?[[:xdigit:]]+)\\).*ABS", REG_EXTENDED), // name in group 1, address in group 2
+            regcomp(&regex[0], "^([^\\s][A-z0-9_]+)\\s+LAB\\s*\\(((0x)?[[:xdigit:]]+)\\)", REG_EXTENDED),                    // name in group 1, address in group 2
+    };
+    for (size_t i = 0; i < sizeof rx / sizeof(int); ++i)
+        if (rx[i] != 0)
+            ERROR("Error compiling regex %d.", i);
     
     int max_file_number = 0;
     size_t file_number = 0, file_line = 0;
     char line[2048];
+    
+    typedef enum { SOURCE, FILENAMES, SYMBOLS, OTHER } Section;
+    Section section = SOURCE;
     
     while (fgets(line, sizeof line, fp)) {
         size_t line_len = strlen(line);
@@ -233,8 +243,10 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
         // parse line
         if (strlen(line) == 0)
             continue;
-        if (strcmp(line, "Sections:") == 0 || strcmp(line, "Symbols:") == 0) {
-            section = OTHER;   // TODO - add symbols
+        if (strcmp(line, "Sections:") == 0) {
+            section = OTHER;
+        } else if (strcmp(line, "Symbols:") == 0) {
+            section = SYMBOLS;
         } else if (strcmp(line, "Sources:") == 0) {
             section = FILENAMES;
         } else if (section == SOURCE && line[0] == 'F') {  // regular source file
@@ -280,9 +292,30 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             file_number = strtoul(bf, NULL, 10) + file_offset;
             ensure_file_count(di, file_number);
             di->filenames[file_number] = strdup(&line[5]);
+            
+        } else if (section == SYMBOLS) {
+            for (size_t i = 0; i < sizeof rx / sizeof(int); ++i) {
+                regmatch_t m[5];
+                int r = regexec(&regex[i], line, sizeof m, m, 0);
+                if (r == 0 && m[1].rm_so != -1 && m[2].rm_so != -1) {  // match
+                    char symbol_name[512] = { 0 };
+                    strncat(symbol_name, &line[m[1].rm_so], m[1].rm_eo - m[1].rm_so);
+                    char addr_s[16] = { 0 };
+                    strncat(addr_s, &line[m[2].rm_so], m[2].rm_eo - m[2].rm_so);
+                    unsigned long addr = strtoul(addr_s, NULL, 16);
+                    printf(">>> %s, %lu <<<\n", symbol_name, addr);
+                } else if (r != REG_NOMATCH) {  // error
+                    char buf[512];
+                    regerror(rx[i], &regex[i], buf, sizeof buf);
+                    ERROR("Error matching regex: %s", buf);
+                }
+            }
         }
     }
     
+    for (size_t i = 0; i < sizeof rx / sizeof(int); ++i)
+        regfree(&regex[i]);
+        
     fclose(fp);
     return max_file_number + 1;
 }
