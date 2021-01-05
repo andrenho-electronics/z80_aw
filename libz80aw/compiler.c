@@ -23,37 +23,8 @@ typedef struct DebugInformation {
     bool         success;
     char*        output;
     Binary*      binary;
-    size_t       binary_n;
+    size_t       n_binary;
 } DebugInformation;
-
-void debug_free(DebugInformation* di)
-{
-    // filenames
-    for (size_t i = 0; i < di->n_filenames; ++i)
-        free(di->filenames[i]);
-    free(di->filenames);
-    
-    // source
-    const char *key;
-    map_iter_t iter = map_iter(&di->source_map);
-    while ((key = map_next(&di->source_map, &iter)))
-        free(*map_get(&di->source_map, key));
-    map_deinit(&di->source_map);
-    
-    // maps
-    map_deinit(&di->location_map);
-    map_deinit(&di->rlocation_map);
-    
-    // binaries
-    for (size_t i = 0; i < di->binary_n; ++i)
-        free(di->binary[i].data);
-    
-    // other
-    free(di->symbols);
-    free(di->output);
-    free(di->binary);
-    free(di);
-}
 
 char* debug_filename(DebugInformation* di, size_t i)
 {
@@ -112,7 +83,7 @@ bool debug_output(DebugInformation* di, char* buf, size_t bufsz)
 
 Binary const* debug_binary(DebugInformation* di, size_t i)
 {
-    if (i >= di->binary_n)
+    if (i >= di->n_binary)
         return NULL;
     return &di->binary[i];
 }
@@ -215,14 +186,13 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     if (!fp)
         ERROR("File '%s' could not be open.", filename);
     
-    regex_t regex[2];
-    int rx[] = {
-            regcomp(&regex[1], "^([^\\s][A-z0-9_]+)\\s*EXPR\\s*\\([[:digit:]]+=((0x)?[[:xdigit:]]+)\\).*ABS", REG_EXTENDED), // name in group 1, address in group 2
-            regcomp(&regex[0], "^([^\\s][A-z0-9_]+)\\s+LAB\\s*\\(((0x)?[[:xdigit:]]+)\\)", REG_EXTENDED),                    // name in group 1, address in group 2
-    };
-    for (size_t i = 0; i < sizeof rx / sizeof(int); ++i)
-        if (rx[i] != 0)
-            ERROR("Error compiling regex %d.", i);
+    regex_t regex1, regex2;
+    int rx1 = regcomp(&regex1, "^([^\\s][A-z0-9_]+)\\s*EXPR\\s*\\([[:digit:]]+=((0x)?[[:xdigit:]]+)\\).*ABS", REG_EXTENDED); // name in group 1, address in group 2
+    if (rx1 != 0)
+        ERROR("Error compiling regex 1");
+    int rx2 = regcomp(&regex2, "^([^\\s][A-z0-9_]+)\\s+LAB\\s*\\(((0x)?[[:xdigit:]]+)\\)", REG_EXTENDED);                    // name in group 1, address in group 2
+    if (rx2 != 0)
+        ERROR("Error compiling regex 2");
     
     int max_file_number = 0;
     size_t file_number = 0, file_line = 0;
@@ -294,28 +264,27 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             di->filenames[file_number] = strdup(&line[5]);
             
         } else if (section == SYMBOLS) {
-            for (size_t i = 0; i < sizeof rx / sizeof(int); ++i) {
-                regmatch_t m[5] = { 0 };
-                int r = regexec(&regex[i], line, sizeof m, m, 0);
-                if (r == 0 && m[1].rm_so != -1 && m[2].rm_so != -1) {  // match
-                    char symbol_name[512] = { 0 };
-                    strncat(symbol_name, &line[m[1].rm_so], m[1].rm_eo - m[1].rm_so);
-                    char addr_s[16] = { 0 };
-                    strncat(addr_s, &line[m[2].rm_so], m[2].rm_eo - m[2].rm_so);
-                    unsigned long addr = strtoul(addr_s, NULL, 16);
-                    printf(">>> %s, %lu <<<\n", symbol_name, addr);
-                } else if (r != REG_NOMATCH) {  // error
-                    char buf[512];
-                    regerror(rx[i], &regex[i], buf, sizeof buf);
-                    ERROR("Error matching regex: %s", buf);
-                }
+            regmatch_t m[5] = { 0 };
+            int r = regexec(&regex1, line, sizeof m, m, 0);
+            if (r == REG_NOMATCH)
+                r = regexec(&regex2, line, sizeof m, m, 0);
+            if (r == 0 && m[1].rm_so != -1 && m[2].rm_so != -1) {  // match
+                char symbol_name[512] = { 0 };
+                strncat(symbol_name, &line[m[1].rm_so], m[1].rm_eo - m[1].rm_so);
+                char addr_s[16] = { 0 };
+                strncat(addr_s, &line[m[2].rm_so], m[2].rm_eo - m[2].rm_so);
+                unsigned long addr = strtoul(addr_s, NULL, 16);
+                int n_symbols = ++di->n_symbols;
+                di->symbols = realloc(di->symbols, n_symbols * sizeof(DebugSymbol));
+                di->symbols[n_symbols - 1].symbol = strdup(symbol_name);
+                di->symbols[n_symbols - 1].addr = addr;
             }
         }
     }
     
-    for (size_t i = 0; i < sizeof rx / sizeof(int); ++i)
-        regfree(&regex[i]);
-        
+    regfree(&regex1);
+    regfree(&regex2);
+    
     fclose(fp);
     return max_file_number + 1;
 }
@@ -336,8 +305,8 @@ static int load_binary(DebugInformation* di, char* path, uint16_t address)
     fseek(fp, 0, SEEK_SET);
    
     // increment binary count
-    di->binary = realloc(di->binary, sizeof(Binary) * ++di->binary_n);
-    Binary* b = &di->binary[di->binary_n - 1];
+    di->binary = realloc(di->binary, sizeof(Binary) * ++di->n_binary);
+    Binary* b = &di->binary[di->n_binary - 1];
     
     // add to structure
     b->addr = address;
@@ -389,6 +358,40 @@ DebugInformation* compile_vasm(const char* project_file)
     return di;
 }
 
+void debug_free(DebugInformation* di)
+{
+    // filenames
+    for (size_t i = 0; i < di->n_filenames; ++i)
+        free(di->filenames[i]);
+    free(di->filenames);
+    
+    // source
+    const char *key;
+    map_iter_t iter = map_iter(&di->source_map);
+    while ((key = map_next(&di->source_map, &iter)))
+        free(*map_get(&di->source_map, key));
+    map_deinit(&di->source_map);
+    
+    // maps
+    map_deinit(&di->location_map);
+    map_deinit(&di->rlocation_map);
+    
+    // binaries
+    for (size_t i = 0; i < di->n_binary; ++i)
+        free(di->binary[i].data);
+    
+    // symbols
+    for (size_t i = 0; i < di->n_symbols; ++i)
+        free(di->symbols[i].symbol);
+    
+    // other
+    free(di->symbols);
+    free(di->output);
+    free(di->binary);
+    free(di);
+}
+
+
 void debug_print(DebugInformation* di)
 {
     printf("{\n");
@@ -415,8 +418,15 @@ void debug_print(DebugInformation* di)
     }
     printf("  },\n");
     
-    printf("  binaries: [\n");
+    printf("  symbols: [\n");
     size_t i = 0;
+    for (DebugSymbol const* sym = debug_symbol(di, i); sym; sym = debug_symbol(di, ++i)) {
+        printf("    { addr: 0x%x, name: \"%s\" },\n", sym->addr, sym->symbol);
+    }
+    printf("  ],\n");
+    
+    printf("  binaries: [\n");
+    i = 0;
     for (Binary const* bin = debug_binary(di, i); bin; bin = debug_binary(di, ++i)) {
         printf("    { addr: 0x%x, data: [ ", bin->addr);
         for (size_t j = 0; j < bin->sz; ++j)
