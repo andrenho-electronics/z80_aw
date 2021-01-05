@@ -24,9 +24,10 @@ typedef struct DebugInformation {
     char*        output;
     Binary*      binary;
     size_t       n_binary;
+    uint16_t     checksum1, checksum2;
 } DebugInformation;
 
-char* debug_filename(DebugInformation* di, size_t i)
+char* debug_filename(DebugInformation const* di, size_t i)
 {
     if (i < di->n_filenames)
         return di->filenames[i];
@@ -34,58 +35,63 @@ char* debug_filename(DebugInformation* di, size_t i)
         return NULL;
 }
 
-size_t debug_file_count(DebugInformation* di)
+size_t debug_file_count(DebugInformation const* di)
 {
     return di->n_filenames;
 }
 
-char* debug_sourceline(DebugInformation* di, SourceLocation sl)
+char* debug_sourceline(DebugInformation const* di, SourceLocation sl)
 {
     char key[16];
     snprintf(key, sizeof key, "%zd:%zu", sl.file, sl.line);
-    char** value = map_get(&di->source_map, key);
+    char** value = map_get(&((DebugInformation*)di)->source_map, key);
     return value ? *value : NULL;
 }
 
-SourceLocation debug_location(DebugInformation* di, uint16_t addr)
+SourceLocation debug_location(DebugInformation const* di, uint16_t addr)
 {
     char key[16];
     snprintf(key, sizeof key, "%d", addr);
-    int* hash = map_get(&di->location_map, key);
+    int* hash = map_get(&((DebugInformation*)di)->location_map, key);
     if (!hash)
         return (SourceLocation) { .file = -1, .line = 0 };
     return (SourceLocation) { .file = *hash >> 16, .line = *hash & 0xffff };
 }
 
-int debug_rlocation(DebugInformation* di, SourceLocation sl)
+int debug_rlocation(DebugInformation const* di, SourceLocation sl)
 {
     int hash = (int) ((sl.file << 16) | (sl.line));
     char key[16];
     snprintf(key, sizeof key, "%d", hash);
-    int* addr = map_get(&di->rlocation_map, key);
+    int* addr = map_get(&((DebugInformation*)di)->rlocation_map, key);
     if (!addr)
         return -1;
     return *addr;
 }
 
-DebugSymbol const* debug_symbol(DebugInformation* di, size_t i)
+DebugSymbol const* debug_symbol(DebugInformation const* di, size_t i)
 {
     if (i >= di->n_symbols)
         return NULL;
     return &di->symbols[i];
 }
 
-bool debug_output(DebugInformation* di, char* buf, size_t bufsz)
+bool debug_output(DebugInformation const* di, char* buf, size_t bufsz)
 {
     snprintf(buf, bufsz, "%s", di->output);
     return di->success;
 }
 
-Binary const* debug_binary(DebugInformation* di, size_t i)
+Binary const* debug_binary(DebugInformation const* di, size_t i)
 {
     if (i >= di->n_binary)
         return NULL;
     return &di->binary[i];
+}
+
+uint16_t debug_binary_checksum(DebugInformation const* di)
+{
+    return di->checksum1 | (di->checksum2 << 8);
 }
 
 //
@@ -314,6 +320,12 @@ static int load_binary(DebugInformation* di, char* path, uint16_t address)
     b->data = malloc(length);
     fread(b->data, 1, length, fp);
     
+    // calculate checksum
+    for (size_t i = 0; i < length; ++i) {
+        di->checksum1 = (di->checksum1 + b->data[i]) % 255;
+        di->checksum2 = (di->checksum2 + di->checksum1) % 255;
+    }
+    
     fclose(fp);
     return 0;
 }
@@ -394,7 +406,7 @@ void debug_free(DebugInformation* di)
 }
 
 
-void debug_print(DebugInformation* di)
+void debug_print(DebugInformation const* di)
 {
     printf("{\n");
     

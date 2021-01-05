@@ -101,3 +101,32 @@ uint16_t z80aw_checksum(size_t sz, uint8_t const* data)
     }
     return checksum1 | (checksum2 << 8);
 }
+
+int z80aw_upload_compiled(DebugInformation const* di)
+{
+    // write data
+    size_t i = 0;
+    for (Binary const* bin = debug_binary(di, i); bin; bin = debug_binary(di, ++i)) {
+        int r = z80aw_write_block(bin->addr, bin->sz, bin->data);
+        if (r != 0)
+            return r;
+    }
+    
+    // write checksum
+    uint16_t chk = debug_binary_checksum(di);
+    uint8_t data[] = { chk & 0xff, chk >> 8 };
+    int r = z80aw_write_block(UPLOAD_CHECKSUM_LOCATION, 2, data);
+    if (r != 0)
+        return r;
+    
+    return 0;
+}
+
+bool z80aw_is_uploaded(DebugInformation const* di)
+{
+    uint8_t data[2];
+    z80aw_read_block(UPLOAD_CHECKSUM_LOCATION, 2, data);
+    uint16_t chk = debug_binary_checksum(di);
+    
+    return (data[0] == (chk & 0xff)) && (data[1] == (chk >> 8));
+}

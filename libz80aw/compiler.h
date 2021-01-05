@@ -28,17 +28,18 @@ DebugInformation* compile_vasm(const char* project_file);
 void              debug_free(DebugInformation* di);
 
 // all queries below are null terminated
-char*               debug_filename(DebugInformation* di, size_t i);
-size_t              debug_file_count(DebugInformation* di);
-char*               debug_sourceline(DebugInformation* di, SourceLocation sl);
-SourceLocation      debug_location(DebugInformation* di, uint16_t addr);        // file = -1 if location is not found
-int                 debug_rlocation(DebugInformation* di, SourceLocation sl);   // -1 if not found
-DebugSymbol const*  debug_symbol(DebugInformation* di, size_t i);
-Binary const*       debug_binary(DebugInformation* di, size_t i);
+char*               debug_filename(DebugInformation const* di, size_t i);
+size_t              debug_file_count(DebugInformation const* di);
+char*               debug_sourceline(DebugInformation const* di, SourceLocation sl);
+SourceLocation      debug_location(DebugInformation const* di, uint16_t addr);        // file = -1 if location is not found
+int                 debug_rlocation(DebugInformation const* di, SourceLocation sl);   // -1 if not found
+DebugSymbol const*  debug_symbol(DebugInformation const* di, size_t i);
+Binary const*       debug_binary(DebugInformation const* di, size_t i);
+uint16_t            debug_binary_checksum(DebugInformation const* di);
 
-bool           debug_output(DebugInformation* di, char* buf, size_t bufsz);
+bool           debug_output(DebugInformation const* di, char* buf, size_t bufsz);
 
-void           debug_print(DebugInformation* di);
+void           debug_print(DebugInformation const* di);
 
 
 #endif //LIBZ80AW_COMPILER_H

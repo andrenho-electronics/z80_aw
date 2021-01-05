@@ -1,5 +1,5 @@
 	org	0x10
 project2:
-	nop
+	rst 0x8
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab
