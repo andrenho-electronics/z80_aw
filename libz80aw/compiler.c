@@ -21,8 +21,8 @@ typedef struct DebugInformation {
     size_t       n_symbols;
     bool         success;
     char*        output;
-    uint8_t*     binary;
-    size_t       binary_sz;
+    Binary*      binary;
+    size_t       binary_n;
 } DebugInformation;
 
 void debug_free(DebugInformation* di)
@@ -42,6 +42,10 @@ void debug_free(DebugInformation* di)
     // maps
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
+    
+    // binaries
+    for (size_t i = 0; i < di->binary_n; ++i)
+        free(di->binary[i].data);
     
     // other
     free(di->symbols);
@@ -92,7 +96,7 @@ int debug_rlocation(DebugInformation* di, SourceLocation sl)
     return *addr;
 }
 
-DebugSymbol* debug_symbol(DebugInformation* di, size_t i)
+DebugSymbol const* debug_symbol(DebugInformation* di, size_t i)
 {
     if (i >= di->n_symbols)
         return NULL;
@@ -103,6 +107,13 @@ bool debug_output(DebugInformation* di, char* buf, size_t bufsz)
 {
     snprintf(buf, bufsz, "%s", di->output);
     return di->success;
+}
+
+Binary const* debug_binary(DebugInformation* di, size_t i)
+{
+    if (i >= di->binary_n)
+        return NULL;
+    return &di->binary[i];
 }
 
 //
@@ -207,7 +218,9 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     Section section = SOURCE;
     
     int max_file_number = 0;
+    size_t file_number = 0, file_line = 0;
     char line[2048];
+    
     while (fgets(line, sizeof line, fp)) {
         size_t line_len = strlen(line);
         if (line_len == 0)
@@ -227,9 +240,9 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
         } else if (section == SOURCE && line[0] == 'F') {  // regular source file
             char buf[10];
             strncpy(buf, &line[1], 2); buf[2] = '\0';
-            size_t file_number = strtoul(buf, NULL, 10);
+            file_number = strtoul(buf, NULL, 10);
             strncpy(buf, &line[4], 4); buf[4] = '\0';
-            size_t file_line = strtoul(buf, NULL, 10);
+            file_line = strtoul(buf, NULL, 10);
             const char* source = &line[15];   // TODO - remove ENTER
             if (file_number == ULONG_MAX || file_line == ULONG_MAX)
                 ERROR("Invalid listing file format.");
@@ -247,12 +260,24 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             map_set(&di->source_map, key, strdup(source));
     
         } else if (section == SOURCE && line[0] == ' ') {  // address
+            char buf[10];
+            strncpy(buf, &line[23], 4); buf[4] = '\0';
+            size_t addr = strtoul(buf, NULL, 16);
+            if (addr == ULONG_MAX)
+                ERROR("Invalid listing file format.");
+            SourceLocation sl = { .file = file_number, .line = file_line };
+            int hash = (int) ((sl.file << 16) | (sl.line));
+            char hash_str[16], addr_str[16];
+            snprintf(hash_str, sizeof hash_str, "%d", hash);
+            snprintf(addr_str, sizeof addr_str, "%zu", addr);
+            map_set(&di->location_map, addr_str, hash);
+            map_set(&di->rlocation_map, hash_str, addr);
         
         } else if (section == FILENAMES && line[0] == 'F') {
             char bf[10];
             strncpy(bf, &line[1], 2);
             bf[2] = '\0';
-            size_t file_number = strtoul(bf, NULL, 10) + file_offset;
+            file_number = strtoul(bf, NULL, 10) + file_offset;
             ensure_file_count(di, file_number);
             di->filenames[file_number] = strdup(&line[5]);
         }
@@ -260,81 +285,40 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     
     fclose(fp);
     return max_file_number + 1;
-    /*
-    enum Section { Source, Filenames, Other };
-
-    std::string line;
-    size_t max_file_number = 0;
-    size_t file_number, file_line;
-    Section section = Source;
-    while (std::getline(f, line)) {
-        } else if (section == Source && line[0] == 'F') {   // regular source line
-            // read line
-            std::string file_number_s = line.substr(1, 2);
-            std::string file_line_s = line.substr(4, 4);
-            std::string source = line.substr(15);
-            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
-            file_line = strtoul(file_line_s.c_str(), nullptr, 10);
-            if (file_number == ULONG_MAX || file_line == ULONG_MAX)
-                throw std::runtime_error("Invalid listing file format.");
-
-            // adjust file offset (to permit reading multiple files)
-            file_number += file_offset;
-            max_file_number = std::max(max_file_number, file_number);
-
-            // adjust source count
-            while (cc.source.size() < (file_number + 1))
-                cc.source.emplace_back();
-
-            cc.source[file_number].push_back(source);
-
-        } else if (section == Source && line[0] == ' ') {  // address
-            std::string addr_s = line.substr(23, 4);
-            unsigned long addr = strtoul(addr_s.c_str(), nullptr, 16);
-            if (addr == ULONG_MAX)
-                throw std::runtime_error("Invalid listing file format.");
-            SourceLocation sl = { file_number, file_line };
-            cc.locations[addr] = sl;
-            cc.rlocations[sl] = addr;
-
-        } else if (section == Filenames && line[0] == 'F') {
-            std::string file_number_s = line.substr(1, 2);
-            file_number = strtoul(file_number_s.c_str(), nullptr, 10);
-            file_number += file_offset;
-            while (cc.filename.size() <= file_number)
-                cc.filename.emplace_back("-");
-            cc.filename[file_number] = line.substr(5);
-        }
-    }
-
-    return max_file_number + 1;
-     */
 }
 
 static int load_binary(DebugInformation* di, char* path, uint16_t address)
 {
     char filename[512];
-    snprintf(filename, sizeof filename, "%s/listing.txt", path);
+    snprintf(filename, sizeof filename, "%s/rom.bin", path);
     
+    // open file
     FILE* fp = fopen(filename, "rb");
     if (!fp)
         ERROR("File '%s' could not be open.", filename);
     
+    // find file size
     fseek(fp, 0, SEEK_END);
     size_t length = ftell(fp);
     fseek(fp, 0, SEEK_SET);
+   
+    // increment binary count
+    di->binary = realloc(di->binary, sizeof(Binary) * ++di->binary_n);
+    Binary* b = &di->binary[di->binary_n - 1];
     
-    di->binary_sz = length;
-    di->binary = realloc(di->binary, length + address);  // TODO - don't reduce
-    fread(&di->binary[address], 1, length, fp);
+    // add to structure
+    b->addr = address;
+    b->sz = length;
+    b->data = malloc(length);
+    fread(b->data, 1, length, fp);
+    
     fclose(fp);
-    
     return 0;
 }
 
 DebugInformation* compile_vasm(const char* project_file)
 {
-    DebugInformation* di = calloc(1, sizeof(struct DebugInformation));
+    DebugInformation* di = calloc(1, sizeof(DebugInformation));
     map_init(&di->source_map);
     map_init(&di->location_map);
     map_init(&di->rlocation_map);
@@ -386,11 +370,27 @@ void debug_print(DebugInformation* di)
         printf("    { \"%s\" : [\n", debug_filename(di, i));
         size_t j = 1;
         char* line;
-        while ((line = debug_sourceline(di, (SourceLocation) { .file = i, .line = j++ })))
-            printf("      \"%s\",\n", line);
+        while ((line = debug_sourceline(di, (SourceLocation) { .file = i, .line = j }))) {
+            printf("      { line: \"%s\"", line);
+            int addr = debug_rlocation(di, (SourceLocation) { .file = i, .line = j });
+            if (addr != -1)
+                printf(", addr: 0x%x", addr);
+            printf(" },\n");
+            ++j;
+        }
         printf("    ] },\n");
     }
     printf("  },\n");
+    
+    printf("  binaries: [\n");
+    size_t i = 0;
+    for (Binary const* bin = debug_binary(di, i); bin; bin = debug_binary(di, ++i)) {
+        printf("    { addr: 0x%x, data: [ ", bin->addr);
+        for (size_t j = 0; j < bin->sz; ++j)
+            printf("%02X ", bin->data[j]);
+        printf("] },\n");
+    }
+    printf("  ],\n");
     
     printf("}\n");
 }
