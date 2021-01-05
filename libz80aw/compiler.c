@@ -14,8 +14,7 @@
 typedef struct DebugInformation {
     char**       filenames;
     size_t       n_filenames;
-    char***      source;
-    size_t*      source_nlines;
+    map_char_t   source_map;
     map_int_t    location_map;     // key: address, value: source location
     map_int_t    rlocation_map;    // key: source location, value: address
     DebugSymbol* symbols;
@@ -29,26 +28,14 @@ typedef struct DebugInformation {
 void debug_free(DebugInformation* di)
 {
     // filenames
-    if (di->filenames) {
-        for (char** f_ptr = di->filenames; f_ptr; ++f_ptr)
-            free(*f_ptr);
-        free(di->filenames);
-    }
-    
-    // sources
-    if (di->source) {
-        for (char*** sl_ptr = di->source; sl_ptr; ++sl_ptr) {
-            for (char** src_ptr = *sl_ptr; src_ptr; ++src_ptr)
-                free(*src_ptr);
-            free(*sl_ptr);
-        }
-        free(di->source_nlines);
-        free(di->source);
-    }
+    for (size_t i = 0; i < di->n_filenames; ++i)
+        free(di->filenames[i]);
+    free(di->filenames);
     
     // maps
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
+    map_deinit(&di->source_map);
     
     // other
     free(di->symbols);
@@ -67,11 +54,9 @@ char* debug_filename(DebugInformation* di, size_t i)
 
 char* debug_sourceline(DebugInformation* di, SourceLocation sl)
 {
-    if (sl.file >= (ssize_t) di->n_filenames)
-        return NULL;
-    if (sl.line >= di->source_nlines[sl.file])
-        return NULL;
-    return di->source[sl.file][sl.line];
+    char key[16];
+    snprintf(key, sizeof key, "%zd:%zu", sl.file, sl.line);
+    return map_get(&di->source_map, key);
 }
 
 SourceLocation debug_location(DebugInformation* di, uint16_t addr)
@@ -159,7 +144,7 @@ static SourceFile* load_project_file(char const* project_file, const char* path)
             .address = toml_int_in(tbl, "address").u.i,
         };
     }
-    sf[nelem - 1] = (SourceFile) { .source_file = NULL, .address = -1 };
+    sf[nelem] = (SourceFile) { .source_file = NULL, .address = -1 };
     toml_free(conf);
     
     return sf;
@@ -194,10 +179,6 @@ static void ensure_file_count(DebugInformation* di, size_t file_number)
     while (di->n_filenames < (file_number + 1)) {
         ++di->n_filenames;
         di->filenames = realloc(di->filenames, sizeof(di->filenames) * di->n_filenames);
-        di->source = realloc(di->source, sizeof(di->source) * di->n_filenames);
-        di->source[di->n_filenames - 1] = strdup("");
-        di->source_nlines = realloc(di->source_nlines, sizeof(di->source_nlines) * di->n_filenames);
-        di->source_nlines[di->n_filenames - 1] = 0;
     }
 }
 
@@ -216,9 +197,13 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
     int max_file_number = 0;
     char line[2048];
     while (fgets(line, sizeof line, fp)) {
+        size_t line_len = strlen(line);
+        if (line_len == 0)
+            continue;
+        
         // chomp enter
-        while (line[strlen(line) - 1] == '\n' || line[strlen(line) - 1] == '\r')
-            line[strlen(line) - 1] = '\0';
+        while (line[line_len - 1] == '\n' || line[line_len - 1] == '\r')
+            line[line_len - 1] = '\0';
         
         // parse line
         if (strlen(line) == 0)
@@ -245,11 +230,10 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             ensure_file_count(di, file_number);
     
             // add source line
-            int line_number = ++di->source_nlines[file_number];
-            di->source[file_number] = realloc(di->source[file_number], line_number * sizeof(char*));
-            di->source[file_number][line_number] = strdup(source);
+            char key[16];
+            snprintf(key, sizeof key, "%zd:%zu", file_number, file_line);
+            map_set(&di->source_map, key, source);
     
-            // ...
         } else if (section == SOURCE && line[0] == ' ') {  // address
         } else if (section == FILENAMES && line[0] == 'F') {
             char bf[10];
@@ -270,6 +254,7 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
         }
     }
     
+    fclose(fp);
     return max_file_number + 1;
     /*
     enum Section { Source, Filenames, Other };
@@ -322,7 +307,7 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
      */
 }
 
-static int load_binary(DebugInformation* di, char* path)
+static int load_binary(DebugInformation* di, char* path, uint16_t address)
 {
     char filename[512];
     snprintf(filename, sizeof filename, "%s/listing.txt", path);
@@ -336,14 +321,17 @@ static int load_binary(DebugInformation* di, char* path)
     fseek(fp, 0, SEEK_SET);
     
     di->binary_sz = length;
-    di->binary = malloc(length);
-    fread(di->binary, 1, length, fp);
+    di->binary = realloc(di->binary, length + address);  // TODO - don't reduce
+    fread(&di->binary[address], 1, length, fp);
     fclose(fp);
+    
+    return 0;
 }
 
 DebugInformation* compile_vasm(const char* project_file)
 {
     DebugInformation* di = calloc(1, sizeof(struct DebugInformation));
+    map_init(&di->source_map);
     map_init(&di->location_map);
     map_init(&di->rlocation_map);
     di->output = strdup("");
@@ -363,7 +351,7 @@ DebugInformation* compile_vasm(const char* project_file)
             int result = execute_compiler(di, file_path, source_file);
             if (result == 1) {
                 file_offset += load_listing(di, file_path, file_offset);
-                load_binary(di, file_path);
+                load_binary(di, file_path, source_file->address);
             } else if (result == 0) {
                 error_found = true;
             } else {
