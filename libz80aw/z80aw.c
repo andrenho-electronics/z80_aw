@@ -181,8 +181,7 @@ bool z80aw_is_uploaded(DebugInformation const* di)
     return (data[0] == (chk & 0xff)) && (data[1] == (chk >> 8));
 }
 
-int
-z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
+int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
 {
     // create temporary directory
     char tmpdir[256];
@@ -224,8 +223,7 @@ z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
     return success ? 0 : -1;
 }
 
-int
-z80aw_cpu_reset()
+int z80aw_cpu_reset()
 {
     return zsend_expect(Z_RESET, Z_OK);
 }
@@ -261,7 +259,15 @@ int z80aw_cpu_registers(Z80AW_Registers* reg)
     return 0;
 }
 
-int z80aw_cpu_step()
+int z80aw_cpu_step(uint8_t* printed_char)
 {
-    return zsend_expect(Z_STEP, Z_OK);
+    int r = zsend_noreply(Z_STEP);
+    if (r != 0)
+        return r;
+    
+    uint8_t c = zrecv();
+    if (printed_char)
+        *printed_char = c;
+    
+    return 0;
 }

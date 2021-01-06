@@ -1,8 +1,10 @@
 #include <stdint.h>
+#include <stdio.h>
 
 #include "z80/Z80.h"
 
 extern uint8_t memory[64 * 1024];
+extern uint8_t last_printed_char;
 
 void WrZ80(word Addr,byte Value)
 {
@@ -16,7 +18,8 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
-    (void) Port; (void) Value;
+    if ((Port & 0xff) == 0x0)  // video
+        last_printed_char = Value;
 }
 
 byte InZ80(word Port)

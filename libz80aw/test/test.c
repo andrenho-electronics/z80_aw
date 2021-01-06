@@ -176,15 +176,24 @@ int main(int argc, char* argv[])
     // single step
     uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
     z80aw_write_block(0, sizeof jp, jp);
-    ASSERT("Step (jp 0xc3c3)", z80aw_cpu_step() == 0);
+    ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL) == 0);
     z80aw_cpu_registers(&r);
     ASSERT("PC == 0xC3C3", r.PC == 0xc3c3);
     
     // compile and execute step
     COMPILE(" ld a, 0x42");
-    ASSERT("Step (ld a, 0x42)", z80aw_cpu_step() == 0);
+    ASSERT("Step (ld a, 0x42)", z80aw_cpu_step(NULL) == 0);
     z80aw_cpu_registers(&r);
     ASSERT("A == 0x42", (r.AF >> 8) == 0x42);
+    
+    // char on the screen
+    COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
+    uint8_t c;
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(&c);
+    ASSERT("Char printed = 'H'", c == 'H');
+    z80aw_cpu_step(&c);
+    ASSERT("Print char is cleared", c == 0);
     
     //
     // finalize

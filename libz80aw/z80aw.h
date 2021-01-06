@@ -47,7 +47,7 @@ int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz
 
 int z80aw_cpu_reset();
 int z80aw_cpu_registers(Z80AW_Registers* reg);
-int z80aw_cpu_step();
+int z80aw_cpu_step(uint8_t* printed_char);
 
 const char* z80aw_last_error();
 

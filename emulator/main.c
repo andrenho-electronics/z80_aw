@@ -15,8 +15,9 @@ static int     master;
 static char    serial_port_name[256];
 static int     test_pid = 0;
 
-uint8_t memory[64 * 1024];
 Z80     z80;
+uint8_t memory[64 * 1024];
+uint8_t last_printed_char = 0;
 
 void get_options(int argc, char* argv[])
 {
@@ -184,7 +185,8 @@ int main(int argc, char* argv[])
                 break;
             case Z_STEP:
                 RunZ80(&z80);
-                send(Z_OK);
+                send(last_printed_char);
+                last_printed_char = 0;
                 break;
             default:
                 fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);

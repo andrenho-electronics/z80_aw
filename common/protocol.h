@@ -10,7 +10,7 @@
 #define Z_READ_BLOCK        0xe4   // [Aa] [Ab] [Sa] [Sb] -> [bytes...]
 #define Z_RESET             0xe5   //  -> Z_OK
 #define Z_REGISTERS         0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
-#define Z_STEP              0xe7   //  -> Z_OK
+#define Z_STEP              0xe7   //  -> [printed char]
 
 // responses
 
