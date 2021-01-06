@@ -24,6 +24,13 @@ typedef struct {
     bool HALT;
 } Z80AW_Registers;
 
+typedef enum { Z80AW_PRINT_CHAR, Z80AW_BREAKPOINT } Z80AW_EventType;
+
+typedef struct {
+    Z80AW_EventType type;
+    uint8_t         data;
+} Z80AW_Event;
+
 #define MAX_BLOCK_SIZE 512
 #define UPLOAD_CHECKSUM_LOCATION 0x7ffe
 
@@ -56,6 +63,9 @@ int z80aw_remove_all_breakpoints();
 int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz);   // return address count
 
 int z80aw_keypress(uint8_t key);
+
+int z80aw_cpu_continue();
+int z80aw_poll_event(Z80AW_Event* e);
 
 const char* z80aw_last_error();
 

@@ -227,6 +227,7 @@ int main(int argc, char* argv[])
     //
     // breakpoint setting
     //
+    
     uint16_t bkps[16];
     ASSERT("Add breakpoint", z80aw_add_breakpoint(0xf00) == 0);
     ASSERT("Querying breakpoints", z80aw_query_breakpoints(bkps, 16) == 1);
@@ -240,6 +241,23 @@ int main(int argc, char* argv[])
     ASSERT("Check that is the correct breakpoint", bkps[0] == 0x123);
     ASSERT("Remove all breakpoints", z80aw_remove_all_breakpoints() == 0);
     ASSERT("Check that we now have no breakpoints", z80aw_query_breakpoints(NULL, 0) == 0);
+    
+    /*
+    //
+    // continue execution
+    //
+    
+    COMPILE(" s: nop\n nop\n nop\n nop\n jp s");
+    z80aw_add_breakpoint(0x3);
+    ASSERT("Continue execution: ", z80aw_cpu_continue() == 0);
+    Z80AW_Event e;
+    while (z80aw_poll_event(&e)) {
+        if (e.type == Z80AW_BREAKPOINT)
+            break;
+    }
+    z80aw_cpu_registers(&r);
+    ASSERT("Stop at breakpoint", r.PC == 0x3);
+     */
     
     //
     // finalize

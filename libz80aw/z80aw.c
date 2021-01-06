@@ -329,3 +329,26 @@ int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz)
     z_assert_empty_buffer();
     return count;
 }
+
+int z80aw_cpu_continue()
+{
+    return zsend_expect(Z_CONTINUE, Z_OK);
+}
+
+int z80aw_poll_event(Z80AW_Event* e)
+{
+    zsend_noreply(Z_QUERY_EXECUTION);
+    uint8_t c = zrecv();
+    switch (c) {
+        case Z_OK:
+            return 0;
+        case Z_PRINT_CHAR:
+            e->type = Z80AW_PRINT_CHAR;
+            e->data = zrecv();
+            break;
+        case Z_BKP_REACHED:
+            e->type = Z80AW_BREAKPOINT;
+            break;
+    }
+    ERROR("Invalid byte 0x%x received.");
+}

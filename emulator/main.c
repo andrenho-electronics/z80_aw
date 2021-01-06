@@ -160,7 +160,6 @@ bool bkp_add(uint16_t bkp)
 
 void bkp_remove(uint16_t bkp)
 {
-    printf(">>> %d <<<\n", bkp);
     for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
         if (breakpoints[i] == bkp)
             breakpoints[i] = 0;

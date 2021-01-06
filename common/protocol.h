@@ -16,6 +16,9 @@
 #define Z_REMOVE_BKP        0xea   // [Aa] [Ab] -> Z_OK
 #define Z_REMOVE_ALL_BKPS   0xeb   // Z_OK
 #define Z_QUERY_BKPS        0xec   //  -> [count] [bkp0a] [bkp0b] ...
+#define Z_CONTINUE          0xed   // Z_OK
+#define Z_QUERY_EXECUTION   0xee   // Z_OK, Z_PRINT_CHAR or Z_BKP_REACHED
+#define Z_STOP              0xee   // Z_OK
 
 // responses
 
@@ -23,5 +26,7 @@
 #define Z_INVALID_CMD       0xd1
 #define Z_ACK_RESPONSE      0xd2
 #define Z_TOO_MANY_BKPS     0xd3
+#define Z_PRINT_CHAR        0xd4   // [char]
+#define Z_BKP_REACHED       0xd5
 
 #endif //LIBZ80AW_PROTOCOL_H
