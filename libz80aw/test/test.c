@@ -14,6 +14,15 @@
     printf("%s... ", msg); \
     if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31m❌\e[0m\n"); exit(1); }
 
+#define COMPILE(code) {                                                                  \
+    char errbuf_[4096] = "";                                                             \
+    int resp_ = z80aw_simple_compilation(" jp 0xc3c3 rst 0x8", errbuf_, sizeof errbuf_); \
+    if (resp_ != 0) {                                                                    \
+        printf("Compilation error: %s\n", errbuf_);                                      \
+        exit(1);                                                                         \
+    }                                                                                    \
+}
+
 typedef enum { EMULATOR, REALHARDWARE } HardwareType;
 typedef struct {
     HardwareType hardware_type;
@@ -92,6 +101,16 @@ int main(int argc, char* argv[])
         }
     }
     debug_free(di_error);
+
+    char errbuf[4096] = "";
+    int resp = z80aw_simple_compilation(" jp 0xc3c3 rst 0x8", errbuf, sizeof errbuf);
+    ASSERT("Simple compilation", resp == 0);
+    
+    resp = z80aw_simple_compilation("error error", errbuf, sizeof errbuf);
+    if (config.log_to_stdout)
+        printf("Compiler error output:\n\e[0;33m%s\e[0m\n\n", errbuf);
+    ASSERT("Simple compilation with error", resp != 0);
+    ASSERT("Compiler error message", strlen(errbuf) > 5);
     
     //
     // generic commands

@@ -166,6 +166,9 @@ int z80aw_upload_compiled(DebugInformation const* di)
     if (r != 0)
         return r;
     
+    // reset
+    z80aw_cpu_reset();
+    
     return 0;
 }
 
@@ -176,6 +179,49 @@ bool z80aw_is_uploaded(DebugInformation const* di)
     uint16_t chk = debug_binary_checksum(di);
     
     return (data[0] == (chk & 0xff)) && (data[1] == (chk >> 8));
+}
+
+int
+z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
+{
+    // create temporary directory
+    char tmpdir[256];
+    snprintf(tmpdir, sizeof tmpdir, "%s/z80_XXXXXX", P_tmpdir);
+    if (mkdtemp(tmpdir) == NULL)
+        ERROR("Could not create temp dir.");
+    
+    // create source file
+    char filename[512];
+    snprintf(filename, sizeof filename, "%s/project.z80", tmpdir);
+    FILE* f = fopen(filename, "w");
+    if (!f)
+        ERROR("Could not create source file.");
+    fprintf(f, "%s", code);
+    fclose(f);
+    
+    // create project file
+    char pfilename[512];
+    snprintf(pfilename, sizeof pfilename, "%s/project.toml", tmpdir);
+    f = fopen(pfilename, "w");
+    fprintf(f, "sources = [{ source = \"project.z80\", address = 0x0 }]");
+    fclose(f);
+    
+    // compile
+    DebugInformation* di = compile_vasm(pfilename);
+    if (!di) {
+        snprintf(err_buf, err_buf_sz, "%s", last_error);
+        return -1;
+    }
+    bool success = debug_output(di, err_buf, err_buf_sz);
+    z80aw_upload_compiled(di);
+    debug_free(di);
+    
+    // cleanup
+    unlink(filename);
+    unlink(pfilename);
+    rmdir(tmpdir);
+    
+    return success ? 0 : -1;
 }
 
 int
