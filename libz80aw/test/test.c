@@ -289,7 +289,27 @@ int main(int argc, char* argv[])
     z80aw_cpu_registers(&r);
     ASSERT("Stop stopped at the correct moment (after interrupt)", r.HALT);
     
-    // print (TODO)
+    // print
+    COMPILE(" ld a, 'A'\n"
+            " out (0), a\n"      // device 0x0 = video
+            " ld a, 'W' \n"
+            " out (0), a\n"
+            "x: jp x    \n");
+    z80aw_cpu_continue();
+    Z80AW_Event e = { .type = Z80AW_NO_EVENT };
+    do {
+        e = z80aw_last_event();
+        if (e.type == Z80AW_PRINT_CHAR) {
+            ASSERT("Check that character 'A' was printed", e.data == 'A');
+        }
+    } while (e.type != Z80AW_PRINT_CHAR);
+    do {
+        e = z80aw_last_event();
+        if (e.type == Z80AW_PRINT_CHAR) {
+            ASSERT("Check that character 'W' was printed", e.data == 'W');
+        }
+    } while (e.type != Z80AW_PRINT_CHAR);
+    z80aw_cpu_stop();
     
     //
     // finalize

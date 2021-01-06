@@ -221,8 +221,13 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
-    if ((Port & 0xff) == 0x0)  // video
+    if ((Port & 0xff) == 0x0) {  // video
         last_printed_char = Value;
+        if (continue_mode) {
+            last_event = Z_PRINT_CHAR;
+            continue_mode = false;
+        }
+    }
 }
 
 byte InZ80(word Port)
@@ -342,6 +347,8 @@ void command_loop()
             break;
         case Z_LAST_EVENT:
             send(last_event);
+            if (last_event == Z_PRINT_CHAR)
+                send(last_printed_char);
             last_event = Z_OK;
             break;
         case Z_STOP:

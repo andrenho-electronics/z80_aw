@@ -347,8 +347,11 @@ Z80AW_Event z80aw_last_event()
     switch (c) {
         case Z_OK:
             return (Z80AW_Event) { .type = Z80AW_NO_EVENT };
-        case Z_PRINT_CHAR:
-            return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = zrecv() };
+        case Z_PRINT_CHAR: {
+                uint8_t c = zrecv();
+                z80aw_cpu_continue();
+                return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = c };
+            }
         case Z_BKP_REACHED:
             return (Z80AW_Event) { .type = Z80AW_BREAKPOINT };
     }
