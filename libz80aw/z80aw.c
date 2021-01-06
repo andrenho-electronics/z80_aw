@@ -15,7 +15,7 @@ static bool wait_for_emulator = true;
 
 void z80aw_init(Z80AW_Config* cfg)
 {
-    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->serial_timeout, cfg->assert_empty_buffer);
+    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->assert_empty_buffer);
     log_to_stdout = cfg->log_to_stdout;
 }
 

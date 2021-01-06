@@ -9,7 +9,6 @@
 
 typedef struct {
     const char* serial_port;
-    int         serial_timeout;
     bool        log_to_stdout;
     bool        assert_empty_buffer;
 } Z80AW_Config;

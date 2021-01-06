@@ -74,7 +74,6 @@ int main(int argc, char* argv[])
     Z80AW_Config cfg = {
             .serial_port         = serial_port,
             .log_to_stdout       = config.log_to_stdout,
-            .serial_timeout      = 600,
             .assert_empty_buffer = true,
     };
     z80aw_init(&cfg);

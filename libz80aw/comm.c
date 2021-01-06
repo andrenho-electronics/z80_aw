@@ -10,10 +10,9 @@
 
 static int fd = -1;
 static bool log_to_stdout = false;
-static int timeout = 5;
 static bool assert_empty_buffer = false;
 
-void open_serial_port(char const* port, bool log_to_stdout_, int timeout_, bool assert_empty_buffer_)
+void open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_buffer_)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -22,7 +21,6 @@ void open_serial_port(char const* port, bool log_to_stdout_, int timeout_, bool 
     }
     
     log_to_stdout = log_to_stdout_;
-    timeout = timeout_;
     assert_empty_buffer = assert_empty_buffer_;
     
     // set interface attributes
@@ -37,7 +35,7 @@ void open_serial_port(char const* port, bool log_to_stdout_, int timeout_, bool 
     tty.c_iflag &= ~IGNBRK;
     tty.c_lflag = 0;
     tty.c_oflag = 0;
-    tty.c_cc[VMIN] = 0;   // should block
+    tty.c_cc[VMIN] = 1;   // should block
     tty.c_cc[VTIME] = 0;
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);
     tty.c_cflag |= (CLOCAL | CREAD);
@@ -86,18 +84,8 @@ int zsend_expect(uint8_t byte, uint8_t expect)
 
 int zrecv()
 {
-    fd_set set;
-    struct timeval timeout_;
-    FD_ZERO(&set);
-    FD_SET(fd, &set);
-    timeout_.tv_sec = timeout;
-    timeout_.tv_usec = 0;
-    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout_);
-    if (r == 0)
-        ERROR("Did not receive a response from controller in 5 seconds.");
-    
     uint8_t c;
-    r = read(fd, &c, 1);
+    int r = read(fd, &c, 1);
     if (log_to_stdout) {
         printf("\e[0;33m%02X \e[0m", c);
         fflush(stdout);
@@ -119,12 +107,12 @@ bool z_empty_buffer()
 {
     // wait for file descriptor
     fd_set set;
-    struct timeval timeout;
+    struct timeval timeout_;
     FD_ZERO(&set);
     FD_SET(fd, &set);
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 10000;   // 0.01 sec
-    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
+    timeout_.tv_sec = 0;
+    timeout_.tv_usec = 100;   // 0.01 sec
+    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout_);
     return r == 0;
 }
 
