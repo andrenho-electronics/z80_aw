@@ -19,12 +19,22 @@ static int     test_pid = 0;
 
 #define MAX_BREAKPOINTS 16
 
+//
+// globals
+//
+
 Z80      z80;
 uint8_t  memory[64 * 1024];
 uint8_t  last_printed_char = 0;
 uint8_t  last_keypress = 0;
 bool     keyboard_interrupt = false;
 uint16_t breakpoints[MAX_BREAKPOINTS] = { 0 };
+bool     continue_mode = false;
+uint8_t  last_event = Z_OK;
+
+//
+// command line options
+//
 
 void get_options(int argc, char* argv[])
 {
@@ -41,6 +51,10 @@ void get_options(int argc, char* argv[])
         }
     }
 }
+
+//
+// serial communication
+//
 
 void open_serial()
 {
@@ -80,6 +94,14 @@ static uint8_t recv() {
     return c;
 }
 
+static uint8_t recv_nowait() {
+    uint8_t c;
+    if (read(master, &c, 1) == 1)
+        return c;
+    else
+        return 0;
+}
+
 static uint16_t recv16() {
     int a = recv();
     int b = recv();
@@ -103,6 +125,10 @@ static void send_port_to_test()
     printf("emulator: Sending signal to process %d...\n", test_pid);
     kill(test_pid, SIGUSR1);
 }
+
+//
+// utils
+//
 
 static uint16_t checksum(size_t sz, uint8_t const* data)
 {
@@ -145,6 +171,10 @@ static void send_registers()
     send((z80.IFF & IFF_HALT) ? 1 : 0);
 }
 
+//
+// breakpoints
+//
+
 bool bkp_add(uint16_t bkp)
 {
     for (size_t i = 0; i < MAX_BREAKPOINTS; ++i) {
@@ -175,6 +205,156 @@ int bkp_query(uint16_t bkps[16])
     return j;
 }
 
+//
+// Z80
+//
+
+void WrZ80(word Addr,byte Value)
+{
+    memory[Addr] = Value;
+}
+
+byte RdZ80(word Addr)
+{
+    return memory[Addr];
+}
+
+void OutZ80(word Port,byte Value)
+{
+    if ((Port & 0xff) == 0x0)  // video
+        last_printed_char = Value;
+}
+
+byte InZ80(word Port)
+{
+    if ((Port & 0xff) == 0x1)  // keyboard
+        return last_keypress;
+    return 0;
+}
+
+word LoopZ80(Z80 *R)
+{
+    void command_loop();
+    
+    if (keyboard_interrupt) {
+        keyboard_interrupt = false;
+        return 0xcf;  // rst 0x8, returned by the keyboard controller
+    }
+    if (continue_mode) {
+        command_loop();
+        for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
+            if (breakpoints[i] != 0 && breakpoints[i] == R->PC.W) {
+                last_event = Z_BKP_REACHED;
+                continue_mode = false;
+                return INT_QUIT;
+            }
+        return INT_NONE;
+    } else {
+        return INT_QUIT;
+    }
+}
+
+void PatchZ80(Z80 *R)
+{
+    (void) R;
+}
+
+
+//
+// main loop
+//
+
+void command_loop()
+{
+    uint8_t c = continue_mode ? recv_nowait() : recv();
+    switch (c) {
+        case 0:
+            break;
+        case Z_ACK_REQUEST:
+            send(Z_ACK_RESPONSE);
+            break;
+        case Z_EXIT_EMULATOR:
+            send(Z_OK);
+            usleep(200000);
+            exit(EXIT_SUCCESS);
+        case Z_CTRL_INFO:
+            send16(0x800);
+            break;
+        case Z_READ_BLOCK: {
+                uint16_t addr = recv16();
+                uint16_t sz = recv16();
+                for (size_t i = 0; i < sz; ++i)
+                    send(memory[i + addr]);
+            }
+            break;
+        case Z_WRITE_BLOCK: {
+                uint16_t addr = recv16();
+                uint16_t sz = recv16();
+                for (size_t i = 0; i < sz; ++i)
+                    memory[i + addr] = recv();
+                uint16_t chk = checksum(sz, &memory[addr]);
+                send16(chk);
+            }
+            break;
+        case Z_RESET:
+            ResetZ80(&z80);
+            send(Z_OK);
+            break;
+        case Z_REGISTERS:
+            send_registers();
+            break;
+        case Z_STEP:
+            RunZ80(&z80);
+            send(last_printed_char);
+            last_printed_char = 0;
+            break;
+        case Z_KEYPRESS:
+            last_keypress = recv();
+            keyboard_interrupt = true;
+            send(Z_OK);
+            break;
+        case Z_ADD_BKP:
+            if (bkp_add(recv16()))
+                send(Z_OK);
+            else
+                send(Z_TOO_MANY_BKPS);
+            break;
+        case Z_REMOVE_BKP:
+            bkp_remove(recv16());
+            send(Z_OK);
+            break;
+        case Z_REMOVE_ALL_BKPS:
+            memset(breakpoints, 0, MAX_BREAKPOINTS * sizeof(uint16_t));
+            send(Z_OK);
+            break;
+        case Z_QUERY_BKPS: {
+                uint16_t bkps[MAX_BREAKPOINTS];
+                int count = bkp_query(bkps);
+                send(count);
+                for (int i = 0; i < count; ++i)
+                    send16(bkps[i]);
+            }
+            break;
+        case Z_CONTINUE:
+            send(Z_OK);
+            continue_mode = true;
+            RunZ80(&z80);
+            break;
+        case Z_LAST_EVENT:
+            send(last_event);
+            last_event = Z_OK;
+            break;
+        case Z_STOP:
+            continue_mode = false;
+            send(Z_OK);
+            break;
+        default:
+            fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
+            send(Z_INVALID_CMD);
+            exit(EXIT_FAILURE);
+    }
+}
+
 int main(int argc, char* argv[])
 {
     get_options(argc, argv);
@@ -184,78 +364,6 @@ int main(int argc, char* argv[])
     
     ResetZ80(&z80);
     
-    while (1) {
-        uint8_t c = recv();
-        switch (c) {
-            case Z_ACK_REQUEST:
-                send(Z_ACK_RESPONSE);
-                break;
-            case Z_EXIT_EMULATOR:
-                send(Z_OK);
-                usleep(200000);
-                exit(EXIT_SUCCESS);
-            case Z_CTRL_INFO:
-                send16(0x800);
-                break;
-            case Z_READ_BLOCK: {
-                    uint16_t addr = recv16();
-                    uint16_t sz = recv16();
-                    for (size_t i = 0; i < sz; ++i)
-                        send(memory[i + addr]);
-                }
-                break;
-            case Z_WRITE_BLOCK: {
-                    uint16_t addr = recv16();
-                    uint16_t sz = recv16();
-                    for (size_t i = 0; i < sz; ++i)
-                        memory[i + addr] = recv();
-                    uint16_t chk = checksum(sz, &memory[addr]);
-                    send16(chk);
-                }
-                break;
-            case Z_RESET:
-                ResetZ80(&z80);
-                send(Z_OK);
-                break;
-            case Z_REGISTERS:
-                send_registers();
-                break;
-            case Z_STEP:
-                RunZ80(&z80);
-                send(last_printed_char);
-                last_printed_char = 0;
-                break;
-            case Z_KEYPRESS:
-                last_keypress = recv();
-                keyboard_interrupt = true;
-                send(Z_OK);
-                break;
-            case Z_ADD_BKP:
-                if (bkp_add(recv16()))
-                    send(Z_OK);
-                else
-                    send(Z_TOO_MANY_BKPS);
-                break;
-            case Z_REMOVE_BKP:
-                bkp_remove(recv16());
-                send(Z_OK);
-                break;
-            case Z_REMOVE_ALL_BKPS:
-                memset(breakpoints, 0, MAX_BREAKPOINTS * sizeof(uint16_t));
-                send(Z_OK);
-                break;
-            case Z_QUERY_BKPS: {
-                    uint16_t bkps[MAX_BREAKPOINTS];
-                    int count = bkp_query(bkps);
-                    send(count);
-                    for (int i = 0; i < count; ++i)
-                        send16(bkps[i]);
-                }
-                break;
-            default:
-                fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
-                send(Z_INVALID_CMD);
-                exit(EXIT_FAILURE);
-        }
-    }
+    while (1)
+        command_loop();
 }

@@ -1,4 +1,4 @@
-OBJ = main.o z80_user.o z80/Z80.o z80/Debug.o
+OBJ = main.o z80/Z80.o
 EXE = emulator
 CPPFLAGS = -Wall -Wextra -g -O0 -I../common -DLSB_FIRST
 LDFLAGS = -lutil

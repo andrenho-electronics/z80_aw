@@ -335,20 +335,22 @@ int z80aw_cpu_continue()
     return zsend_expect(Z_CONTINUE, Z_OK);
 }
 
-int z80aw_poll_event(Z80AW_Event* e)
+int z80aw_cpu_stop()
 {
-    zsend_noreply(Z_QUERY_EXECUTION);
+    return zsend_expect(Z_STOP, Z_OK);
+}
+
+Z80AW_Event z80aw_last_event()
+{
+    zsend_noreply(Z_LAST_EVENT);
     uint8_t c = zrecv();
     switch (c) {
         case Z_OK:
-            return 0;
+            return (Z80AW_Event) { .type = Z80AW_NO_EVENT };
         case Z_PRINT_CHAR:
-            e->type = Z80AW_PRINT_CHAR;
-            e->data = zrecv();
-            break;
+            return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = zrecv() };
         case Z_BKP_REACHED:
-            e->type = Z80AW_BREAKPOINT;
-            break;
+            return (Z80AW_Event) { .type = Z80AW_BREAKPOINT };
     }
-    ERROR("Invalid byte 0x%x received.");
+    return (Z80AW_Event) { .type = Z80AW_ERROR };
 }

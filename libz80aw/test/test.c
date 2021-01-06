@@ -4,6 +4,7 @@
 #include <signal.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include "../z80aw.h"
 #include "../compiler.h"
@@ -241,22 +242,54 @@ int main(int argc, char* argv[])
     ASSERT("Remove all breakpoints", z80aw_remove_all_breakpoints() == 0);
     ASSERT("Check that we now have no breakpoints", z80aw_query_breakpoints(NULL, 0) == 0);
     
-    /*
     //
     // continue execution
     //
     
+    ASSERT("No last event", z80aw_last_event().type == Z80AW_NO_EVENT);
+    
+    // breakpoint hit
     COMPILE(" s: nop\n nop\n nop\n nop\n jp s");
     z80aw_add_breakpoint(0x3);
-    ASSERT("Continue execution: ", z80aw_cpu_continue() == 0);
-    Z80AW_Event e;
-    while (z80aw_poll_event(&e)) {
-        if (e.type == Z80AW_BREAKPOINT)
-            break;
-    }
+    ASSERT("Continue execution", z80aw_cpu_continue() == 0);
+    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
     z80aw_cpu_registers(&r);
     ASSERT("Stop at breakpoint", r.PC == 0x3);
-     */
+    z80aw_remove_all_breakpoints();
+    
+    // keypress
+    COMPILE(" jp main\n"
+            " org 0x8 \n"
+            " halt    \n"
+            "main:    \n"
+            " im 0    \n"
+            " ei      \n"
+            "cc: jp cc");
+    z80aw_add_breakpoint(0x8);
+    z80aw_cpu_continue();
+    usleep(10000);
+    z80aw_keypress('k');
+    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
+    z80aw_cpu_registers(&r);
+    ASSERT("Key was pressed during continue", r.HALT);
+    
+    // stop
+    z80aw_remove_all_breakpoints();
+    z80aw_cpu_reset();
+    z80aw_cpu_continue();
+    usleep(10000);
+    z80aw_cpu_stop();
+    z80aw_cpu_registers(&r);
+    ASSERT("Stop stopped at the correct moment", r.PC == 0xc);
+    
+    z80aw_cpu_continue();
+    z80aw_keypress('k');
+    usleep(10000);
+    z80aw_cpu_stop();
+    z80aw_cpu_registers(&r);
+    ASSERT("Stop stopped at the correct moment (after interrupt)", r.HALT);
+    
+    // print (TODO)
     
     //
     // finalize

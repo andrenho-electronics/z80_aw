@@ -17,8 +17,8 @@
 #define Z_REMOVE_ALL_BKPS   0xeb   // Z_OK
 #define Z_QUERY_BKPS        0xec   //  -> [count] [bkp0a] [bkp0b] ...
 #define Z_CONTINUE          0xed   // Z_OK
-#define Z_QUERY_EXECUTION   0xee   // Z_OK, Z_PRINT_CHAR or Z_BKP_REACHED
-#define Z_STOP              0xee   // Z_OK
+#define Z_LAST_EVENT        0xee   // Z_OK, Z_PRINT_CHAR or Z_BKP_REACHED
+#define Z_STOP              0xef   // Z_OK
 
 // responses
 

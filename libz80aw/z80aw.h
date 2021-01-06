@@ -23,7 +23,7 @@ typedef struct {
     bool HALT;
 } Z80AW_Registers;
 
-typedef enum { Z80AW_PRINT_CHAR, Z80AW_BREAKPOINT } Z80AW_EventType;
+typedef enum { Z80AW_NO_EVENT, Z80AW_PRINT_CHAR, Z80AW_BREAKPOINT, Z80AW_ERROR } Z80AW_EventType;
 
 typedef struct {
     Z80AW_EventType type;
@@ -64,7 +64,9 @@ int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz);   // return address
 int z80aw_keypress(uint8_t key);
 
 int z80aw_cpu_continue();
-int z80aw_poll_event(Z80AW_Event* e);
+int z80aw_cpu_stop();
+
+Z80AW_Event z80aw_last_event();
 
 const char* z80aw_last_error();
 
