@@ -1,5 +1,5 @@
 OBJ      = z80aw.o comm.o compiler.o contrib/map.o
-TEST_OBJ = test/test.o test/testutil.o
+TEST_OBJ = test/test.o
 DLL      = libz80aw.so
 TOML_LIB = ../contrib/tomlc99/libtoml.a
 CPPFLAGS = -fPIC -Wall -Wextra -g -O0 -I../common

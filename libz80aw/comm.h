@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-void open_serial_port(char const* port, bool log_to_stdout);
+void open_serial_port(char const* port, bool log_to_stdout, int timeout);
 void close_serial_port();
 
 int zsend_noreply(uint8_t byte);

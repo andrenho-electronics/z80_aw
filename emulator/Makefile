@@ -1,4 +1,4 @@
-OBJ = main.o
+OBJ = main.o z80_user.o z80/Z80.o
 EXE = emulator
 CPPFLAGS = -Wall -Wextra -g -O0 -I../common
 LDFLAGS = -lutil
@@ -10,6 +10,6 @@ $(EXE): $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -f *.o $(DLL) tests
+	rm -f *.o **/*.o $(DLL) tests
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:

@@ -10,8 +10,9 @@
 
 static int fd = -1;
 static bool log_to_stdout = false;
+static int timeout = 5;
 
-void open_serial_port(char const* port, bool log_to_stdout_)
+void open_serial_port(char const* port, bool log_to_stdout_, int timeout_)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -20,6 +21,7 @@ void open_serial_port(char const* port, bool log_to_stdout_)
     }
     
     log_to_stdout = log_to_stdout_;
+    timeout = timeout_;
     
     // set interface attributes
     struct termios tty;
@@ -83,12 +85,12 @@ int zsend_expect(uint8_t byte, uint8_t expect)
 int zrecv()
 {
     fd_set set;
-    struct timeval timeout;
+    struct timeval timeout_;
     FD_ZERO(&set);
     FD_SET(fd, &set);
-    timeout.tv_sec = 5;    // 5 seconds
-    timeout.tv_usec = 0;
-    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout);
+    timeout_.tv_sec = timeout;
+    timeout_.tv_usec = 0;
+    int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout_);
     if (r == 0)
         ERROR("Did not receive a response from controller in 5 seconds.");
     

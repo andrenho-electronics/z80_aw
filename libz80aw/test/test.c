@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <signal.h>
@@ -8,20 +9,63 @@
 #include "../compiler.h"
 #include "protocol.h"
 #include "../comm.h"
-#include "testutil.h"
 
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
     if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31m❌\e[0m\n"); exit(1); }
 
+typedef enum { EMULATOR, REALHARDWARE } HardwareType;
+typedef struct {
+    HardwareType hardware_type;
+    const char*  serial_port;
+    bool         log_to_stdout;
+} Config;
+
+Config initialize(int argc, char* argv[])
+{
+    Config config = { .hardware_type = EMULATOR };
+    
+    int opt;
+    while ((opt = getopt(argc, argv, "hr:l")) != -1) {
+        switch (opt) {
+            case 'l':
+                config.log_to_stdout = true;
+                break;
+            case 'r':
+                config.hardware_type = REALHARDWARE;
+                config.serial_port = optarg;
+                break;
+            default:
+                printf("Usage: %s [-r PORT]\n", argv[0]);
+                printf("     -r      Run on real hardware, where PORT is the serial port (ex. /dev/ttyUSB0)\n");
+                printf("     -l      Log bytes to stdout\n");
+                exit(EXIT_FAILURE);
+        }
+    }
+    
+    return config;
+}
+
 int main(int argc, char* argv[])
 {
+    char serial_port[128];
     Config config = initialize(argc, argv);
-    printf("Serial port: %s\n", config.serial_port);
+    
+    if (config.hardware_type == EMULATOR) {
+        if (z80aw_initialize_emulator("../emulator", serial_port, sizeof serial_port) != 0) {
+            fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
+            exit(1);
+        }
+    } else {
+        strcpy(serial_port, config.serial_port);
+    }
+    
+    printf("Serial port: %s\n", serial_port);
     
     Z80AW_Config cfg = {
-            .serial_port = config.serial_port,
-            .log_to_stdout = config.log_to_stdout,
+            .serial_port    = serial_port,
+            .log_to_stdout  = config.log_to_stdout,
+            .serial_timeout = 600,
     };
     z80aw_init(&cfg);
     
@@ -31,17 +75,21 @@ int main(int argc, char* argv[])
     DebugInformation* di = compile_vasm("z80src/project.toml");
     ASSERT("DebugInformation is not null", di);
     ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
-    printf("Compiler output:\n\e[0;33m");
-    debug_print(di);
-    printf("\e[0m\n");
+    if (config.log_to_stdout) {
+        printf("Compiler output:\n\e[0;33m");
+        debug_print(di);
+        printf("\e[0m\n");
+    }
     
     DebugInformation* di_error = compile_vasm("z80src/project_error.toml");
     ASSERT("DebugInformation is not null", di_error);
     {
         char error_msg[4096];
         ASSERT("Compiler output is not successful", !debug_output(di_error, error_msg, sizeof error_msg));
-        printf("Compiler error output:\n");
-        printf("\e[0;33m%s\e[0m\n\n", error_msg);
+        if (config.log_to_stdout) {
+            printf("Compiler error output:\n");
+            printf("\e[0;33m%s\e[0m\n\n", error_msg);
+        }
     }
     debug_free(di_error);
     
@@ -90,6 +138,21 @@ int main(int argc, char* argv[])
     ASSERT("Test block 1 upload", memcmp(rblock, debug_binary(di, 0)->data, debug_binary(di, 0)->sz) == 0);
     ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
     ASSERT("Check checksum (uploaded)", z80aw_is_uploaded(di));
+    
+    //
+    // CPU operations
+    //
+    ASSERT("CPU reset", z80aw_cpu_reset() == 0);
+    Z80AW_Registers r;
+    ASSERT("Retrieve registers", z80aw_cpu_registers(&r) == 0);
+    ASSERT("PC == 0", r.PC == 0);
+   
+    // single step
+    uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
+    z80aw_write_block(0, sizeof jp, jp);
+    ASSERT("Step", z80aw_cpu_step() == 0);
+    z80aw_cpu_registers(&r);
+    ASSERT("JP C3C3h -> PC == 0xC3C3", r.PC == 0xc3c3);
     
     //
     // finalize

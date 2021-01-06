@@ -3,22 +3,69 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <protocol.h>
+#include <signal.h>
+#include <unistd.h>
 
 #include "comm.h"
 #include "z80aw_priv.h"
 
 static char last_error[256] = "No error.";
 static bool log_to_stdout = false;
+static int  timeout = 5;
+static bool wait_for_emulator = true;
 
 void z80aw_init(Z80AW_Config* cfg)
 {
-    open_serial_port(cfg->serial_port, cfg->log_to_stdout);
+    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->serial_timeout);
+    timeout = cfg->serial_timeout < 5 ? 5 : cfg->serial_timeout;
     log_to_stdout = cfg->log_to_stdout;
 }
 
 void z80aw_close()
 {
     close_serial_port();
+}
+
+static void continue_execution(int sig)  // called when signal SIGUSR1 is received from emulator
+{
+    (void) sig;
+    wait_for_emulator = false;
+    printf("Signal received from emulator.\n");
+}
+
+int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz)
+{
+    static char serial_port[256];
+    
+    if (signal(SIGUSR1, continue_execution) == SIG_ERR)
+        ERROR("Could not setup signal handler.\n");
+    
+    // initialize emulator
+    pid_t my_pid = getpid();
+    pid_t emulator_pid = fork();
+    if (emulator_pid == 1) {
+        ERROR("Could not fork.");
+    } else if (emulator_pid == 0) {
+        char pid_s[16], cmdbuf[1024];
+        snprintf(pid_s, sizeof pid_s, "%d", my_pid);
+        snprintf(cmdbuf, sizeof cmdbuf, "%s/emulator", emulator_path);
+        printf("Starting emulator with '%s -p %s'\n", cmdbuf, pid_s);
+        execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
+    }
+    
+    while (wait_for_emulator);   // this variable is swapped when signal SIGUSR1 is received from emulator
+    
+    // read port from file created by the emulator
+    FILE* f = fopen("./.port", "r");
+    if (!f)
+        ERROR("Could not open port file from emulator");
+    fread(serial_port, sizeof serial_port, sizeof serial_port - 1, f);
+    fclose(f);
+    unlink("./.port");
+    
+    snprintf(serial_port_buf, serial_port_buf_sz, "%s", serial_port);
+    
+    return 0;
 }
 
 void z80aw_set_error(char* fmt, ...)
@@ -129,4 +176,46 @@ bool z80aw_is_uploaded(DebugInformation const* di)
     uint16_t chk = debug_binary_checksum(di);
     
     return (data[0] == (chk & 0xff)) && (data[1] == (chk >> 8));
+}
+
+int
+z80aw_cpu_reset()
+{
+    return zsend_expect(Z_RESET, Z_OK);
+}
+
+int z80aw_cpu_registers(Z80AW_Registers* reg)
+{
+    int resp = zsend_noreply(Z_REGISTERS);
+    if (resp != 0)
+        return resp;
+    
+    uint8_t r[27];
+    for (size_t i = 0; i < 27; ++i)
+        r[i] = zrecv();
+    
+    *reg = (Z80AW_Registers) {
+            .AF = (uint16_t) (r[1] | r[0] << 8),
+            .BC = (uint16_t) (r[3] | r[2] << 8),
+            .DE = (uint16_t) (r[5] | r[4] << 8),
+            .HL = (uint16_t) (r[7] | r[6] << 8),
+            .AFx = (uint16_t) (r[9] | r[8] << 8),
+            .BCx = (uint16_t) (r[11] | r[10] << 8),
+            .DEx = (uint16_t) (r[13] | r[12] << 8),
+            .HLx = (uint16_t) (r[15] | r[14] << 8),
+            .IX = (uint16_t) (r[16] | r[17] << 8),
+            .IY = (uint16_t) (r[18] | r[19] << 8),
+            .PC = (uint16_t) (r[20] | r[21] << 8),
+            .SP = (uint16_t) (r[22] | r[23] << 8),
+            .R = r[24],
+            .I = r[25],
+            .HALT = r[26],
+    };
+    
+    return 0;
+}
+
+int z80aw_cpu_step()
+{
+    return zsend_expect(Z_STEP, Z_OK);
 }
