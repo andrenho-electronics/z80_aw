@@ -11,6 +11,7 @@ typedef struct {
     const char* serial_port;
     int         serial_timeout;
     bool        log_to_stdout;
+    bool        assert_empty_buffer;
 } Z80AW_Config;
 
 typedef struct {
@@ -48,6 +49,13 @@ int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz
 int z80aw_cpu_reset();
 int z80aw_cpu_registers(Z80AW_Registers* reg);
 int z80aw_cpu_step(uint8_t* printed_char);
+
+int z80aw_add_breakpoint(uint16_t addr);
+int z80aw_remove_breakpoint(uint16_t addr);
+int z80aw_remove_all_breakpoints();
+int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz);   // return address count
+
+int z80aw_keypress(uint8_t key);
 
 const char* z80aw_last_error();
 

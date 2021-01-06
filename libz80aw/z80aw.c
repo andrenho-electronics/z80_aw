@@ -11,13 +11,11 @@
 
 static char last_error[256] = "No error.";
 static bool log_to_stdout = false;
-static int  timeout = 5;
 static bool wait_for_emulator = true;
 
 void z80aw_init(Z80AW_Config* cfg)
 {
-    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->serial_timeout);
-    timeout = cfg->serial_timeout < 5 ? 5 : cfg->serial_timeout;
+    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->serial_timeout, cfg->assert_empty_buffer);
     log_to_stdout = cfg->log_to_stdout;
 }
 
@@ -158,6 +156,7 @@ int z80aw_upload_compiled(DebugInformation const* di)
         if (r != 0)
             return r;
     }
+    z_assert_empty_buffer();
     
     // write checksum
     uint16_t chk = debug_binary_checksum(di);
@@ -165,9 +164,12 @@ int z80aw_upload_compiled(DebugInformation const* di)
     int r = z80aw_write_block(UPLOAD_CHECKSUM_LOCATION, 2, data);
     if (r != 0)
         return r;
+    z_assert_empty_buffer();
     
     // reset
+    z80aw_remove_all_breakpoints();
     z80aw_cpu_reset();
+    z_assert_empty_buffer();
     
     return 0;
 }
@@ -213,6 +215,7 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
     }
     bool success = debug_output(di, err_buf, err_buf_sz);
     z80aw_upload_compiled(di);
+    z_assert_empty_buffer();
     debug_free(di);
     
     // cleanup
@@ -225,7 +228,9 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
 
 int z80aw_cpu_reset()
 {
-    return zsend_expect(Z_RESET, Z_OK);
+    int r = zsend_expect(Z_RESET, Z_OK);
+    z_assert_empty_buffer();
+    return r;
 }
 
 int z80aw_cpu_registers(Z80AW_Registers* reg)
@@ -256,6 +261,7 @@ int z80aw_cpu_registers(Z80AW_Registers* reg)
             .HALT = r[26],
     };
     
+    z_assert_empty_buffer();
     return 0;
 }
 
@@ -269,5 +275,57 @@ int z80aw_cpu_step(uint8_t* printed_char)
     if (printed_char)
         *printed_char = c;
     
+    z_assert_empty_buffer();
     return 0;
+}
+
+int z80aw_keypress(uint8_t key)
+{
+    zsend_noreply(Z_KEYPRESS);
+    int r = zsend_expect(key, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
+int z80aw_add_breakpoint(uint16_t addr)
+{
+    zsend_noreply(Z_ADD_BKP);
+    zsend_noreply(addr & 0xff);
+    zsend_noreply(addr >> 8);
+    int r = zrecv();
+    if (r == Z_TOO_MANY_BKPS)
+        ERROR("Too many breakpoints.");
+    z_assert_empty_buffer();
+    return 0;
+}
+
+int z80aw_remove_breakpoint(uint16_t addr)
+{
+    zsend_noreply(Z_REMOVE_BKP);
+    zsend_noreply(addr & 0xff);
+    int r = zsend_expect(addr >> 8, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
+int z80aw_remove_all_breakpoints()
+{
+    int r = zsend_expect(Z_REMOVE_ALL_BKPS, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
+int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz)
+{
+    zsend_noreply(Z_QUERY_BKPS);
+    int count = zrecv();
+    if (count < 0)
+        return -1;
+    for (ssize_t i = 0; i < count; ++i) {
+        uint16_t a = zrecv16();
+        if (i < (ssize_t) addr_sz && addr)
+            addr[i] = a;
+    }
+    z_assert_empty_buffer();
+    return count;
 }

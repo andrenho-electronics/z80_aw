@@ -72,15 +72,19 @@ int main(int argc, char* argv[])
     printf("Serial port: %s\n", serial_port);
     
     Z80AW_Config cfg = {
-            .serial_port    = serial_port,
-            .log_to_stdout  = config.log_to_stdout,
-            .serial_timeout = 600,
+            .serial_port         = serial_port,
+            .log_to_stdout       = config.log_to_stdout,
+            .serial_timeout      = 600,
+            .assert_empty_buffer = true,
     };
     z80aw_init(&cfg);
     
     //
     // compiler
     //
+    
+    uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
+    
     DebugInformation* di = compile_vasm("z80src/project.toml");
     ASSERT("DebugInformation is not null", di);
     ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
@@ -102,6 +106,14 @@ int main(int argc, char* argv[])
     }
     debug_free(di_error);
     
+    // upload compiled code
+    ASSERT("Check checksum (not uploaded)", !z80aw_is_uploaded(di));
+    ASSERT("Upload successful", z80aw_upload_compiled(di) == 0);
+    z80aw_read_block(0x0, debug_binary(di, 0)->sz, rblock);
+    ASSERT("Test block 1 upload", memcmp(rblock, debug_binary(di, 0)->data, debug_binary(di, 0)->sz) == 0);
+    ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
+    ASSERT("Check checksum (uploaded)", z80aw_is_uploaded(di));
+    
     // simple compilation
     char errbuf[4096] = "";
     int resp = z80aw_simple_compilation(" jp 0xc3c3\n rst 0x8", errbuf, sizeof errbuf);
@@ -122,12 +134,14 @@ int main(int argc, char* argv[])
     //
     // generic commands
     //
+    
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
     ASSERT("Error message", strcmp(z80aw_last_error(), "No error.") != 0);
     
     //
     // empty buffer
     //
+    
     zsend_noreply(Z_ACK_REQUEST);
     if (config.log_to_stdout) printf("\n");
     ASSERT("Empty buffer (not empty)", !z_empty_buffer());
@@ -137,18 +151,19 @@ int main(int argc, char* argv[])
     //
     // controller
     //
+    
     ASSERT("Controller info - free memory", z80aw_controller_info().free_memory > 10);
     
     //
     // memory
     //
+    
     uint8_t chk[] = { 0xfa, 0x80, 0x0, 0x79, 0xab };
     ASSERT("Checksum", z80aw_checksum(sizeof chk, chk) == 0x87a0);
     
     ASSERT("Write byte", z80aw_write_byte(0x8, 0xfa) == 0);
     ASSERT("Read byte", z80aw_read_byte(0x8) == 0xfa);
     
-    uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
     for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
         block[i] = (i + 1) & 0xff;
     ASSERT("Write block", z80aw_write_block(0x100, MAX_BLOCK_SIZE, block) == 0);
@@ -156,18 +171,9 @@ int main(int argc, char* argv[])
     ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
     
     //
-    // upload compiled code
-    //
-    ASSERT("Check checksum (not uploaded)", !z80aw_is_uploaded(di));
-    ASSERT("Upload successful", z80aw_upload_compiled(di) == 0);
-    z80aw_read_block(0x0, debug_binary(di, 0)->sz, rblock);
-    ASSERT("Test block 1 upload", memcmp(rblock, debug_binary(di, 0)->data, debug_binary(di, 0)->sz) == 0);
-    ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
-    ASSERT("Check checksum (uploaded)", z80aw_is_uploaded(di));
-    
-    //
     // CPU operations
     //
+    
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     Z80AW_Registers r;
     ASSERT("Retrieve registers", z80aw_cpu_registers(&r) == 0);
@@ -194,6 +200,46 @@ int main(int argc, char* argv[])
     ASSERT("Char printed = 'H'", c == 'H');
     z80aw_cpu_step(&c);
     ASSERT("Print char is cleared", c == 0);
+    
+    // receive keypress
+    COMPILE(" in a, (0x1)");   // device 0x1 = keyboard
+    z80aw_keypress('6');
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_registers(&r);
+    ASSERT("Receive keypress", (r.AF >> 8) == '6');
+    
+    // keypress interrupt
+    COMPILE(" jp main\n"
+            " org 0x8 \n"
+            " halt    \n"
+            "main:    \n"
+            " im 0    \n"
+            " ei      \n"
+            "cc: jp cc");
+    for (size_t i = 0; i < 16; ++i)
+        z80aw_cpu_step(NULL);
+    z80aw_keypress('k');
+    for (size_t i = 0; i < 16; ++i)
+        z80aw_cpu_step(NULL);
+    z80aw_cpu_registers(&r);
+    ASSERT("Keyboard interrupt was received", r.HALT);
+    
+    //
+    // breakpoint setting
+    //
+    uint16_t bkps[16];
+    ASSERT("Add breakpoint", z80aw_add_breakpoint(0xf00) == 0);
+    ASSERT("Querying breakpoints", z80aw_query_breakpoints(bkps, 16) == 1);
+    ASSERT("Checking brekpoints", bkps[0] == 0xf00);
+    ASSERT("Add same breakpoint", z80aw_add_breakpoint(0xf00) == 0);
+    ASSERT("Check that we still have the one breakpoint", z80aw_query_breakpoints(bkps, 16) == 1);
+    ASSERT("Add another breakpoint", z80aw_add_breakpoint(0x123) == 0);
+    ASSERT("Check that we have two breakpoints", z80aw_query_breakpoints(NULL, 0) == 2);
+    ASSERT("Remove one breakpoint", z80aw_remove_breakpoint(0xf00) == 0);
+    ASSERT("Check that we have one breakpoint", z80aw_query_breakpoints(bkps, 16) == 1);
+    ASSERT("Check that is the correct breakpoint", bkps[0] == 0x123);
+    ASSERT("Remove all breakpoints", z80aw_remove_all_breakpoints() == 0);
+    ASSERT("Check that we now have no breakpoints", z80aw_query_breakpoints(NULL, 0) == 0);
     
     //
     // finalize

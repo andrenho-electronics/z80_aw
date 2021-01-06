@@ -11,11 +11,17 @@
 #define Z_RESET             0xe5   //  -> Z_OK
 #define Z_REGISTERS         0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
 #define Z_STEP              0xe7   //  -> [printed char]
+#define Z_KEYPRESS          0xe8   // [Key] -> Z_OK
+#define Z_ADD_BKP           0xe9   // [Aa] [Ab] -> Z_OK / Z_TOO_MANY_BKPS
+#define Z_REMOVE_BKP        0xea   // [Aa] [Ab] -> Z_OK
+#define Z_REMOVE_ALL_BKPS   0xeb   // Z_OK
+#define Z_QUERY_BKPS        0xec   //  -> [count] [bkp0a] [bkp0b] ...
 
 // responses
 
 #define Z_OK                0xd0
 #define Z_INVALID_CMD       0xd1
 #define Z_ACK_RESPONSE      0xd2
+#define Z_TOO_MANY_BKPS     0xd3
 
 #endif //LIBZ80AW_PROTOCOL_H

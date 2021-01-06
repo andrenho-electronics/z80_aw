@@ -2,11 +2,13 @@
 
 #include <fcntl.h>
 #include <getopt.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <signal.h>
+#include <string.h>
 
 #include "protocol.h"
 #include "z80/Z80.h"
@@ -15,9 +17,14 @@ static int     master;
 static char    serial_port_name[256];
 static int     test_pid = 0;
 
-Z80     z80;
-uint8_t memory[64 * 1024];
-uint8_t last_printed_char = 0;
+#define MAX_BREAKPOINTS 16
+
+Z80      z80;
+uint8_t  memory[64 * 1024];
+uint8_t  last_printed_char = 0;
+uint8_t  last_keypress = 0;
+bool     keyboard_interrupt = false;
+uint16_t breakpoints[MAX_BREAKPOINTS] = { 0 };
 
 void get_options(int argc, char* argv[])
 {
@@ -138,6 +145,37 @@ static void send_registers()
     send((z80.IFF & IFF_HALT) ? 1 : 0);
 }
 
+bool bkp_add(uint16_t bkp)
+{
+    for (size_t i = 0; i < MAX_BREAKPOINTS; ++i) {
+        if (breakpoints[i] == bkp)  // avoid duplicates
+            return true;
+        if (breakpoints[i] == 0) {
+            breakpoints[i] = bkp;
+            return true;
+        }
+    }
+    return false;
+}
+
+void bkp_remove(uint16_t bkp)
+{
+    printf(">>> %d <<<\n", bkp);
+    for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
+        if (breakpoints[i] == bkp)
+            breakpoints[i] = 0;
+}
+
+int bkp_query(uint16_t bkps[16])
+{
+    size_t j = 0;
+    for (size_t i = 0; i < MAX_BREAKPOINTS; ++i) {
+        if (breakpoints[i] != 0)
+            bkps[j++] = breakpoints[i];
+    }
+    return j;
+}
+
 int main(int argc, char* argv[])
 {
     get_options(argc, argv);
@@ -187,6 +225,33 @@ int main(int argc, char* argv[])
                 RunZ80(&z80);
                 send(last_printed_char);
                 last_printed_char = 0;
+                break;
+            case Z_KEYPRESS:
+                last_keypress = recv();
+                keyboard_interrupt = true;
+                send(Z_OK);
+                break;
+            case Z_ADD_BKP:
+                if (bkp_add(recv16()))
+                    send(Z_OK);
+                else
+                    send(Z_TOO_MANY_BKPS);
+                break;
+            case Z_REMOVE_BKP:
+                bkp_remove(recv16());
+                send(Z_OK);
+                break;
+            case Z_REMOVE_ALL_BKPS:
+                memset(breakpoints, 0, MAX_BREAKPOINTS * sizeof(uint16_t));
+                send(Z_OK);
+                break;
+            case Z_QUERY_BKPS: {
+                    uint16_t bkps[MAX_BREAKPOINTS];
+                    int count = bkp_query(bkps);
+                    send(count);
+                    for (int i = 0; i < count; ++i)
+                        send16(bkps[i]);
+                }
                 break;
             default:
                 fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);

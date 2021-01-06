@@ -11,8 +11,9 @@
 static int fd = -1;
 static bool log_to_stdout = false;
 static int timeout = 5;
+static bool assert_empty_buffer = false;
 
-void open_serial_port(char const* port, bool log_to_stdout_, int timeout_)
+void open_serial_port(char const* port, bool log_to_stdout_, int timeout_, bool assert_empty_buffer_)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
@@ -22,6 +23,7 @@ void open_serial_port(char const* port, bool log_to_stdout_, int timeout_)
     
     log_to_stdout = log_to_stdout_;
     timeout = timeout_;
+    assert_empty_buffer = assert_empty_buffer_;
     
     // set interface attributes
     struct termios tty;
@@ -128,8 +130,10 @@ bool z_empty_buffer()
 
 void z_assert_empty_buffer()
 {
-    if (!z_empty_buffer()) {
-        fprintf(stderr, "Serial buffer is not empty.\n");
-        exit(EXIT_FAILURE);
+    if (assert_empty_buffer) {
+        if (!z_empty_buffer()) {
+            fprintf(stderr, "Serial buffer is not empty.\n");
+            exit(EXIT_FAILURE);
+        }
     }
 }
