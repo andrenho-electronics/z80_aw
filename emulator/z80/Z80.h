@@ -18,8 +18,8 @@ extern "C" {
 #endif
 
                                /* Compilation options:       */
-/* #define DEBUG */            /* Compile debugging version  */
-#define LSB_FIRST              /* Compile for low-endian CPU */
+//#define DEBUG                /* Compile debugging version  */
+//#define LSB_FIRST            /* Compile for low-endian CPU */
 /* #define MSB_FIRST */        /* Compile for hi-endian CPU  */
 
                                /* LoopZ80() may return:      */

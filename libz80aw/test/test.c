@@ -16,7 +16,7 @@
 
 #define COMPILE(code) {                                                                  \
     char errbuf_[4096] = "";                                                             \
-    int resp_ = z80aw_simple_compilation(" jp 0xc3c3 rst 0x8", errbuf_, sizeof errbuf_); \
+    int resp_ = z80aw_simple_compilation(code, errbuf_, sizeof errbuf_); \
     if (resp_ != 0) {                                                                    \
         printf("Compilation error: %s\n", errbuf_);                                      \
         exit(1);                                                                         \
@@ -101,10 +101,17 @@ int main(int argc, char* argv[])
         }
     }
     debug_free(di_error);
-
+    
+    // simple compilation
     char errbuf[4096] = "";
-    int resp = z80aw_simple_compilation(" jp 0xc3c3 rst 0x8", errbuf, sizeof errbuf);
+    int resp = z80aw_simple_compilation(" jp 0xc3c3\n rst 0x8", errbuf, sizeof errbuf);
     ASSERT("Simple compilation", resp == 0);
+    {
+        uint8_t expected[] = { 0xc3, 0xc3, 0xc3, 0xcf };
+        uint8_t found[4];
+        z80aw_read_block(0x0, sizeof found, found);
+        ASSERT("Compare blocks", memcmp(expected, found, sizeof found) == 0);
+    }
     
     resp = z80aw_simple_compilation("error error", errbuf, sizeof errbuf);
     if (config.log_to_stdout)
@@ -169,9 +176,15 @@ int main(int argc, char* argv[])
     // single step
     uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
     z80aw_write_block(0, sizeof jp, jp);
-    ASSERT("Step", z80aw_cpu_step() == 0);
+    ASSERT("Step (jp 0xc3c3)", z80aw_cpu_step() == 0);
     z80aw_cpu_registers(&r);
-    ASSERT("JP C3C3h -> PC == 0xC3C3", r.PC == 0xc3c3);
+    ASSERT("PC == 0xC3C3", r.PC == 0xc3c3);
+    
+    // compile and execute step
+    COMPILE(" ld a, 0x42");
+    ASSERT("Step (ld a, 0x42)", z80aw_cpu_step() == 0);
+    z80aw_cpu_registers(&r);
+    ASSERT("A == 0x42", (r.AF >> 8) == 0x42);
     
     //
     // finalize
