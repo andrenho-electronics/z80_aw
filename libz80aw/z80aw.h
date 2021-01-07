@@ -30,6 +30,28 @@ typedef struct {
     uint8_t         data;
 } Z80AW_Event;
 
+typedef struct __attribute__((__packed__)) {
+    bool m1;
+    bool iorq;
+    bool halt;
+    bool busack;
+    bool wait;
+    bool int_;
+    bool nmi;
+    bool reset;
+    bool busreq;
+    bool mreq;
+    bool rd;
+    bool wr;
+} Z80AW_Pins;
+
+typedef struct {
+    uint32_t   cycle;
+    uint16_t   addr;
+    uint8_t    data;
+    Z80AW_Pins pins;
+} Z80AW_Status;
+
 #define MAX_BLOCK_SIZE 512
 #define UPLOAD_CHECKSUM_LOCATION 0x7ffe
 
@@ -55,6 +77,7 @@ int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz
 int z80aw_cpu_reset();
 int z80aw_cpu_registers(Z80AW_Registers* reg);
 int z80aw_cpu_step(uint8_t* printed_char);
+int z80aw_cpu_cycle();
 
 int z80aw_add_breakpoint(uint16_t addr);
 int z80aw_remove_breakpoint(uint16_t addr);
@@ -65,6 +88,8 @@ int z80aw_keypress(uint8_t key);
 
 int z80aw_cpu_continue();
 int z80aw_cpu_stop();
+
+Z80AW_Status z80aw_cpu_status();
 
 Z80AW_Event z80aw_last_event();
 

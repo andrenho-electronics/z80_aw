@@ -312,6 +312,18 @@ int main(int argc, char* argv[])
     z80aw_cpu_stop();
     
     //
+    // run cycles
+    //
+   
+    z80aw_cpu_reset();
+    Z80AW_Status s = z80aw_cpu_status();
+    ASSERT("Check CPU status (after reset)", s.cycle == 0);
+    ASSERT("CPU cycle", z80aw_cpu_cycle() == 0);
+    s = z80aw_cpu_status();
+    ASSERT("Check CPU status (after cycle)", s.cycle == 1);
+    
+    
+    //
     // finalize
     //
     ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);

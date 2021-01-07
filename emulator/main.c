@@ -31,6 +31,8 @@ bool     keyboard_interrupt = false;
 uint16_t breakpoints[MAX_BREAKPOINTS] = { 0 };
 bool     continue_mode = false;
 uint8_t  last_event = Z_OK;
+uint32_t cycle_number = 0;
+uint64_t cpu_random_pins = 0;
 
 //
 // command line options
@@ -169,6 +171,25 @@ static void send_registers()
     send(z80.R);
     send(z80.I);
     send((z80.IFF & IFF_HALT) ? 1 : 0);
+}
+
+static void send_pins()
+{
+    send(cycle_number);
+    send(cycle_number >> 8);
+    send(cycle_number >> 16);
+    send(cycle_number >> 24);
+    
+    // address
+    send(cpu_random_pins);
+    send(cpu_random_pins >> 8);
+    
+    // data
+    send(cpu_random_pins >> 16);
+    
+    // pins
+    send(cpu_random_pins >> 24);
+    send(cpu_random_pins >> 32);
 }
 
 //
@@ -353,6 +374,14 @@ void command_loop()
             break;
         case Z_STOP:
             continue_mode = false;
+            send(Z_OK);
+            break;
+        case Z_PIN_STATUS:
+            send_pins();
+            break;
+        case Z_CYCLE:
+            ++cycle_number;
+            cpu_random_pins = ((uint64_t) rand() << 48) | ((uint64_t) rand() << 32) | ((uint64_t) rand() << 16) | (uint16_t) rand();
             send(Z_OK);
             break;
         default:
