@@ -176,15 +176,13 @@ int main(int argc, char* argv[])
     
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     Z80AW_Registers r;
-    ASSERT("Retrieve registers", z80aw_cpu_registers(&r) == 0);
-    ASSERT("PC == 0", r.PC == 0);
+    ASSERT("PC == 0", z80aw_cpu_pc() == 0);
    
     // single step
     uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
     z80aw_write_block(0, sizeof jp, jp);
     ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL) == 0);
-    z80aw_cpu_registers(&r);
-    ASSERT("PC == 0xC3C3", r.PC == 0xc3c3);
+    ASSERT("PC == 0xC3C3", z80aw_cpu_pc() == 0xc3c3);
     
     // compile and execute step
     COMPILE(" ld a, 0x42");
@@ -253,8 +251,7 @@ int main(int argc, char* argv[])
     z80aw_add_breakpoint(0x3);
     ASSERT("Continue execution", z80aw_cpu_continue() == 0);
     while (z80aw_last_event().type != Z80AW_BREAKPOINT);
-    z80aw_cpu_registers(&r);
-    ASSERT("Stop at breakpoint", r.PC == 0x3);
+    ASSERT("Stop at breakpoint", z80aw_cpu_pc() == 0x3);
     z80aw_remove_all_breakpoints();
     
     // keypress
@@ -279,8 +276,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_continue();
     usleep(10000);
     z80aw_cpu_stop();
-    z80aw_cpu_registers(&r);
-    ASSERT("Stop stopped at the correct moment", r.PC == 0xc);
+    ASSERT("Stop stopped at the correct moment", z80aw_cpu_pc() == 0xc);
     
     z80aw_cpu_continue();
     z80aw_keypress('k');

@@ -422,6 +422,9 @@ void command_loop()
             continue_mode = false;
             send(Z_OK);
             break;
+        case Z_PC:
+            send16(z80.PC.W);
+            break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
             send(Z_INVALID_CMD);

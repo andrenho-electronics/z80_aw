@@ -233,6 +233,13 @@ int z80aw_cpu_reset()
     return r;
 }
 
+int z80aw_cpu_pc()
+{
+    int r = zsend_noreply(Z_PC);
+    uint16_t pc = zrecv16();
+    return r < 0 ? 0 : pc;
+}
+
 int z80aw_cpu_registers(Z80AW_Registers* reg)
 {
     int resp = zsend_noreply(Z_REGISTERS);
