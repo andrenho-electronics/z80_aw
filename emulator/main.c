@@ -33,6 +33,7 @@ bool     continue_mode = false;
 uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
+bool     log_to_stdout = false;
 
 //
 // command line options
@@ -41,12 +42,20 @@ uint64_t cpu_random_pins = 0;
 void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "p:")) != -1) {
+    while ((opt = getopt(argc, argv, "hlp:")) != -1) {
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
                 printf("emulator: Being run from test process on pid %d.\n", test_pid);
                 break;
+            case 'l':
+                log_to_stdout = true;
+                break;
+            case 'h':
+                printf("Usage: %s [-p PID] [-l]\n", argv[0]);
+                printf("     -p      Parent pid. Use this when started by another process.\n");
+                printf("     -l      Log bytes to stdout\n");
+                exit(EXIT_FAILURE);
             default:
                 fprintf(stderr, "emulator: Invalid option.\n");
                 exit(EXIT_FAILURE);
@@ -82,6 +91,7 @@ static void exit_if_parent_died()
 }
 
 static uint8_t recv() {
+    /*
     fd_set set;
     struct timeval timeout;
     FD_ZERO(&set);
@@ -90,18 +100,30 @@ static uint8_t recv() {
     timeout.tv_usec = 0;
     while (select(FD_SETSIZE, &set, NULL, NULL, &timeout) == 0)
         exit_if_parent_died();
+    */
     
     uint8_t c;
-    read(master, &c, 1);
+    int r = 0;
+    while (r != 1)
+        r = read(master, &c, 1);
+    if (log_to_stdout) {
+        printf("\e[0;33m%02X \e[0m", c);
+        fflush(stdout);
+    }
     return c;
 }
 
 static uint8_t recv_nowait() {
     uint8_t c;
-    if (read(master, &c, 1) == 1)
+    if (read(master, &c, 1) == 1) {
+        if (log_to_stdout) {
+            printf("\e[0;33m*%02X \e[0m", c);
+            fflush(stdout);
+        }
         return c;
-    else
+    } else {
         return 0;
+    }
 }
 
 static uint16_t recv16() {
@@ -111,6 +133,10 @@ static uint16_t recv16() {
 }
 
 static void send(uint8_t c) {
+    if (log_to_stdout) {
+        printf("\e[0;34m%02X \e[0m", c);
+        fflush(stdout);
+    }
     write(master, &c, 1);
 }
 
@@ -293,9 +319,9 @@ void PatchZ80(Z80 *R)
 void command_loop()
 {
     uint8_t c = continue_mode ? recv_nowait() : recv();
+    if (c == 0)
+        return;
     switch (c) {
-        case 0:
-            break;
         case Z_ACK_REQUEST:
             send(Z_ACK_RESPONSE);
             break;
