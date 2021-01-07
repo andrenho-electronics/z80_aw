@@ -321,44 +321,69 @@ void command_loop()
     uint8_t c = continue_mode ? recv_nowait() : recv();
     if (c == 0)
         return;
+    
+    //
+    // commands acceptable only in step mode
+    //
+    if (!continue_mode) {
+        switch (c) {
+            case Z_READ_BLOCK: {
+                    uint16_t addr = recv16();
+                    uint16_t sz = recv16();
+                    for (size_t i = 0; i < sz; ++i)
+                        send(memory[i + addr]);
+                }
+                return;
+            case Z_WRITE_BLOCK: {
+                    uint16_t addr = recv16();
+                    uint16_t sz = recv16();
+                    for (size_t i = 0; i < sz; ++i)
+                        memory[i + addr] = recv();
+                    uint16_t chk = checksum(sz, &memory[addr]);
+                    send16(chk);
+                }
+                return;
+            case Z_REGISTERS:
+                send_registers();
+                return;
+            case Z_STEP:
+                RunZ80(&z80);
+                send(last_printed_char);
+                last_printed_char = 0;
+                return;
+            case Z_CONTINUE:
+                send(Z_OK);
+                continue_mode = true;
+                RunZ80(&z80);
+                return;
+            case Z_PIN_STATUS:
+                send_pins();
+                return;
+            case Z_CYCLE:
+                ++cycle_number;
+                cpu_random_pins = ((uint64_t) rand() << 48) | ((uint64_t) rand() << 32) | ((uint64_t) rand() << 16) | (uint16_t) rand();
+                send(Z_OK);
+                return;
+        }
+    }
+    
+    //
+    // commands acceptable both in continue and step mode
+    //
     switch (c) {
         case Z_ACK_REQUEST:
             send(Z_ACK_RESPONSE);
+            break;
+        case Z_CTRL_INFO:
+            send16(0x800);
             break;
         case Z_EXIT_EMULATOR:
             send(Z_OK);
             usleep(200000);
             exit(EXIT_SUCCESS);
-        case Z_CTRL_INFO:
-            send16(0x800);
-            break;
-        case Z_READ_BLOCK: {
-                uint16_t addr = recv16();
-                uint16_t sz = recv16();
-                for (size_t i = 0; i < sz; ++i)
-                    send(memory[i + addr]);
-            }
-            break;
-        case Z_WRITE_BLOCK: {
-                uint16_t addr = recv16();
-                uint16_t sz = recv16();
-                for (size_t i = 0; i < sz; ++i)
-                    memory[i + addr] = recv();
-                uint16_t chk = checksum(sz, &memory[addr]);
-                send16(chk);
-            }
-            break;
         case Z_RESET:
             ResetZ80(&z80);
             send(Z_OK);
-            break;
-        case Z_REGISTERS:
-            send_registers();
-            break;
-        case Z_STEP:
-            RunZ80(&z80);
-            send(last_printed_char);
-            last_printed_char = 0;
             break;
         case Z_KEYPRESS:
             last_keypress = recv();
@@ -387,11 +412,6 @@ void command_loop()
                     send16(bkps[i]);
             }
             break;
-        case Z_CONTINUE:
-            send(Z_OK);
-            continue_mode = true;
-            RunZ80(&z80);
-            break;
         case Z_LAST_EVENT:
             send(last_event);
             if (last_event == Z_PRINT_CHAR)
@@ -400,14 +420,6 @@ void command_loop()
             break;
         case Z_STOP:
             continue_mode = false;
-            send(Z_OK);
-            break;
-        case Z_PIN_STATUS:
-            send_pins();
-            break;
-        case Z_CYCLE:
-            ++cycle_number;
-            cpu_random_pins = ((uint64_t) rand() << 48) | ((uint64_t) rand() << 32) | ((uint64_t) rand() << 16) | (uint16_t) rand();
             send(Z_OK);
             break;
         default:
