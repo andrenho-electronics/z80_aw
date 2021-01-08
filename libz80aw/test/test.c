@@ -336,7 +336,7 @@ int main(int argc, char* argv[])
     snprintf(code_buf, sizeof code_buf,
              "  ld   sp, 0xfffe         \n"
              "  jp   main               \n"
-             "  org  0x38               \n"
+             "  org  0x66               \n"   // NMI
              "  jp   debugger_registers \n"
              "main:                     \n"
              "  ld   a, 0xa             \n"
