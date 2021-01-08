@@ -175,7 +175,6 @@ int main(int argc, char* argv[])
     //
     
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
-    Z80AW_Registers r;
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
    
     // single step
@@ -185,10 +184,10 @@ int main(int argc, char* argv[])
     ASSERT("PC == 0xC3C3", z80aw_cpu_pc() == 0xc3c3);
     
     // compile and execute step
-    COMPILE(" ld a, 0x42");
-    ASSERT("Step (ld a, 0x42)", z80aw_cpu_step(NULL) == 0);
-    z80aw_cpu_registers(&r);
-    ASSERT("A == 0x42", (r.AF >> 8) == 0x42);
+    COMPILE(" ld a, 0x42\n ld (0x8300), a");
+    ASSERT("Step [0x300] = 0x42", z80aw_cpu_step(NULL) == 0);
+    z80aw_cpu_step(NULL);
+    ASSERT("[0x300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
     
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
@@ -200,15 +199,16 @@ int main(int argc, char* argv[])
     ASSERT("Print char is cleared", c == 0);
     
     // receive keypress
-    COMPILE(" in a, (0x1)");   // device 0x1 = keyboard
+    COMPILE(" in a, (0x1)\n ld (0x8500), a");   // device 0x1 = keyboard
     z80aw_keypress('6');
     z80aw_cpu_step(NULL);
-    z80aw_cpu_registers(&r);
-    ASSERT("Receive keypress", (r.AF >> 8) == '6');
+    ASSERT("Receive keypress", z80aw_read_byte(0x8500) == '6');
     
     // keypress interrupt
     COMPILE(" jp main\n"
             " org 0x8 \n"
+            " in a, (0x1)\n"
+            " ld (0x8400), a\n"
             " halt    \n"
             "main:    \n"
             " im 0    \n"
@@ -219,8 +219,7 @@ int main(int argc, char* argv[])
     z80aw_keypress('k');
     for (size_t i = 0; i < 16; ++i)
         z80aw_cpu_step(NULL);
-    z80aw_cpu_registers(&r);
-    ASSERT("Keyboard interrupt was received", r.HALT);
+    ASSERT("Keyboard interrupt was received", z80aw_read_byte(0x8400) == 'k');
     
     //
     // breakpoint setting
@@ -257,18 +256,19 @@ int main(int argc, char* argv[])
     // keypress
     COMPILE(" jp main\n"
             " org 0x8 \n"
+            " in a, (0x1)\n"
+            " ld (0x8400), a\n"
             " halt    \n"
             "main:    \n"
             " im 0    \n"
             " ei      \n"
             "cc: jp cc");
-    z80aw_add_breakpoint(0x8);
+    z80aw_add_breakpoint(0xa);
     z80aw_cpu_continue();
     usleep(10000);
-    z80aw_keypress('k');
+    z80aw_keypress('f');
     while (z80aw_last_event().type != Z80AW_BREAKPOINT);
-    z80aw_cpu_registers(&r);
-    ASSERT("Key was pressed during continue", r.HALT);
+    ASSERT("Key was pressed during continue", z80aw_cpu_pc() == 0xa);
     
     // stop
     z80aw_remove_all_breakpoints();
@@ -276,14 +276,13 @@ int main(int argc, char* argv[])
     z80aw_cpu_continue();
     usleep(10000);
     z80aw_cpu_stop();
-    ASSERT("Stop stopped at the correct moment", z80aw_cpu_pc() == 0xc);
+    ASSERT("Stop stopped at the correct moment", z80aw_cpu_pc() == 0x11);
     
     z80aw_cpu_continue();
-    z80aw_keypress('k');
+    z80aw_keypress('g');
     usleep(10000);
     z80aw_cpu_stop();
-    z80aw_cpu_registers(&r);
-    ASSERT("Stop stopped at the correct moment (after interrupt)", r.HALT);
+    ASSERT("Stop stopped at the correct moment (after interrupt)", z80aw_read_byte(0x8400) == 'g');
     
     // print
     COMPILE(" ld a, 'A'\n"
@@ -317,6 +316,11 @@ int main(int argc, char* argv[])
     ASSERT("CPU cycle", z80aw_cpu_cycle() == 0);
     s = z80aw_cpu_status();
     ASSERT("Check CPU status (after cycle)", s.cycle == 1);
+    
+    //
+    // load registers from Z80 code
+    //
+    
     
     
     //
