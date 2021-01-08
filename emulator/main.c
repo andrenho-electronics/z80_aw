@@ -36,6 +36,10 @@ uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
 bool     load_registers_native = true;
 
+typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
+RegisterLoadState register_load_state = NOT_WAITING;
+uint16_t          register_stack_location = 0;
+
 //
 // command line options
 //
@@ -229,6 +233,31 @@ static void send_registers_native()
 
 static void send_registers_nmi()
 {
+    register_load_state = SEND_NMI;
+    register_stack_location = 0;
+    
+    // Z80 will run NMI interrupt and, at start, add registers to stack
+    while (register_load_state == SEND_NMI)
+        RunZ80(&z80);
+   
+    // Z80 will tell the location of the stack
+    while (register_load_state == WAITING_IO)
+        RunZ80(&z80);
+    
+    // load registers
+    // TODO...
+    
+    // Z80 will restore everything to correct location and return from the interrupt
+    uint16_t next_instruction;
+    do {
+        RunZ80(&z80);
+        next_instruction = (memory[z80.PC.W] << 8) | memory[z80.PC.W + 1];
+    } while (next_instruction != 0xed4d);  /* ED4D = RETI */
+    RunZ80(&z80);  // execute RETI, return to original instruction
+    register_load_state = NOT_WAITING;
+    
+    // send registers
+    // TODO...
 }
 
 //
@@ -287,6 +316,11 @@ void OutZ80(word Port,byte Value)
             last_event = Z_PRINT_CHAR;
             continue_mode = false;
         }
+    } else if ((Port & 0xff) == 0xfe) {  // load registers from stack - lower nibble
+        register_stack_location = (register_stack_location & 0xff00) | Value;
+    } else if ((Port & 0xff) == 0xff) {  // load registers from stack - higher nibble
+        register_stack_location = (Value << 8) | (register_stack_location & 0xff);
+        register_load_state = WAITING_RETI;
     }
 }
 
@@ -300,6 +334,11 @@ byte InZ80(word Port)
 word LoopZ80(Z80 *R)
 {
     void command_loop();
+    
+    if (register_load_state == SEND_NMI) {
+        register_load_state = WAITING_IO;
+        return INT_NMI;
+    }
     
     if (keyboard_interrupt) {
         keyboard_interrupt = false;
@@ -455,6 +494,7 @@ int main(int argc, char* argv[])
     if (test_pid)
         send_port_to_test();
     
+    z80.Trace = 1;
     ResetZ80(&z80);
     
     while (1)

@@ -21,10 +21,11 @@ debugger_registers:
 	; call controller, passing SP
 	ld	hl, 0
 	add	hl, sp		; load SP
-	ld	c, 3		; 3 -> higher nibble of SP
-	out	(c), h
-	inc	c		; 4 -> lower nibble of SP
-	out	(c), l
+	ld	a, l
+	out	(0xfe), a	; 0xFE -> lower nibble of SP
+	ld	a, h
+	out	(0xff), a	; 0xFF -> higher nibble of SP
+	                        ; calling 0xFF makes the controller load the data
 
 	; restore registers and stack
 	pop	af		; discard IR

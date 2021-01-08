@@ -350,7 +350,6 @@ int main(int argc, char* argv[])
              "  ld   iy, 0x9f           \n"
              "  halt                    \n"
              "%s", reg_buf);
-    printf("%s\n", code_buf);
     COMPILE(code_buf);
     
     Z80AW_Registers r;
