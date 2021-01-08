@@ -367,7 +367,9 @@ int main(int argc, char* argv[])
     ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
     ASSERT("HALT == true", r.HALT);
     uint16_t new_pc = z80aw_cpu_pc();
-    ASSERT("Returned to the next PC", new_pc == original_pc + 1);
+    if (config.z80_registers) {
+        ASSERT("Returned to the next PC", new_pc == original_pc + 1);
+    }
     
     //
     // finalize
