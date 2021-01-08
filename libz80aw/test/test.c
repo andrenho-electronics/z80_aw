@@ -85,6 +85,7 @@ int main(int argc, char* argv[])
     z80aw_init(&cfg);
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
+
     
     //
     // generic commands
@@ -107,7 +108,9 @@ int main(int argc, char* argv[])
     // controller
     //
     
-    ASSERT("Controller info - free memory", z80aw_controller_info().free_memory > 10);
+    uint16_t fr = z80aw_controller_info().free_memory;
+    printf("Free memory in controller: %d bytes.\n", fr);
+    ASSERT("Controller info - free memory", fr > 10);
     
     //
     // memory
@@ -179,6 +182,7 @@ int main(int argc, char* argv[])
     // CPU operations
     //
     
+#if 0
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
    
@@ -374,8 +378,14 @@ int main(int argc, char* argv[])
     //
     // finalize
     //
-    ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
+    if (config.hardware_type == EMULATOR)
+        ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
     
     debug_free(di);
+
+#endif
+
     z80aw_close();
 }
+
+// vim: set ts=4 sts=4 sw=4 expandtab:

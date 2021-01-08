@@ -60,33 +60,8 @@ void memory_set_data(uint8_t data)
     PORTC = data;
 }
 
-uint16_t memory_read(uint16_t addr)
-{
-    if (z80_controls_bus())
-        return -1;
-
-    bus_mc_takeover();
-
-    set_MREQ(1);
-    set_WR(1);
-    set_RD(1);
-
-    memory_set_addr(addr);
-    set_RD(0);
-    set_MREQ(0);
-
-    uint8_t data = memory_read_data();
-
-    set_MREQ(1);
-    set_RD(1);
-
-    bus_mc_release();  // this also put the ADDR pins in high impedance
-    
-    return data;
-}
-
 void
-memory_read_page(uint16_t addr, uint8_t data[64], int count)
+memory_read_page(uint16_t addr, uint8_t* data, int count)
 {
     if (z80_controls_bus()) {
         for (uint16_t a = 0; a < 64; ++a)
@@ -115,7 +90,7 @@ memory_read_page(uint16_t addr, uint8_t data[64], int count)
     bus_mc_release();  // this also put the ADDR pins in high impedance
 }
 
-void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
+static void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 {
     if (z80_controls_bus())
         return;
@@ -150,7 +125,7 @@ void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
     bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
 }
 
-bool memory_write_page(uint16_t addr, uint8_t data[64], size_t count)
+uint16_t memory_write_page(uint16_t addr, uint8_t* data, size_t count)
 {
     if (z80_controls_bus())
         return false;
@@ -160,8 +135,22 @@ bool memory_write_page(uint16_t addr, uint8_t data[64], size_t count)
         // _delay_ms(10);
     }
 
+    // destroy data[]
+    for (size_t i = 0; i < count; ++i)
+        data[i] = 0;
+
+    // re-read data from memory
+    memory_read_page(addr, data, count);
+
+    // calculate checksum
+    uint16_t checksum1 = 0, checksum2 = 0;
+    for (size_t i = 0; i < count; ++i) {
+        checksum1 = (checksum1 + data[i]) % 255;
+        checksum2 = (checksum2 + checksum1) % 255;
+    }
+
     // bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
-    return true;
+    return checksum1 | (checksum2 << 8);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

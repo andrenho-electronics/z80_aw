@@ -1,4 +1,5 @@
 #include "bus.h"
+#include "dbg.h"
 #include "lowlevel.h"
 #include "serial.h"
 #include "z80.h"
@@ -14,7 +15,7 @@ int main()
     z80_powerdown();
 
     for (;;)
-        repl_exec();
+        dbg_exec();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

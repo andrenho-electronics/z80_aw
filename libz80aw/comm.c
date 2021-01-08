@@ -111,7 +111,7 @@ bool z_empty_buffer()
     FD_ZERO(&set);
     FD_SET(fd, &set);
     timeout_.tv_sec = 0;
-    timeout_.tv_usec = 100;   // 0.01 sec
+    timeout_.tv_usec = 20000;   // 0.1 sec
     int r = select(FD_SETSIZE, &set, NULL, NULL, &timeout_);
     return r == 0;
 }

@@ -15,6 +15,9 @@ tests: $(TEST_OBJ) $(DLL)
 check: tests
 	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z
 
+check-real: tests
+	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l -r /dev/ttyUSB0
+
 check-leaks: tests
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./tests
 
