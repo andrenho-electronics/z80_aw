@@ -200,8 +200,9 @@ static void send_pins()
 // load registers
 //
 
-static void send_registers_native()
+static void step_debug_native()
 {
+    RunZ80(&z80);
     send(z80.AF.B.h);
     send(z80.AF.B.l);
     send(z80.BC.B.h);
@@ -229,12 +230,15 @@ static void send_registers_native()
     send(z80.R);
     send(z80.I);
     send((z80.IFF & IFF_HALT) ? 1 : 0);
+    send(last_printed_char);
+    last_printed_char = 0;
 }
 
-static void send_registers_nmi()
+static void step_debug_nmi()
 {
     register_load_state = SEND_NMI;
     register_stack_location = 0;
+    bool halt = (z80.IFF & IFF_HALT);
     
     // Z80 will run NMI interrupt and, at start, add registers to stack
     while (register_load_state == SEND_NMI)
@@ -245,7 +249,17 @@ static void send_registers_nmi()
         RunZ80(&z80);
     
     // load registers
-    // TODO...
+    uint16_t ir = memory[z80.SP.W] | (memory[z80.SP.W + 1] << 8);
+    uint16_t iy = memory[z80.SP.W + 2] | (memory[z80.SP.W + 3] << 8);
+    uint16_t ix = memory[z80.SP.W + 4] | (memory[z80.SP.W + 5] << 8);
+    uint16_t hlx = memory[z80.SP.W + 6] | (memory[z80.SP.W + 7] << 8);
+    uint16_t dex = memory[z80.SP.W + 8] | (memory[z80.SP.W + 9] << 8);
+    uint16_t bcx = memory[z80.SP.W + 10] | (memory[z80.SP.W + 11] << 8);
+    uint16_t afx = memory[z80.SP.W + 12] | (memory[z80.SP.W + 13] << 8);
+    uint16_t hl = memory[z80.SP.W + 14] | (memory[z80.SP.W + 15] << 8);
+    uint16_t de = memory[z80.SP.W + 16] | (memory[z80.SP.W + 17] << 8);
+    uint16_t bc = memory[z80.SP.W + 18] | (memory[z80.SP.W + 19] << 8);
+    uint16_t af = memory[z80.SP.W + 20] | (memory[z80.SP.W + 21] << 8);
     
     // Z80 will restore everything to correct location and return from the interrupt
     uint16_t next_instruction;
@@ -257,7 +271,35 @@ static void send_registers_nmi()
     register_load_state = NOT_WAITING;
     
     // send registers
-    // TODO...
+    send(af >> 8);
+    send(af & 0xff);
+    send(bc >> 8);
+    send(bc & 0xff);
+    send(de >> 8);
+    send(de & 0xff);
+    send(hl >> 8);
+    send(hl & 0xff);
+    send(afx >> 8);
+    send(afx & 0xff);
+    send(bcx >> 8);
+    send(bcx & 0xff);
+    send(dex >> 8);
+    send(dex & 0xff);
+    send(hlx >> 8);
+    send(hlx & 0xff);
+    send(ix & 0xff);
+    send(ix >> 8);
+    send(iy & 0xff);
+    send(iy >> 8);
+    send(z80.PC.W & 0xff);
+    send(z80.PC.W >> 8);
+    send((register_stack_location + 0x18) & 0xff);
+    send((register_stack_location + 0x18) >> 8);
+    send(ir & 0xff);
+    send(ir >> 8);
+    send(halt);
+    send(last_printed_char);
+    last_printed_char = 0;
 }
 
 //
@@ -395,11 +437,12 @@ void command_loop()
                     send16(chk);
                 }
                 return;
-            case Z_REGISTERS:
-                if (load_registers_native)
-                    send_registers_native();
-                else
-                    send_registers_nmi();
+            case Z_STEP_DEBUG:
+                if (load_registers_native) {
+                    step_debug_native();
+                } else {
+                    step_debug_nmi();
+                }
                 return;
             case Z_STEP:
                 RunZ80(&z80);

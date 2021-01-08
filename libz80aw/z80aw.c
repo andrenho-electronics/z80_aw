@@ -243,9 +243,9 @@ int z80aw_cpu_pc()
     return r < 0 ? 0 : pc;
 }
 
-int z80aw_cpu_registers(Z80AW_Registers* reg)
+int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
 {
-    int resp = zsend_noreply(Z_REGISTERS);
+    int resp = zsend_noreply(Z_STEP_DEBUG);
     if (resp != 0)
         return resp;
     
@@ -253,23 +253,29 @@ int z80aw_cpu_registers(Z80AW_Registers* reg)
     for (size_t i = 0; i < 27; ++i)
         r[i] = zrecv();
     
-    *reg = (Z80AW_Registers) {
-            .AF = (uint16_t) (r[1] | r[0] << 8),
-            .BC = (uint16_t) (r[3] | r[2] << 8),
-            .DE = (uint16_t) (r[5] | r[4] << 8),
-            .HL = (uint16_t) (r[7] | r[6] << 8),
-            .AFx = (uint16_t) (r[9] | r[8] << 8),
-            .BCx = (uint16_t) (r[11] | r[10] << 8),
-            .DEx = (uint16_t) (r[13] | r[12] << 8),
-            .HLx = (uint16_t) (r[15] | r[14] << 8),
-            .IX = (uint16_t) (r[16] | r[17] << 8),
-            .IY = (uint16_t) (r[18] | r[19] << 8),
-            .PC = (uint16_t) (r[20] | r[21] << 8),
-            .SP = (uint16_t) (r[22] | r[23] << 8),
-            .R = r[24],
-            .I = r[25],
-            .HALT = r[26],
-    };
+    uint8_t pchar = zrecv();
+    if (printed_char)
+        *printed_char = pchar;
+    
+    if (reg) {
+        *reg = (Z80AW_Registers) {
+                .AF = (uint16_t) (r[1] | r[0] << 8),
+                .BC = (uint16_t) (r[3] | r[2] << 8),
+                .DE = (uint16_t) (r[5] | r[4] << 8),
+                .HL = (uint16_t) (r[7] | r[6] << 8),
+                .AFx = (uint16_t) (r[9] | r[8] << 8),
+                .BCx = (uint16_t) (r[11] | r[10] << 8),
+                .DEx = (uint16_t) (r[13] | r[12] << 8),
+                .HLx = (uint16_t) (r[15] | r[14] << 8),
+                .IX = (uint16_t) (r[16] | r[17] << 8),
+                .IY = (uint16_t) (r[18] | r[19] << 8),
+                .PC = (uint16_t) (r[20] | r[21] << 8),
+                .SP = (uint16_t) (r[22] | r[23] << 8),
+                .R = r[24],
+                .I = r[25],
+                .HALT = r[26],
+        };
+    }
     
     z_assert_empty_buffer();
     return 0;

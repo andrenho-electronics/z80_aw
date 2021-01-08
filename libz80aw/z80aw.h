@@ -76,7 +76,7 @@ int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz
 
 int z80aw_cpu_reset();
 int z80aw_cpu_pc();
-int z80aw_cpu_registers(Z80AW_Registers* reg);
+int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char);
 int z80aw_cpu_step(uint8_t* printed_char);
 int z80aw_cpu_cycle();
 

@@ -355,7 +355,8 @@ int main(int argc, char* argv[])
     Z80AW_Registers r;
     for (int i = 0; i < 32; ++i)
         z80aw_cpu_step(NULL);
-    ASSERT("Retrieving registers", z80aw_cpu_registers(&r) == 0);
+    uint16_t original_pc = z80aw_cpu_pc();
+    ASSERT("Execute step debug", z80aw_cpu_step_debug(&r, NULL) == 0);
     ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
     ASSERT("BC' == 0xBC", r.BCx == 0xbc);
     ASSERT("HL == 0xHL", r.HL == 0x41);
@@ -365,6 +366,8 @@ int main(int argc, char* argv[])
     ASSERT("IY == 0x9F", r.IY == 0x9f);
     ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
     ASSERT("HALT == true", r.HALT);
+    uint16_t new_pc = z80aw_cpu_pc();
+    ASSERT("Returned to the next PC", new_pc == original_pc + 1);
     
     //
     // finalize

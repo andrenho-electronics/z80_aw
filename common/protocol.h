@@ -9,7 +9,7 @@
 #define Z_WRITE_BLOCK       0xe3   // [Aa] [Ab] [Sa] [Sb] [bytes...] -> [Ca] [Cb]  (A = address, S = size, C = checksum)
 #define Z_READ_BLOCK        0xe4   // [Aa] [Ab] [Sa] [Sb] -> [bytes...]
 #define Z_RESET             0xe5   //  -> Z_OK
-#define Z_REGISTERS         0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
+#define Z_STEP_DEBUG        0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT] [printed char]
 #define Z_STEP              0xe7   //  -> [printed char]
 #define Z_KEYPRESS          0xe8   // [Key] -> Z_OK
 #define Z_ADD_BKP           0xe9   // [Aa] [Ab] -> Z_OK / Z_TOO_MANY_BKPS
