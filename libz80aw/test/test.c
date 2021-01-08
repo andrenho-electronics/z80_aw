@@ -29,6 +29,7 @@ typedef struct {
     HardwareType hardware_type;
     const char*  serial_port;
     bool         log_to_stdout;
+    bool         z80_registers;
 } Config;
 
 Config initialize(int argc, char* argv[])
@@ -36,7 +37,7 @@ Config initialize(int argc, char* argv[])
     Config config = { .hardware_type = EMULATOR };
     
     int opt;
-    while ((opt = getopt(argc, argv, "hr:l")) != -1) {
+    while ((opt = getopt(argc, argv, "hzr:l")) != -1) {
         switch (opt) {
             case 'l':
                 config.log_to_stdout = true;
@@ -45,9 +46,13 @@ Config initialize(int argc, char* argv[])
                 config.hardware_type = REALHARDWARE;
                 config.serial_port = optarg;
                 break;
+            case 'z':
+                config.z80_registers = true;
+                break;
             default:
                 printf("Usage: %s [-r PORT]\n", argv[0]);
                 printf("     -r      Run on real hardware, where PORT is the serial port (ex. /dev/ttyUSB0)\n");
+                printf("     -z      When using emulator, use Z80 logic to retrieve registers, instead of emulator native interface\n");
                 printf("     -l      Log bytes to stdout\n");
                 exit(EXIT_FAILURE);
         }
@@ -62,7 +67,7 @@ int main(int argc, char* argv[])
     Config config = initialize(argc, argv);
     
     if (config.hardware_type == EMULATOR) {
-        if (z80aw_initialize_emulator("../emulator", serial_port, sizeof serial_port) != 0) {
+        if (z80aw_initialize_emulator("../emulator", serial_port, sizeof serial_port, config.z80_registers) != 0) {
             fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
             exit(1);
         }

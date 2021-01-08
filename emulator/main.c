@@ -43,7 +43,7 @@ bool     load_registers_native = true;
 void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hlrp:")) != -1) {
+    while ((opt = getopt(argc, argv, "hlzp:")) != -1) {
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
@@ -52,13 +52,13 @@ void get_options(int argc, char* argv[])
             case 'l':
                 log_to_stdout = true;
                 break;
-            case 'r':
+            case 'z':
                 load_registers_native = false;
                 break;
             case 'h':
                 printf("Usage: %s [-p PID] [-l]\n", argv[0]);
                 printf("     -p      Parent pid. Use this when started by another process.\n");
-                printf("     -r      When used, will fire a NMI on Z80 to load registers. Otherwise, use emulator native interface.\n");
+                printf("     -z      When used, will fire a NMI on Z80 to load registers. Otherwise, use emulator native interface.\n");
                 printf("     -l      Log bytes to stdout\n");
                 exit(EXIT_FAILURE);
             default:
@@ -173,7 +173,30 @@ static uint16_t checksum(size_t sz, uint8_t const* data)
     return checksum1 | (checksum2 << 8);
 }
 
-static void send_registers()
+static void send_pins()
+{
+    send(cycle_number);
+    send(cycle_number >> 8);
+    send(cycle_number >> 16);
+    send(cycle_number >> 24);
+    
+    // address
+    send(cpu_random_pins);
+    send(cpu_random_pins >> 8);
+    
+    // data
+    send(cpu_random_pins >> 16);
+    
+    // pins
+    send(cpu_random_pins >> 24);
+    send(cpu_random_pins >> 32);
+}
+
+//
+// load registers
+//
+
+static void send_registers_native()
 {
     send(z80.AF.B.h);
     send(z80.AF.B.l);
@@ -204,23 +227,8 @@ static void send_registers()
     send((z80.IFF & IFF_HALT) ? 1 : 0);
 }
 
-static void send_pins()
+static void send_registers_nmi()
 {
-    send(cycle_number);
-    send(cycle_number >> 8);
-    send(cycle_number >> 16);
-    send(cycle_number >> 24);
-    
-    // address
-    send(cpu_random_pins);
-    send(cpu_random_pins >> 8);
-    
-    // data
-    send(cpu_random_pins >> 16);
-    
-    // pins
-    send(cpu_random_pins >> 24);
-    send(cpu_random_pins >> 32);
 }
 
 //
@@ -349,7 +357,10 @@ void command_loop()
                 }
                 return;
             case Z_REGISTERS:
-                send_registers();
+                if (load_registers_native)
+                    send_registers_native();
+                else
+                    send_registers_nmi();
                 return;
             case Z_STEP:
                 RunZ80(&z80);

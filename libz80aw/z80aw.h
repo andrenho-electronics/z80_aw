@@ -55,7 +55,7 @@ typedef struct {
 #define MAX_BLOCK_SIZE 512
 #define UPLOAD_CHECKSUM_LOCATION 0x7ffe
 
-int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz);
+int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers);
 
 void z80aw_init(Z80AW_Config* cfg);
 void z80aw_close();
