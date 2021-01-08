@@ -1,0 +1,47 @@
+debugger_registers:
+	; push register into the stack
+	push	af		; AF
+	push	bc		; BC
+	push	de		; DE
+	push	hl		; HL
+	ex	af, af'		; exchange for second set of registers
+	exx
+	push	af		; AF'
+	push	bc		; BC'
+	push	de		; DE'
+	push	hl		; HL'
+	push	ix		; IX
+	push	iy		; IY
+	ld	a, i		; makes BC' = I, R (A, B & C are lost)
+	ld	b, a
+	ld	a, r
+	ld	c, a
+	push	bc		; IR
+	
+	; call controller, passing SP
+	ld	hl, 0
+	add	hl, sp		; load SP
+	ld	c, 3		; 3 -> higher nibble of SP
+	out	(c), h
+	inc	c		; 4 -> lower nibble of SP
+	out	(c), l
+
+	; restore registers and stack
+	pop	af		; discard IR
+	pop	iy		; IY
+	pop	ix		; IX
+	pop	hl		; HL'
+	pop	de		; DE'
+	pop	bc		; BC'
+	pop	af		; AF'
+	ex	af, af'		; exchange for first set of registers
+	exx
+	pop	hl		; HL
+	pop	de		; DE
+	pop	bc		; BC
+	pop	af		; AF
+
+	ret
+	
+
+; vim: set ts=8 sts=8 sw=8 noexpandtab:
