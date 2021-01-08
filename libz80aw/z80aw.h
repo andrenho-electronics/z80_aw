@@ -70,7 +70,7 @@ int z80aw_read_block(uint16_t addr, uint16_t sz, uint8_t* data);
 
 uint16_t z80aw_checksum(size_t sz, uint8_t const* data);
 
-int  z80aw_upload_compiled(DebugInformation const* di);
+int  z80aw_upload_compiled(DebugInformation const* di, void (*upload_callback)(void* data, float perc), void* data);
 bool z80aw_is_uploaded(DebugInformation const* di);
 int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz);
 

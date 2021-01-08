@@ -150,24 +150,33 @@ uint16_t z80aw_checksum(size_t sz, uint8_t const* data)
     return checksum1 | (checksum2 << 8);
 }
 
-int z80aw_upload_compiled(DebugInformation const* di)
+int z80aw_upload_compiled(DebugInformation const* di, void (*upload_callback)(void* data, float perc), void* data)
 {
+    if (upload_callback)
+        upload_callback(data, 0.f);
+    
     // write data
     size_t i = 0;
     for (Binary const* bin = debug_binary(di, i); bin; bin = debug_binary(di, ++i)) {
         int r = z80aw_write_block(bin->addr, bin->sz, bin->data);
         if (r != 0)
             return r;
+        if (upload_callback)
+            upload_callback(data, (float) i / (float) debug_binary_count(di));
     }
     z_assert_empty_buffer();
     
     // write checksum
+    if (upload_callback)
+        upload_callback(data, 0.99f);
     uint16_t chk = debug_binary_checksum(di);
-    uint8_t data[] = { chk & 0xff, chk >> 8 };
-    int r = z80aw_write_block(UPLOAD_CHECKSUM_LOCATION, 2, data);
+    uint8_t bdata[] = { chk & 0xff, chk >> 8 };
+    int r = z80aw_write_block(UPLOAD_CHECKSUM_LOCATION, 2, bdata);
     if (r != 0)
         return r;
     z_assert_empty_buffer();
+    if (upload_callback)
+        upload_callback(data, 1.f);
     
     // reset
     z80aw_remove_all_breakpoints();
@@ -217,7 +226,7 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
         return -1;
     }
     bool success = debug_output(di, err_buf, err_buf_sz);
-    z80aw_upload_compiled(di);
+    z80aw_upload_compiled(di, NULL, NULL);
     z_assert_empty_buffer();
     debug_free(di);
     

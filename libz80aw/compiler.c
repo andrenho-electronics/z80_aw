@@ -89,6 +89,11 @@ Binary const* debug_binary(DebugInformation const* di, size_t i)
     return &di->binary[i];
 }
 
+size_t debug_binary_count(DebugInformation const* di)
+{
+    return di->n_binary;
+}
+
 uint16_t debug_binary_checksum(DebugInformation const* di)
 {
     return di->checksum1 | (di->checksum2 << 8);

@@ -152,7 +152,7 @@ int main(int argc, char* argv[])
     
     // upload compiled code
     ASSERT("Check checksum (not uploaded)", !z80aw_is_uploaded(di));
-    ASSERT("Upload successful", z80aw_upload_compiled(di) == 0);
+    ASSERT("Upload successful", z80aw_upload_compiled(di, NULL, NULL) == 0);
     z80aw_read_block(0x0, debug_binary(di, 0)->sz, rblock);
     ASSERT("Test block 1 upload", memcmp(rblock, debug_binary(di, 0)->data, debug_binary(di, 0)->sz) == 0);
     ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
