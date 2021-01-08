@@ -34,6 +34,7 @@ uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
+bool     load_registers_native = true;
 
 //
 // command line options
@@ -42,7 +43,7 @@ bool     log_to_stdout = false;
 void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hlp:")) != -1) {
+    while ((opt = getopt(argc, argv, "hlrp:")) != -1) {
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
@@ -51,9 +52,13 @@ void get_options(int argc, char* argv[])
             case 'l':
                 log_to_stdout = true;
                 break;
+            case 'r':
+                load_registers_native = false;
+                break;
             case 'h':
                 printf("Usage: %s [-p PID] [-l]\n", argv[0]);
                 printf("     -p      Parent pid. Use this when started by another process.\n");
+                printf("     -r      When used, will fire a NMI on Z80 to load registers. Otherwise, use emulator native interface.\n");
                 printf("     -l      Log bytes to stdout\n");
                 exit(EXIT_FAILURE);
             default:

@@ -41,7 +41,7 @@ debugger_registers:
 	pop	bc		; BC
 	pop	af		; AF
 
-	ret
+	reti
 	
 
 ; vim: set ts=8 sts=8 sw=8 noexpandtab:

@@ -321,7 +321,46 @@ int main(int argc, char* argv[])
     // load registers from Z80 code
     //
     
+    FILE* f = fopen("test/registers.z80", "r");
+    ASSERT("Open register asm file", f);
+    char reg_buf[8 * 1024];
+    fread(reg_buf, sizeof reg_buf, 1, f);
+    fclose(f);
     
+    char code_buf[16 * 1024];
+    snprintf(code_buf, sizeof code_buf,
+             "  ld   sp, 0xfffe         \n"
+             "  jp   main               \n"
+             "  org  0x38               \n"
+             "  jp   debugger_registers \n"
+             "main:                     \n"
+             "  ld   a, 0xa             \n"
+             "  ld   bc, 0xbc           \n"
+             "  ex   af, af'            \n"
+             "  exx                     \n"
+             "  ld   hl, 0x41           \n"
+             "  ld   a, 0x1             \n"
+             "  ld   i, a               \n"
+             "  ld   de, 0xde           \n"
+             "  ld   iy, 0x9f           \n"
+             "  halt                    \n"
+             "%s", reg_buf);
+    printf("%s\n", code_buf);
+    COMPILE(code_buf);
+    
+    Z80AW_Registers r;
+    for (int i = 0; i < 32; ++i)
+        z80aw_cpu_step(NULL);
+    ASSERT("Retrieving registers", z80aw_cpu_registers(&r) == 0);
+    ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
+    ASSERT("BC' == 0xBC", r.BCx == 0xbc);
+    ASSERT("HL == 0xHL", r.HL == 0x41);
+    ASSERT("A == 0x1", (r.AF >> 8) == 0x1);
+    ASSERT("I == 0x1", r.I == 0x1);
+    ASSERT("DE == 0xDE", r.DE == 0xde);
+    ASSERT("IY == 0x9F", r.IY == 0x9f);
+    ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
+    ASSERT("HALT == true", r.HALT);
     
     //
     // finalize
