@@ -1,7 +1,7 @@
 #ifndef DBG_H_
 #define DBG_H_
 
-void debugger_cycle();
+void dbg_exec();
 
 #endif
 

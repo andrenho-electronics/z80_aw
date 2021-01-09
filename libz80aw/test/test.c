@@ -86,8 +86,6 @@ int main(int argc, char* argv[])
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 
-#ifdef TEST_MEMORY
-
     //
     // generic commands
     //
@@ -113,6 +111,7 @@ int main(int argc, char* argv[])
     printf("Free memory in controller: %d bytes.\n", fr);
     ASSERT("Controller info - free memory", fr > 10);
     
+#if 0
     //
     // memory
     //
@@ -187,14 +186,10 @@ int main(int argc, char* argv[])
     ASSERT("Simple compilation with error", resp != 0);
     ASSERT("Compiler error message", strlen(errbuf) > 5);
 
-#endif
-    
     //
     // CPU operations
     //
     
-#if TEST_CPU
-
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
 
@@ -253,7 +248,6 @@ int main(int argc, char* argv[])
     for (size_t i = 0; i < 6; ++i)
         z80aw_cpu_step(NULL);
     ASSERT("Keyboard interrupt was received", z80aw_read_byte(0x8400) == 'k');
-#if 0
     
     //
     // breakpoint setting
@@ -408,7 +402,6 @@ int main(int argc, char* argv[])
     
     debug_free(di);
 
-#endif
 #endif
 
     z80aw_close();
