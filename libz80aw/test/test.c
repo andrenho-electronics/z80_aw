@@ -218,7 +218,6 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(NULL);
     ASSERT("[0x300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
     
-#if 0
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
     uint8_t c;
@@ -228,6 +227,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(&c);
     ASSERT("Print char is cleared", c == 0);
     
+#if 0
     // receive keypress
     COMPILE(" in a, (0x1)\n ld (0x8500), a");   // device 0x1 = keyboard
     z80aw_keypress('6');
