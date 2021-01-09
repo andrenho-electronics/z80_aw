@@ -2,6 +2,7 @@
 #include <avr/io.h>
 
 #include "dbg.h"
+#include "io.h"
 #include "serial.h"
 
 typedef enum {
@@ -12,6 +13,8 @@ static Event next_event = E_NO_EVENT;
 
 int main()
 {
+    io_init();
+
     // setup RX interrupt
     serial_init();
     UCSRB |= (1 << RXEN) | (1 << RXCIE);

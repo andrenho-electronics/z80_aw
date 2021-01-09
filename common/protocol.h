@@ -34,5 +34,6 @@
 #define Z_TOO_MANY_BKPS     0xd3
 #define Z_PRINT_CHAR        0xd4   // [char]
 #define Z_BKP_REACHED       0xd5
+#define Z_INCORRECT_BUS     0xd6
 
 #endif //LIBZ80AW_PROTOCOL_H
