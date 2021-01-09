@@ -58,6 +58,10 @@ void dbg_exec()
                 serial_send(printed_char);
             }
             break;
+        case Z_KEYPRESS:
+            z80_keypress(serial_recv());
+            serial_send(Z_OK);
+            break;
         default:
             serial_send(Z_INVALID_CMD);
             break;

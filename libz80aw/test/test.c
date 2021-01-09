@@ -227,12 +227,14 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(&c);
     ASSERT("Print char is cleared", c == 0);
     
-#if 0
     // receive keypress
-    COMPILE(" in a, (0x1)\n ld (0x8500), a");   // device 0x1 = keyboard
-    z80aw_keypress('6');
+    COMPILE(" nop\n in a, (0x1)\n ld (0x8500), a\n nop");   // device 0x1 = keyboard
+    z80aw_keypress('r');
     z80aw_cpu_step(NULL);
-    ASSERT("Receive keypress", z80aw_read_byte(0x8500) == '6');
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL);
+    ASSERT("Receive keypress", z80aw_read_byte(0x8500) == 'r');
     
     // keypress interrupt
     COMPILE(" jp main\n"
@@ -244,12 +246,14 @@ int main(int argc, char* argv[])
             " im 0    \n"
             " ei      \n"
             "cc: jp cc");
-    for (size_t i = 0; i < 16; ++i)
+    printf("\nRunning...\n");  // TODO
+    for (size_t i = 0; i < 6; ++i)
         z80aw_cpu_step(NULL);
     z80aw_keypress('k');
-    for (size_t i = 0; i < 16; ++i)
+    for (size_t i = 0; i < 6; ++i)
         z80aw_cpu_step(NULL);
     ASSERT("Keyboard interrupt was received", z80aw_read_byte(0x8400) == 'k');
+#if 0
     
     //
     // breakpoint setting

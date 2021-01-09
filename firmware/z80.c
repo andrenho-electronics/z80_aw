@@ -11,7 +11,14 @@ Status   z80_last_status;
 uint16_t z80_last_pc = 0;
 
 static uint8_t  last_key_pressed = 0;
+static uint8_t  last_printed_char = 0;
 static uint16_t z80_cycle_number = 0;
+
+typedef struct {
+    bool    fired;
+    uint8_t command;
+} Interrupt;
+Interrupt interrupt = { .fired = false, .command = 0 };
 
 static void z80_clock();
 
@@ -52,40 +59,26 @@ bool z80_controls_bus()
 
 static void z80_iorq_requested()
 {
+    if (get_MREQ() == 1 && get_RD() == 1) {  // it's IORQ from an interrupt
+        memory_set_data(interrupt.command);
+        z80_clock();
+        interrupt.fired = false;
+    }
+
     uint16_t addr = memory_read_addr();
+    uint8_t data = memory_read_data();
     if ((addr & 0xff) == 0x00) {   // video device
-        /*
-        uint8_t data = addr >> 8;
-        serial_printstr(PSTR("Char "));
-        serial_printhex8(data);
-        if (data >= 32 && data < 127) {
-            serial_send(' ');
-            serial_send('\'');
-            serial_send(data);
-            serial_send('\'');
-        }
-        serial_printstr(PSTR(" was sent to the display.\r\n"));
-        */
+        last_printed_char = data;
     } else if ((addr & 0xff) == 0x01) {  // last keyboard press
-        /*
-        serial_printstr(PSTR("Last pressed key requested ("));
-        serial_printhex8(last_key_pressed);
-        serial_printstr(PSTR(").\r\n"));
-        */
         memory_set_data(last_key_pressed);
         z80_clock();
         z80_last_status.data_bus = last_key_pressed;
-    } else {
-        /*
-        serial_printstr(PSTR("IORQ requested by device "));
-        serial_printhex8(addr & 0xff);
-        serial_puts();
-        */
     }
 }
 
 static void z80_clock()
 {
+    set_INT(!interrupt.fired);
     set_ZCLK(1);
     wait();
     set_ZCLK(0);
@@ -128,14 +121,15 @@ void z80_init()
 
     set_ZRST(1);
     wait();
-    // z80_clock_cycle(false);
     z80_step();
 }
 
 void z80_keypress(uint8_t key)
 {
     last_key_pressed = key;
+    interrupt = (Interrupt) { .fired = true, .command = 0xcf };
 
+    /*
     bus_mc_release();
 
     // fire interrupt
@@ -143,7 +137,6 @@ void z80_keypress(uint8_t key)
     set_BUSREQ(1);
     for (int i = 0; i < 15; ++i) {
         z80_clock();
-        /* repl_status(); */
         if (get_IORQ() == 0)
             goto z80_response;
     }
@@ -153,15 +146,12 @@ void z80_keypress(uint8_t key)
 z80_response:
     set_INT(1);
 
-    serial_send('-');
-    // serial_puts();
-
     do {
         memory_set_data(0xcf);
         z80_clock();
         z80_last_status.data_bus = 0xcf;
-        // repl_status();
     } while (get_IORQ() == 0);
+    */
 }
 
 uint8_t z80_step()
@@ -182,7 +172,9 @@ uint8_t z80_step()
         busack = get_BUSACK();
     }
 
-    return 0;  // TODO - last printed char
+    uint8_t c = last_printed_char;
+    last_printed_char = 0;
+    return c;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
