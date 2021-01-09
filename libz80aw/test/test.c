@@ -86,7 +86,8 @@ int main(int argc, char* argv[])
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 
-    
+#ifdef TEST_MEMORY
+
     //
     // generic commands
     //
@@ -124,6 +125,8 @@ int main(int argc, char* argv[])
     
     for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
         block[i] = (i + 1) & 0xff;
+    if (config.hardware_type == REALHARDWARE)
+        printf("(please wait around 5 seconds...)\n");
     ASSERT("Write block", z80aw_write_block(0x100, MAX_BLOCK_SIZE, block) == 0);
     ASSERT("Read block", z80aw_read_block(0x100, MAX_BLOCK_SIZE, rblock) == 0);
     ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
@@ -152,6 +155,10 @@ int main(int argc, char* argv[])
         }
     }
     debug_free(di_error);
+
+    // clear checksum
+    uint8_t cc[2] = { 0, 0 };
+    ASSERT("Clear checksum", z80aw_write_block(UPLOAD_CHECKSUM_LOCATION, 2, cc) == 0);
     
     // upload compiled code
     ASSERT("Check checksum (not uploaded)", !z80aw_is_uploaded(di));
@@ -159,6 +166,7 @@ int main(int argc, char* argv[])
     z80aw_read_block(0x0, debug_binary(di, 0)->sz, rblock);
     ASSERT("Test block 1 upload", memcmp(rblock, debug_binary(di, 0)->data, debug_binary(di, 0)->sz) == 0);
     ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
+    z80aw_cpu_powerdown();
     ASSERT("Check checksum (uploaded)", z80aw_is_uploaded(di));
     
     // simple compilation
@@ -168,6 +176,7 @@ int main(int argc, char* argv[])
     {
         uint8_t expected[] = { 0xc3, 0xc3, 0xc3, 0xcf };
         uint8_t found[4];
+        z80aw_cpu_powerdown();
         z80aw_read_block(0x0, sizeof found, found);
         ASSERT("Compare blocks", memcmp(expected, found, sizeof found) == 0);
     }
@@ -177,18 +186,29 @@ int main(int argc, char* argv[])
         printf("Compiler error output:\n\e[0;33m%s\e[0m\n\n", errbuf);
     ASSERT("Simple compilation with error", resp != 0);
     ASSERT("Compiler error message", strlen(errbuf) > 5);
+
+#endif
     
     //
     // CPU operations
     //
     
-#if 0
+#if TEST_CPU
+
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
+
+    // single nop
+    z80aw_write_byte(0, 0);
+    z80aw_write_byte(1, 0);
+    z80aw_cpu_reset();
+    ASSERT("Step (nop)", z80aw_cpu_step(NULL) == 0);
+    ASSERT("PC == 0x1", z80aw_cpu_pc() == 0x1);
    
     // single step
     uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
     z80aw_write_block(0, sizeof jp, jp);
+    z80aw_cpu_reset();
     ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL) == 0);
     ASSERT("PC == 0xC3C3", z80aw_cpu_pc() == 0xc3c3);
     
@@ -198,6 +218,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(NULL);
     ASSERT("[0x300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
     
+#if 0
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
     uint8_t c;
@@ -383,6 +404,7 @@ int main(int argc, char* argv[])
     
     debug_free(di);
 
+#endif
 #endif
 
     z80aw_close();

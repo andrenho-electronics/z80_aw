@@ -54,8 +54,8 @@ static void z80_iorq_requested()
 {
     uint16_t addr = memory_read_addr();
     if ((addr & 0xff) == 0x00) {   // video device
-        uint8_t data = addr >> 8;
         /*
+        uint8_t data = addr >> 8;
         serial_printstr(PSTR("Char "));
         serial_printhex8(data);
         if (data >= 32 && data < 127) {
@@ -111,6 +111,7 @@ void z80_powerdown()
     set_ZRST(0);
     z80_cycle_number = 0;
     z80_clock_cycle(false);
+    bus_mc_takeover();
 }
 
 void z80_init()
@@ -119,6 +120,7 @@ void z80_init()
 
     set_ZRST(0);
     z80_cycle_number = 0;
+    z80_last_pc = 0;
     wait();
 
     for (int i = 0; i < 50; ++i)
@@ -126,7 +128,8 @@ void z80_init()
 
     set_ZRST(1);
     wait();
-    z80_clock_cycle(false);
+    // z80_clock_cycle(false);
+    z80_step();
 }
 
 void z80_keypress(uint8_t key)
@@ -159,6 +162,27 @@ z80_response:
         z80_last_status.data_bus = 0xcf;
         // repl_status();
     } while (get_IORQ() == 0);
+}
+
+uint8_t z80_step()
+{
+    bool busack = 1, m1 = 1;
+
+    // run cycle until M1
+    while (m1 == 1) {
+        z80_clock_cycle(false);
+        m1 = get_M1();
+    }
+    uint16_t addr = z80_last_status.addr_bus;
+    z80_last_pc = addr;
+
+    // run cycle until BUSACK
+    while (busack == 1) {
+        z80_clock_cycle(true);
+        busack = get_BUSACK();
+    }
+
+    return 0;  // TODO - last printed char
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

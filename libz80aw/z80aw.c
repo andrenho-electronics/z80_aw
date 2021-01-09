@@ -245,6 +245,13 @@ int z80aw_cpu_reset()
     return r;
 }
 
+int z80aw_cpu_powerdown()
+{
+    int r = zsend_expect(Z_POWERDOWN, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
 int z80aw_cpu_pc()
 {
     int r = zsend_noreply(Z_PC);
