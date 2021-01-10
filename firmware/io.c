@@ -66,6 +66,16 @@ void io_init()
     INPUT_PORTS
     IO_PORTS
 #undef P
+
+    // TODO - move some of these to Z80
+    set_OE_595(1);    // ADDR bus in high impedance
+    set_SR_595(0);    // 595 serial waiting to begin transmitting
+    set_SER_CLK(0);   // 165/595 clock wating to begin transmitting
+    set_PL_165(1);    // not load data into 165
+    set_ZCLK(0);      // Z80 clock waiting to begin transmitting
+    set_ZRST(0);      // Z80 start in reset mode (active)
+    set_BUSREQ(1);
+    set_NMI(1);
 }
 
 //
@@ -79,14 +89,19 @@ bool memory_bus_takeover()
 #define P(name, port, pin) set_direction_ ## name(OUT);
     IO_PORTS
 #undef P
+    set_MREQ(1);
+    set_WR(1);
+    set_RD(1);
     return true;
 }
 
 void memory_bus_release()
 {
-#define P(name, port, pin) set_direction_ ## name(OUT);
+#define P(name, port, pin) set_direction_ ## name(IN);
     IO_PORTS
 #undef P
+    set_OE_595(1);    // ADDR bus in high impedance
+    DDRC = 0x0;       // DATA bus in high impedance
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

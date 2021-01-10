@@ -6,8 +6,8 @@
 #define Z_EXIT_EMULATOR     0xe0   //  -> Z_OK
 #define Z_ACK_REQUEST       0xe1   //  -> Z_ACK_RESPONSE
 #define Z_CTRL_INFO         0xe2   //  -> [Fa] [Fb]   (F = free memory)
-#define Z_WRITE_BLOCK       0xe3   // [Aa] [Ab] [Sa] [Sb] [bytes...] -> [Ca] [Cb]  (A = address, S = size, C = checksum)
-#define Z_READ_BLOCK        0xe4   // [Aa] [Ab] [Sa] [Sb] -> [bytes...]
+#define Z_WRITE_BLOCK       0xe3   // [Aa] [Ab] [Sa] [Sb] [bytes...] -> [Status] [Ca] [Cb]  (A = address, S = size, C = checksum)
+#define Z_READ_BLOCK        0xe4   // [Aa] [Ab] [Sa] [Sb] -> [Status] [bytes...]
 #define Z_RESET             0xe5   //  -> Z_OK
 #define Z_STEP_DEBUG        0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT] [printed char]
 #define Z_STEP              0xe7   //  -> [printed char]

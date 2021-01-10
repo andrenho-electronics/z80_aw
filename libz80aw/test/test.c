@@ -1,3 +1,4 @@
+#include <time.h>
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -63,6 +64,8 @@ Config initialize(int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+    srand(time(NULL));
+
     char serial_port[128];
     Config config = initialize(argc, argv);
     
@@ -90,6 +93,8 @@ int main(int argc, char* argv[])
     // generic commands
     //
     
+    ASSERT("Basic test", zsend_expect('A', 'a') == 0);
+
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
     ASSERT("Error message", strcmp(z80aw_last_error(), "No error.") != 0);
     
@@ -110,8 +115,13 @@ int main(int argc, char* argv[])
     uint16_t fr = z80aw_controller_info().free_memory;
     printf("Free memory in controller: %d bytes.\n", fr);
     ASSERT("Controller info - free memory", fr > 10);
+
+    // 
+    // power down CPU
+    //
+
+    ASSERT("Power down CPU", z80aw_cpu_powerdown() == 0);
     
-#if 0
     //
     // memory
     //
@@ -119,16 +129,35 @@ int main(int argc, char* argv[])
     uint8_t chk[] = { 0xfa, 0x80, 0x0, 0x79, 0xab };
     ASSERT("Checksum", z80aw_checksum(sizeof chk, chk) == 0x87a0);
     
-    ASSERT("Write byte", z80aw_write_byte(0x8, 0xfa) == 0);
-    ASSERT("Read byte", z80aw_read_byte(0x8) == 0xfa);
+    uint8_t byte = rand();
+    ASSERT("Write byte", z80aw_write_byte(0x8, byte) == 0);
+    ASSERT("Read byte", z80aw_read_byte(0x8) == byte);
     
-    for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
-        block[i] = (i + 1) & 0xff;
-    if (config.hardware_type == REALHARDWARE)
-        printf("(please wait around 5 seconds...)\n");
-    ASSERT("Write block", z80aw_write_block(0x100, MAX_BLOCK_SIZE, block) == 0);
-    ASSERT("Read block", z80aw_read_block(0x100, MAX_BLOCK_SIZE, rblock) == 0);
-    ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
+    for (size_t unit = 0; unit < 2; ++unit) {
+        printf("Memory unit %d\n", unit + 1);
+        for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
+            block[i] = (byte++) & 0xff;
+        printf("Write block\n");
+        int h = z80aw_write_block(0x100 + (unit * 0x8000), MAX_BLOCK_SIZE, block);
+        // ASSERT("Write block", z80aw_write_block(0x100 + (unit * 0x8000), MAX_BLOCK_SIZE, block) == 0);
+        ASSERT("Read block", z80aw_read_block(0x100 + (unit * 0x8000), MAX_BLOCK_SIZE, rblock) == 0);
+        ASSERT("Compare blocks", memcmp(block, rblock, MAX_BLOCK_SIZE) == 0);
+
+        if (h != 0) {
+            printf("There was a check sum error when writing to memory. Here's the data.\n");
+            for (int i = 0; i < MAX_BLOCK_SIZE; i += 0x20) {
+                printf("%04X : ", 0x100 + (unit * 0x8000) + i);
+                printf("W "); for (int j = 0; j < 0x20; ++j) printf("%02X ", block[i + j]); printf("\n");
+                printf("       R "); for (int j = 0; j < 0x20; ++j) printf("%s%02X\e[0m ", block[i + j] != rblock[i + j] ? "\e[0;33m" : "", rblock[i + j]); printf("\n");
+            }
+        }
+    }
+
+    // don't allow accessing memory with CPU powered on and not on BUSACK
+    ASSERT("CPU reset", z80aw_cpu_reset() == 0);
+    ASSERT("Don't allow write byte", z80aw_write_byte(0x8, byte) != 0);
+    ASSERT("Don't allow read byte", z80aw_read_byte(0x8) < 0);
+    z80aw_cpu_powerdown();
     
     //
     // compiler
@@ -194,6 +223,7 @@ int main(int argc, char* argv[])
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
 
     // single nop
+#if 0
     z80aw_write_byte(0, 0);
     z80aw_write_byte(1, 0);
     z80aw_cpu_reset();

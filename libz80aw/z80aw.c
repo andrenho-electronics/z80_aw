@@ -120,7 +120,10 @@ int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
     zsend_noreply(sz >> 8);
     for (uint16_t i = 0; i < sz; ++i)
         zsend_noreply(data[i]);
+    uint8_t status = zrecv();
     uint16_t rchecksum = zrecv16();
+    if (status == Z_INCORRECT_BUS)
+        ERROR("Bus is in an incorrect state when writing to memory.");
     if (checksum != rchecksum)
         ERROR("When writing to memory, received checksum (0x%x) does not match with calculated checksum (0x%x).", rchecksum, checksum);
     z_assert_empty_buffer();
@@ -134,8 +137,11 @@ int z80aw_read_block(uint16_t addr, uint16_t sz, uint8_t* data)
     zsend_noreply(addr >> 8);
     zsend_noreply(sz & 0xff);
     zsend_noreply(sz >> 8);
+    uint8_t status = zrecv();
     for (uint16_t i = 0; i < sz; ++i)
         data[i] = zrecv();
+    if (status == Z_INCORRECT_BUS)
+        ERROR("Bus is in an incorrect state when reading from memory.");
     z_assert_empty_buffer();
     return 0;
 }
@@ -152,6 +158,8 @@ uint16_t z80aw_checksum(size_t sz, uint8_t const* data)
 
 int z80aw_upload_compiled(DebugInformation const* di, void (*upload_callback)(void* data, float perc), void* data)
 {
+    z80aw_cpu_powerdown();
+
     if (upload_callback)
         upload_callback(data, 0.f);
     
@@ -180,7 +188,7 @@ int z80aw_upload_compiled(DebugInformation const* di, void (*upload_callback)(vo
     
     // reset
     z80aw_remove_all_breakpoints();
-    z80aw_cpu_reset();
+    // z80aw_cpu_reset();
     z_assert_empty_buffer();
     
     return 0;

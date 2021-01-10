@@ -31,7 +31,9 @@ int main()
             case E_NO_EVENT:
                 break;
             case E_SERIAL_IN:
+                cli();
                 debugger_cycle();
+                sei();
                 break;
         }
         next_event = E_NO_EVENT;
