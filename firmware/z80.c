@@ -7,7 +7,7 @@
 #include "wait.h"
 
 static uint16_t pc = 0;
-static uint8_t last_printed_char = 0;
+extern uint8_t last_printed_char;
 
 uint16_t z80_pc()
 {

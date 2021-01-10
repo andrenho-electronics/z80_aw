@@ -11,6 +11,9 @@ void     serial_send16(uint16_t word);
 uint8_t  serial_recv();
 uint16_t serial_recv16();
 
+void     serial_ei();    // enable interrupt
+void     serial_di();    // disable interrupt
+
 #endif
 
 // vim:ts=4:sts=4:sw=4:expandtab

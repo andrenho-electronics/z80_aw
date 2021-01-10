@@ -14,6 +14,8 @@ void serial_init()
     // set config
     UCSRC = (1<<URSEL) | (1<<UCSZ1) | (1<<UCSZ0);   // Async-mode 
     UCSRB = (1<<RXEN) | (1<<TXEN);     // Enable Receiver and Transmitter
+
+    serial_ei();
 }
 
 void
@@ -42,6 +44,17 @@ uint16_t serial_recv16()
     uint16_t r = serial_recv();
     r |= ((uint16_t) serial_recv()) << 8;
     return r;
+}
+
+void serial_ei()
+{
+    UCSRB |= (1 << RXEN) | (1 << RXCIE);
+}
+
+void serial_di()
+{
+    UCSRB &= ~(1 << RXEN);
+    UCSRB &= ~(1 << RXCIE);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
