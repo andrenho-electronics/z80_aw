@@ -14,7 +14,7 @@
 
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
-    if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31m❌\e[0m\n"); exit(1); }
+    if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31mX\e[0m\n"); exit(1); }
 
 #define COMPILE(code) {                                                                  \
     char errbuf_[4096] = "";                                                             \
@@ -89,6 +89,7 @@ int main(int argc, char* argv[])
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 
+#if 0
     //
     // generic commands
     //
@@ -214,6 +215,7 @@ int main(int argc, char* argv[])
         printf("Compiler error output:\n\e[0;33m%s\e[0m\n\n", errbuf);
     ASSERT("Simple compilation with error", resp != 0);
     ASSERT("Compiler error message", strlen(errbuf) > 5);
+#endif
 
     //
     // CPU operations
@@ -223,7 +225,7 @@ int main(int argc, char* argv[])
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
 
     // single nop
-#if 0
+    z80aw_cpu_powerdown();
     z80aw_write_byte(0, 0);
     z80aw_write_byte(1, 0);
     z80aw_cpu_reset();
@@ -232,6 +234,7 @@ int main(int argc, char* argv[])
    
     // single step
     uint8_t jp[] = { 0xc3, 0xc3, 0xc3 };
+    z80aw_cpu_powerdown();
     z80aw_write_block(0, sizeof jp, jp);
     z80aw_cpu_reset();
     ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL) == 0);
@@ -239,6 +242,7 @@ int main(int argc, char* argv[])
     
     // compile and execute step
     COMPILE(" ld a, 0x42\n ld (0x8300), a");
+    z80aw_cpu_reset();
     ASSERT("Step [0x300] = 0x42", z80aw_cpu_step(NULL) == 0);
     z80aw_cpu_step(NULL);
     ASSERT("[0x300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
@@ -246,12 +250,14 @@ int main(int argc, char* argv[])
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
     uint8_t c;
+    z80aw_cpu_reset();
     z80aw_cpu_step(NULL);
     z80aw_cpu_step(&c);
     ASSERT("Char printed = 'H'", c == 'H');
     z80aw_cpu_step(&c);
     ASSERT("Print char is cleared", c == 0);
     
+#if 0
     // receive keypress
     COMPILE(" nop\n in a, (0x1)\n ld (0x8500), a\n nop");   // device 0x1 = keyboard
     z80aw_keypress('r');

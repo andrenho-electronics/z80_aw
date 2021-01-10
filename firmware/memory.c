@@ -1,5 +1,6 @@
 #include "memory.h"
 
+#include <limits.h>
 #include <avr/io.h>
 #include <util/delay.h>
 
@@ -102,16 +103,16 @@ static void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
             PORTC = 0;
             DDRC = 0;   // setup DATA bus for reading
 
-            for (;;) {
+            for (size_t i = 0; i < SIZE_MAX - 1; ++i) {
                 set_RD(0);
                 set_MREQ(0);
                 uint8_t new_data = memory_read_data();
                 if (new_data == data)
-                    break;
+                    return;
                 set_MREQ(1);
                 set_RD(1);
             }
-            // _delay_ms(10);
+            _delay_ms(50);  // if still no match, wait a coniderable time
         }
     }
 }

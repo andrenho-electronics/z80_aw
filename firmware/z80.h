@@ -5,8 +5,9 @@
 
 uint16_t z80_pc();
 
-void z80_powerdown();
-void z80_reset();
+void    z80_powerdown();
+void    z80_reset();
+uint8_t z80_step();
 
 #endif
 

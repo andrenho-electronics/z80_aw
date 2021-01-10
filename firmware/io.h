@@ -14,7 +14,6 @@ void memory_bus_release();
     P(PL_165, B, 1)     \
     P(SR_595, B, 2)     \
     P(ZCLK,   B, 3)     \
-    P(IORQ,   D, 2)     \
     P(ZRST,   D, 5)     \
     P(SER_CLK,D, 7)     \
     P(WAIT,   A, 4)     \
@@ -28,6 +27,7 @@ void memory_bus_release();
     P(M1,     D, 4)     \
     P(X1,     D, 6)     \
     P(BUSACK, D, 3)     \
+    P(IORQ,   D, 2)     \
     P(HALT,   A, 3)
 
 // ports both read and written by the microcontroller (get_XXX, set_XXX)

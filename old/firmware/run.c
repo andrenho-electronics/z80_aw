@@ -27,7 +27,7 @@ void run()
     MCUCR |= (1 << ISC01);   // on falling edge
     sei();
 
-    serial_putsstr(PSTR("Z80-AW computer initialized.\r\n"));
+    // serial_putsstr(PSTR("Z80-AW computer initialized.\r\n"));
 
     z80_init();  // improve this initialization (?)
 

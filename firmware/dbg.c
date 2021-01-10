@@ -72,6 +72,11 @@ void debugger_cycle()
         case Z_PC:
             serial_send16(z80_pc());
             break;
+        case Z_STEP: {
+                uint8_t printed_char = z80_step();
+                serial_send(printed_char);
+            }
+            break;
 
         //
         // breakpoints

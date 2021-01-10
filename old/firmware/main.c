@@ -11,6 +11,7 @@
 
 int main()
 {
+    /*
     serial_init();
     bus_init();
     z80_init();
@@ -21,9 +22,11 @@ int main()
     serial_printstr(PSTR(ANSI_CLRSCR));
     serial_putsstr(PSTR("Welcome to Z80-AW debugger. Type 'h' for help."));
 #endif
+    */
 
-    for (;;)
-        repl_exec();
+    run();
+    //for (;;)
+    //    repl_exec();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
