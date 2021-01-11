@@ -7,6 +7,8 @@ uint16_t z80_pc();
 
 void    z80_powerdown();
 void    z80_reset();
+void    z80_set_last_keypress(uint8_t k);
+void    z80_interrupt(uint8_t vector);
 uint8_t z80_step();
 
 #endif

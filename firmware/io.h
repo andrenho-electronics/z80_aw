@@ -8,6 +8,9 @@ void io_init();
 bool memory_bus_takeover();
 void memory_bus_release();
 
+void data_bus_takeover();
+void data_bus_release();
+
 // ports only written by the microcontroller (set_XXX)
 #define OUTPUT_PORTS    \
     P(OE_595, B, 0)     \

@@ -257,9 +257,9 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(&c);
     ASSERT("Print char is cleared", c == 0);
     
-#if 0
     // receive keypress
     COMPILE(" nop\n in a, (0x1)\n ld (0x8500), a\n nop");   // device 0x1 = keyboard
+    z80aw_cpu_reset();
     z80aw_keypress('r');
     z80aw_cpu_step(NULL);
     z80aw_cpu_step(NULL);
@@ -277,7 +277,7 @@ int main(int argc, char* argv[])
             " im 0    \n"
             " ei      \n"
             "cc: jp cc");
-    printf("\nRunning...\n");  // TODO
+    z80aw_cpu_reset();
     for (size_t i = 0; i < 6; ++i)
         z80aw_cpu_step(NULL);
     z80aw_keypress('k');
@@ -289,6 +289,7 @@ int main(int argc, char* argv[])
     // breakpoint setting
     //
     
+#if 0
     uint16_t bkps[16];
     ASSERT("Add breakpoint", z80aw_add_breakpoint(0xf00) == 0);
     ASSERT("Querying breakpoints", z80aw_query_breakpoints(bkps, 16) == 1);

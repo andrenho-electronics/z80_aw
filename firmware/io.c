@@ -96,4 +96,14 @@ void memory_bus_release()
     DDRC = 0x0;       // DATA bus in high impedance
 }
 
+void data_bus_takeover()
+{
+    DDRC = 0xff;
+}
+
+void data_bus_release()
+{
+    DDRC = 0;
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab

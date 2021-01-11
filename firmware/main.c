@@ -11,8 +11,6 @@ typedef enum {
 } Event;
 static Event next_event = E_NO_EVENT;
 
-uint8_t last_printed_char = 0;
-
 int main()
 {
     io_init();
@@ -44,20 +42,6 @@ int main()
 ISR(INT0_vect)   // fired on IRQ falling edge
 {
     cli();
-
-    uint16_t addr = memory_read_addr();
-
-    if ((addr & 0xff) == 0x00) {   // video device
-        uint8_t data = addr >> 8;
-        last_printed_char = data;
-        serial_send(0xff);
-    } else if ((addr & 0xff) == 0x01) {   // retrieve last key pressed
-        /*
-        memory_set_data(last_key_pressed);
-        PORTB = CLK_UP;
-        PORTB = CLK_DOWN;
-        */
-    }
 
     sei();
 }
