@@ -30,6 +30,11 @@ uint16_t z80_pc()
     return pc;
 }
 
+uint8_t z80_last_printed_char()
+{
+    return last_printed_char;
+}
+
 inline static void z80_clock()
 {
     set_ZCLK(1);
@@ -40,6 +45,8 @@ static void z80_out(uint16_t addr, uint8_t data)
 {
     if ((addr & 0xff) == 0x0) {     // video OUT (print char)
         last_printed_char = data;
+        if (mode == M_CONTINUE)
+            last_event = E_PRINT_CHAR;
     }
 }
 
@@ -85,6 +92,12 @@ void z80_reset()
 {
     pc = 0;
 
+    set_BUSREQ(1);
+    set_NMI(1);
+    set_WAIT(1);
+    set_INT(1);
+    memory_bus_release();
+
     set_ZRST(0);
 
     for (int i = 0; i < 50; ++i)
@@ -109,7 +122,8 @@ inline static void z80_busreq()
 
 uint8_t z80_step()
 {
-    memory_bus_release();
+    if (mode == M_CONTINUE && last_event != E_NO_EVENT)
+        return 0;  // we wait until the last event is consumed by the client
 
     bool m1 = 1;
 
@@ -134,7 +148,7 @@ uint8_t z80_step()
                 last_event = E_BREAKPOINT_HIT;
                 mode = M_DEBUG;
             }
-            break;
+            return 0;
     }
 
     uint8_t c = last_printed_char;

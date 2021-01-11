@@ -127,6 +127,10 @@ void debugger_cycle()
                 case E_BREAKPOINT_HIT:
                     serial_send(Z_BKP_REACHED);
                     break;
+                case E_PRINT_CHAR:
+                    serial_send(Z_PRINT_CHAR);
+                    serial_send(z80_last_printed_char());
+                    break;
                 default:
                     serial_send(Z_INVALID_CMD);
             }

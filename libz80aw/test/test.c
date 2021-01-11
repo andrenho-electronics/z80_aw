@@ -346,7 +346,6 @@ int main(int argc, char* argv[])
     z80aw_cpu_stop();
     ASSERT("Stop stopped at the correct moment", z80aw_cpu_pc() == 0x11);
     
-#if 0
     z80aw_cpu_continue();
     z80aw_keypress('g');
     usleep(10000);
@@ -359,7 +358,9 @@ int main(int argc, char* argv[])
             " ld a, 'W' \n"
             " out (0), a\n"
             "x: jp x    \n");
+    z80aw_cpu_reset();
     z80aw_cpu_continue();
+    usleep(10000);
     Z80AW_Event e = { .type = Z80AW_NO_EVENT };
     do {
         e = z80aw_last_event();
@@ -375,6 +376,7 @@ int main(int argc, char* argv[])
     } while (e.type != Z80AW_PRINT_CHAR);
     z80aw_cpu_stop();
     
+#if 0
     //
     // run cycles
     //

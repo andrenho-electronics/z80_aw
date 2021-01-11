@@ -3,12 +3,13 @@
 
 #include <stdint.h>
 
-typedef enum { E_NO_EVENT, E_BREAKPOINT_HIT } Z80_Event;
+typedef enum { E_NO_EVENT, E_BREAKPOINT_HIT, E_PRINT_CHAR } Z80_Event;
 typedef enum { M_DEBUG, M_CONTINUE } Z80_Mode;
 
 uint16_t  z80_pc();
 Z80_Event z80_last_event();
 Z80_Mode  z80_mode();
+uint8_t   z80_last_printed_char();
 
 void    z80_powerdown();
 void    z80_reset();
