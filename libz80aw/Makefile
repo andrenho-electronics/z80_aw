@@ -13,7 +13,7 @@ tests: $(TEST_OBJ) $(DLL)
 	$(CC) $^ -o $@
 
 check: tests
-	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z
+	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l
 
 check-real: tests
 	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l -r /dev/ttyUSB0

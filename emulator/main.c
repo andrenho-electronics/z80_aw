@@ -266,7 +266,7 @@ static void step_debug_nmi()
     do {
         RunZ80(&z80);
         next_instruction = (memory[z80.PC.W] << 8) | memory[z80.PC.W + 1];
-    } while (next_instruction != 0xed4d);  /* ED4D = RETI */
+    } while (next_instruction != 0xed45);  /* ED45 = RETI */
     RunZ80(&z80);  // execute RETI, return to original instruction
     register_load_state = NOT_WAITING;
     

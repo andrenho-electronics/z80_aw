@@ -33,6 +33,21 @@ typedef struct {
     bool         z80_registers;
 } Config;
 
+static void dump_memory(uint16_t addr, uint16_t sz)
+{
+    (void) dump_memory;
+    uint8_t* data = malloc(sz);
+    z80aw_read_block(addr, sz, data);
+    printf("\n");
+    for (uint16_t a = 0; a < sz; a += 0x10) {
+        printf("%04X : ", addr + a);
+        for (uint16_t i = 0; i < 0x10; ++i)
+            printf("%02X ", data[a + i]);
+        printf("\n");
+    }
+    free(data);
+}
+
 Config initialize(int argc, char* argv[])
 {
     Config config = { .hardware_type = EMULATOR };
@@ -89,6 +104,7 @@ int main(int argc, char* argv[])
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 
+#if 0
     //
     // generic commands
     //
@@ -198,6 +214,9 @@ int main(int argc, char* argv[])
     ASSERT("Test block 2 upload", z80aw_read_byte(0x10) == 0xcf);
     z80aw_cpu_powerdown();
     ASSERT("Check checksum (uploaded)", z80aw_is_uploaded(di));
+
+    debug_free(di);
+
     
     // simple compilation
     char errbuf[4096] = "";
@@ -373,6 +392,26 @@ int main(int argc, char* argv[])
         }
     } while (e.type != Z80AW_PRINT_CHAR);
     z80aw_cpu_stop();
+#endif
+
+    // 
+    // set and read high memory location
+    //
+    COMPILE(" ld a, 0x78\n ld (0xfe00), a");
+    z80aw_cpu_reset();
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL);
+    ASSERT("High memory working fine", z80aw_read_byte(0xfe00) == 0x78);
+
+    //
+    // test stack
+    //
+    COMPILE(" ld sp, 0xfffe\n ld bc, 0x1234\n push bc");
+    z80aw_cpu_reset();
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL);
+    ASSERT("Stack working fine", z80aw_read_byte(0xfffd) == 0x12);
     
     //
     // load registers from Z80 code
@@ -393,14 +432,18 @@ int main(int argc, char* argv[])
              "main:                     \n"
              "  ld   a, 0xa             \n"
              "  ld   bc, 0xbc           \n"
+             "  ld   de, 0x0            \n"
+             "  ld   hl, 0x0            \n"
              "  ex   af, af'            \n"
              "  exx                     \n"
+             "  ld   bc, 0              \n"
              "  ld   hl, 0x41           \n"
              "  ld   a, 0x1             \n"
              "  ld   i, a               \n"
              "  ld   de, 0xde           \n"
+             "  ld   ix, 0x0            \n"
              "  ld   iy, 0x9f           \n"
-             "  halt                    \n"
+             "cc: jp cc                 \n"
              "%s", reg_buf);
     COMPILE(code_buf);
     z80aw_cpu_reset();
@@ -410,6 +453,8 @@ int main(int argc, char* argv[])
         z80aw_cpu_step(NULL);
     uint16_t original_pc = z80aw_cpu_pc();
     ASSERT("Execute step debug", z80aw_cpu_step_debug(&r, NULL) == 0);
+    dump_memory(0xffe0, 0x20);
+    ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
     ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
     ASSERT("BC' == 0xBC", r.BCx == 0xbc);
     ASSERT("HL == 0xHL", r.HL == 0x41);
@@ -417,7 +462,6 @@ int main(int argc, char* argv[])
     ASSERT("I == 0x1", r.I == 0x1);
     ASSERT("DE == 0xDE", r.DE == 0xde);
     ASSERT("IY == 0x9F", r.IY == 0x9f);
-    ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
     ASSERT("HALT == true", r.HALT);
     uint16_t new_pc = z80aw_cpu_pc();
     if (config.z80_registers) {
@@ -427,11 +471,10 @@ int main(int argc, char* argv[])
     //
     // finalize
     //
-    if (config.hardware_type == EMULATOR)
+    if (config.hardware_type == EMULATOR) {
         ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
+    }
     
-    debug_free(di);
-
     z80aw_close();
 }
 

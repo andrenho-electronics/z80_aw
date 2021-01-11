@@ -9,6 +9,8 @@
 #include "util.h"
 #include "z80.h"
 
+static void send_registers(Z80_Registers const* r);
+
 void debugger_cycle()
 {
     uint8_t data[512] = { 0 };
@@ -84,8 +86,10 @@ void debugger_cycle()
                 serial_send(printed_char);
             }
             break;
-        case Z_STEP_DEBUG:
-            z80_step_debug();
+        case Z_STEP_DEBUG: {
+                z80_step_debug();
+                send_registers(z80_registers_last_update());
+            }
             break;
         case Z_KEYPRESS:
             z80_set_last_keypress(serial_recv());
@@ -160,6 +164,38 @@ void debugger_cycle()
             serial_send(Z_INVALID_CMD);
             break;
     }
+}
+
+static void send_registers(Z80_Registers const* r)
+{
+    serial_send(r->af >> 8);
+    serial_send(r->af & 0xff);
+    serial_send(r->bc >> 8);
+    serial_send(r->bc & 0xff);
+    serial_send(r->de >> 8);
+    serial_send(r->de & 0xff);
+    serial_send(r->hl >> 8);
+    serial_send(r->hl & 0xff);
+    serial_send(r->afx >> 8);
+    serial_send(r->afx & 0xff);
+    serial_send(r->bcx >> 8);
+    serial_send(r->bcx & 0xff);
+    serial_send(r->dex >> 8);
+    serial_send(r->dex & 0xff);
+    serial_send(r->hlx >> 8);
+    serial_send(r->hlx & 0xff);
+    serial_send(r->ix & 0xff);
+    serial_send(r->ix >> 8);
+    serial_send(r->iy & 0xff);
+    serial_send(r->iy >> 8);
+    serial_send(z80_pc() & 0xff);
+    serial_send(z80_pc() >> 8);
+    serial_send(r->sp & 0xff);
+    serial_send(r->sp >> 8);
+    serial_send(r->ir & 0xff);
+    serial_send(r->ir >> 8);
+    serial_send(r->halt);
+    serial_send(0);  // TODO - last printed char
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
