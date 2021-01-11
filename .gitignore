@@ -3,3 +3,6 @@
 *.elf
 *.bin
 *.a
+.*.swo
+emulator/emulator
+*.hex
