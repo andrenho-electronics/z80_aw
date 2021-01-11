@@ -93,7 +93,6 @@ int main(int argc, char* argv[])
     // generic commands
     //
     
-#if 0
     ASSERT("Basic test", zsend_expect('A', 'a') == 0);
 
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
@@ -374,7 +373,6 @@ int main(int argc, char* argv[])
         }
     } while (e.type != Z80AW_PRINT_CHAR);
     z80aw_cpu_stop();
-#endif
     
     //
     // load registers from Z80 code

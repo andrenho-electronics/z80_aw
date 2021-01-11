@@ -10,6 +10,6 @@ $(EXE): $(OBJ)
 
 .PHONY: clean
 clean:
-	rm -f *.o **/*.o $(DLL) tests
+	rm -f *.o **/*.o $(DLL) tests emulator
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:

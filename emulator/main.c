@@ -249,17 +249,17 @@ static void step_debug_nmi()
         RunZ80(&z80);
     
     // load registers
-    uint16_t ir = memory[z80.SP.W] | (memory[z80.SP.W + 1] << 8);
-    uint16_t iy = memory[z80.SP.W + 2] | (memory[z80.SP.W + 3] << 8);
-    uint16_t ix = memory[z80.SP.W + 4] | (memory[z80.SP.W + 5] << 8);
-    uint16_t hlx = memory[z80.SP.W + 6] | (memory[z80.SP.W + 7] << 8);
-    uint16_t dex = memory[z80.SP.W + 8] | (memory[z80.SP.W + 9] << 8);
-    uint16_t bcx = memory[z80.SP.W + 10] | (memory[z80.SP.W + 11] << 8);
-    uint16_t afx = memory[z80.SP.W + 12] | (memory[z80.SP.W + 13] << 8);
-    uint16_t hl = memory[z80.SP.W + 14] | (memory[z80.SP.W + 15] << 8);
-    uint16_t de = memory[z80.SP.W + 16] | (memory[z80.SP.W + 17] << 8);
-    uint16_t bc = memory[z80.SP.W + 18] | (memory[z80.SP.W + 19] << 8);
-    uint16_t af = memory[z80.SP.W + 20] | (memory[z80.SP.W + 21] << 8);
+    uint16_t ir = memory[register_stack_location] | (memory[register_stack_location + 1] << 8);
+    uint16_t iy = memory[register_stack_location + 2] | (memory[register_stack_location + 3] << 8);
+    uint16_t ix = memory[register_stack_location + 4] | (memory[register_stack_location + 5] << 8);
+    uint16_t hlx = memory[register_stack_location + 6] | (memory[register_stack_location + 7] << 8);
+    uint16_t dex = memory[register_stack_location + 8] | (memory[register_stack_location + 9] << 8);
+    uint16_t bcx = memory[register_stack_location + 10] | (memory[register_stack_location + 11] << 8);
+    uint16_t afx = memory[register_stack_location + 12] | (memory[register_stack_location + 13] << 8);
+    uint16_t hl = memory[register_stack_location + 14] | (memory[register_stack_location + 15] << 8);
+    uint16_t de = memory[register_stack_location + 16] | (memory[register_stack_location + 17] << 8);
+    uint16_t bc = memory[register_stack_location + 18] | (memory[register_stack_location + 19] << 8);
+    uint16_t af = memory[register_stack_location + 20] | (memory[register_stack_location + 21] << 8);
     
     // Z80 will restore everything to correct location and return from the interrupt
     uint16_t next_instruction;
@@ -421,9 +421,13 @@ void command_loop()
     //
     if (!continue_mode) {
         switch (c) {
+            case 'A':
+                send('a');
+                return;
             case Z_READ_BLOCK: {
                     uint16_t addr = recv16();
                     uint16_t sz = recv16();
+                    send(Z_OK);
                     for (size_t i = 0; i < sz; ++i)
                         send(memory[i + addr]);
                 }
@@ -431,8 +435,9 @@ void command_loop()
             case Z_WRITE_BLOCK: {
                     uint16_t addr = recv16();
                     uint16_t sz = recv16();
+                    send(Z_OK);
                     for (size_t i = 0; i < sz; ++i)
-                        memory[i + addr] = recv();
+                            memory[i + addr] = recv();
                     uint16_t chk = checksum(sz, &memory[addr]);
                     send16(chk);
                 }
@@ -512,6 +517,8 @@ void command_loop()
             break;
         case Z_LAST_EVENT:
             send(last_event);
+            if (last_event == Z_OK)
+                send16(z80.PC.W);
             if (last_event == Z_PRINT_CHAR)
                 send(last_printed_char);
             last_event = Z_OK;
@@ -522,6 +529,9 @@ void command_loop()
             break;
         case Z_PC:
             send16(z80.PC.W);
+            break;
+        case Z_POWERDOWN:
+            send(Z_OK);
             break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
