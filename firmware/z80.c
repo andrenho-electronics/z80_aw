@@ -14,6 +14,12 @@ static Z80_Event last_event = E_NO_EVENT;
 static Z80_Mode  mode = M_DEBUG;
 static uint32_t  cycle_number = 0;
 
+static inline void z80_clock();
+
+// 
+// GETTERS/SETTERS
+//
+
 Z80_Event z80_last_event()
 {
     Z80_Event e = last_event;
@@ -36,12 +42,14 @@ uint8_t z80_last_printed_char()
     return last_printed_char;
 }
 
-static inline void z80_clock()
+void z80_set_last_keypress(uint8_t k)
 {
-    set_ZCLK(1);
-    set_ZCLK(0);
-    ++cycle_number;
+    last_keypress = k;
 }
+
+//
+// I/O REQUEST, INTERRUPTS
+//
 
 static void z80_out(uint16_t addr, uint8_t data)
 {
@@ -84,6 +92,19 @@ inline static void z80_check_iorq()
     }
 }
 
+void z80_interrupt(uint8_t vector)
+{
+    set_INT(0);
+    last_interrupt = vector;
+    z80_clock();
+    z80_check_iorq();
+}
+
+
+//
+// POWER
+//
+
 void z80_powerdown()
 {
     set_ZRST(0);
@@ -108,6 +129,17 @@ void z80_reset()
 
     set_ZRST(1);
     z80_step();
+}
+
+//
+// STEP
+//
+
+static inline void z80_clock()
+{
+    set_ZCLK(1);
+    set_ZCLK(0);
+    ++cycle_number;
 }
 
 inline static void z80_busreq()
@@ -159,6 +191,21 @@ uint8_t z80_step()
     return c;
 }
 
+void z80_step_debug()
+{
+    // send NMI
+    set_NMI(0);
+    z80_clock();
+    set_NMI(1);
+
+    while (1 /* TODO */)
+        z80_step();
+}
+
+// 
+// CONTINUE
+//
+
 void z80_continue()
 {
     mode = M_CONTINUE;
@@ -168,19 +215,6 @@ void z80_stop()
 {
     mode = M_DEBUG;
     z80_busreq();
-}
-
-void z80_set_last_keypress(uint8_t k)
-{
-    last_keypress = k;
-}
-
-void z80_interrupt(uint8_t vector)
-{
-    set_INT(0);
-    last_interrupt = vector;
-    z80_clock();
-    z80_check_iorq();
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

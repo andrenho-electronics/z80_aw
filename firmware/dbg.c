@@ -84,6 +84,9 @@ void debugger_cycle()
                 serial_send(printed_char);
             }
             break;
+        case Z_STEP_DEBUG:
+            z80_step_debug();
+            break;
         case Z_KEYPRESS:
             z80_set_last_keypress(serial_recv());
             z80_interrupt(0xcf);   // RST 0x8  
