@@ -8,6 +8,7 @@
 static uint16_t pc = 0;
 uint8_t last_printed_char = 0;
 uint8_t last_keypress = 0;
+int     last_interrupt = -1;
 
 uint16_t z80_pc()
 {
@@ -39,12 +40,18 @@ inline static void z80_check_iorq()
 {
     if (get_IORQ() == 0) {
         uint16_t addr = memory_read_addr();
-        if (get_WR() == 0) {
+        if (get_WR() == 0) {  // OUT
             uint8_t data = memory_read_data();
             z80_out(addr, data);
-        } else if (get_RD() == 0) {
+        } else if (get_RD() == 0) {  // IN
             data_bus_takeover();
             memory_set_data(z80_in(addr));
+        } else {  // INTERRUPT
+            if (last_interrupt != -1) {
+                data_bus_takeover();
+                memory_set_data(last_interrupt);
+                last_interrupt = -1;
+            }
         }
         while (get_IORQ() == 0)
             z80_clock();
@@ -108,13 +115,10 @@ void z80_set_last_keypress(uint8_t k)
 void z80_interrupt(uint8_t vector)
 {
     set_INT(0);
-    while (get_IORQ() == 1)
-        z80_clock();
-    data_bus_takeover();
-    memory_set_data(vector);
-    while (get_IORQ() == 0)
-        z80_clock();
-    data_bus_release();
+    last_interrupt = vector;
+    z80_clock();
+    z80_check_iorq();
+    set_INT(1);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab
