@@ -66,6 +66,7 @@ inline static void z80_check_iorq()
                 data_bus_takeover();
                 memory_set_data(last_interrupt);
                 last_interrupt = -1;
+                set_INT(1);
             }
         }
         while (get_IORQ() == 0)
@@ -93,11 +94,24 @@ void z80_reset()
     z80_step();
 }
 
+inline static void z80_busreq()
+{
+    bool busack = 1;
+
+    set_BUSREQ(0);
+    while (busack == 1) {
+        z80_clock();
+        z80_check_iorq();
+        busack = get_BUSACK();
+    }
+    set_BUSREQ(1);
+}
+
 uint8_t z80_step()
 {
     memory_bus_release();
 
-    bool busack = 1, m1 = 1;
+    bool m1 = 1;
 
     // run cycle until M1
     set_BUSREQ(1);
@@ -111,15 +125,8 @@ uint8_t z80_step()
     switch (mode) {
         case M_DEBUG:
             // run cycle until BUSACK
-            if (mode == M_DEBUG) {
-                set_BUSREQ(0);
-                while (busack == 1) {
-                    z80_clock();
-                    z80_check_iorq();
-                    busack = get_BUSACK();
-                }
-                set_BUSREQ(1);
-            }
+            if (mode == M_DEBUG)
+                z80_busreq();
             break;
         case M_CONTINUE:
             // find out if breakpoint was hit
@@ -143,6 +150,7 @@ void z80_continue()
 void z80_stop()
 {
     mode = M_DEBUG;
+    z80_busreq();
 }
 
 void z80_set_last_keypress(uint8_t k)
@@ -156,7 +164,6 @@ void z80_interrupt(uint8_t vector)
     last_interrupt = vector;
     z80_clock();
     z80_check_iorq();
-    set_INT(1);
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

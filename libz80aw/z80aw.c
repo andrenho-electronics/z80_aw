@@ -388,7 +388,7 @@ Z80AW_Event z80aw_last_event()
     uint8_t c = zrecv();
     switch (c) {
         case Z_OK:
-            return (Z80AW_Event) { .type = Z80AW_NO_EVENT };
+            return (Z80AW_Event) { .type = Z80AW_NO_EVENT, .data = zrecv16() };
         case Z_PRINT_CHAR: {
                 uint8_t c = zrecv();
                 z80aw_cpu_continue();

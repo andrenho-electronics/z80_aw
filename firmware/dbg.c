@@ -12,9 +12,12 @@
 void debugger_cycle()
 {
     uint8_t data[512] = { 0 };
-    uint8_t c = serial_recv();
+    uint8_t c = serial_recv_noblock();
 
     switch (c) {
+        case 0:
+            break;
+
         // 
         // controller
         //
@@ -119,6 +122,7 @@ void debugger_cycle()
             switch (z80_last_event()) {
                 case E_NO_EVENT:
                     serial_send(Z_OK);
+                    serial_send16(z80_pc());
                     break;
                 case E_BREAKPOINT_HIT:
                     serial_send(Z_BKP_REACHED);
@@ -137,6 +141,11 @@ void debugger_cycle()
             z80_continue();
             serial_send(Z_OK);
             return;
+
+        case Z_STOP:
+            z80_stop();
+            serial_send(Z_OK);
+            break;
 
         // 
         // not matching

@@ -319,7 +319,6 @@ int main(int argc, char* argv[])
     while (z80aw_last_event().type != Z80AW_BREAKPOINT);
     ASSERT("Stop at breakpoint", z80aw_cpu_pc() == 0x3);
     z80aw_remove_all_breakpoints();
-#if 0
     
     // keypress
     COMPILE(" jp main\n"
@@ -334,7 +333,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_reset();
     z80aw_add_breakpoint(0xa);
     z80aw_cpu_continue();
-    usleep(10000);
+    usleep(100000);
     z80aw_keypress('f');
     while (z80aw_last_event().type != Z80AW_BREAKPOINT);
     ASSERT("Key was pressed during continue", z80aw_cpu_pc() == 0xa);
@@ -347,6 +346,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_stop();
     ASSERT("Stop stopped at the correct moment", z80aw_cpu_pc() == 0x11);
     
+#if 0
     z80aw_cpu_continue();
     z80aw_keypress('g');
     usleep(10000);

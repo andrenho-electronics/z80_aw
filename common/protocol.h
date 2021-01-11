@@ -17,7 +17,9 @@
 #define Z_REMOVE_ALL_BKPS   0xeb   // Z_OK
 #define Z_QUERY_BKPS        0xec   //  -> [count] [bkp0a] [bkp0b] ...
 #define Z_CONTINUE          0xed   // Z_OK
-#define Z_LAST_EVENT        0xee   // Z_OK, Z_PRINT_CHAR or Z_BKP_REACHED
+#define Z_LAST_EVENT        0xee   // Z_OK [PCa] [PBb]
+                                   // Z_PRINT_CHAR [cc] 
+                                   // Z_BKP_REACHED
 #define Z_STOP              0xef   // Z_OK
 #define Z_PIN_STATUS        0xf0   // [Ca] [Cb] [Cc] [Cd] [Aa] [Ab] [DATA] [Pa] [Pb] (C: cycle, A: address, P: pins)
                                    //        /- Z80 outputs --\  /----- Z80 inputs -----\  / memory \.
