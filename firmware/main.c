@@ -5,9 +5,10 @@
 #include "io.h"
 #include "memory.h"
 #include "serial.h"
+#include "z80.h"
 
 typedef enum {
-    E_NO_EVENT, E_SERIAL_IN,
+    V_NO_EVENT, V_SERIAL_IN,
 } Event;
 static Event next_event = E_NO_EVENT;
 
@@ -26,16 +27,16 @@ int main()
 
     // main loop
     for (;;) {
+        if (z80_mode() == M_CONTINUE)
+            z80_step();
         switch (next_event) {
-            case E_NO_EVENT:
-                break;
-            case E_SERIAL_IN:
+            case V_SERIAL_IN:
                 cli();
                 debugger_cycle();
                 sei();
                 break;
         }
-        next_event = E_NO_EVENT;
+        next_event = V_NO_EVENT;
     }
 }
 
@@ -48,7 +49,7 @@ ISR(INT0_vect)   // fired on IRQ falling edge
 
 ISR(USART_RXC_vect)    // fired on receiving input from serial
 {
-    next_event = E_SERIAL_IN;
+    next_event = V_SERIAL_IN;
 }
 
 // vim:ts=4:sts=4:sw=4:expandtab

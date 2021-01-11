@@ -2,13 +2,28 @@
 
 #include <stddef.h>
 
+#include "breakpoints.h"
 #include "memory.h"
 #include "io.h"
 
-static uint16_t pc = 0;
-uint8_t last_printed_char = 0;
-uint8_t last_keypress = 0;
-int     last_interrupt = -1;
+static uint16_t  pc = 0;
+static uint8_t   last_printed_char = 0;
+static uint8_t   last_keypress = 0;
+static int       last_interrupt = -1;
+static Z80_Event last_event = E_NO_EVENT;
+static Z80_Mode  mode = M_DEBUG;
+
+Z80_Event z80_last_event()
+{
+    Z80_Event e = last_event;
+    last_event = E_NO_EVENT;
+    return e;
+}
+
+Z80_Mode z80_mode()
+{
+    return mode;
+}
 
 uint16_t z80_pc()
 {
@@ -93,18 +108,41 @@ uint8_t z80_step()
     }
     pc = memory_read_addr();
 
-    // run cycle until BUSACK
-    set_BUSREQ(0);
-    while (busack == 1) {
-        z80_clock();
-        z80_check_iorq();
-        busack = get_BUSACK();
+    switch (mode) {
+        case M_DEBUG:
+            // run cycle until BUSACK
+            if (mode == M_DEBUG) {
+                set_BUSREQ(0);
+                while (busack == 1) {
+                    z80_clock();
+                    z80_check_iorq();
+                    busack = get_BUSACK();
+                }
+                set_BUSREQ(1);
+            }
+            break;
+        case M_CONTINUE:
+            // find out if breakpoint was hit
+            if (bkp_in_list(pc)) {
+                last_event = E_BREAKPOINT_HIT;
+                mode = M_DEBUG;
+            }
+            break;
     }
-    set_BUSREQ(1);
 
     uint8_t c = last_printed_char;
     last_printed_char = 0;
     return c;
+}
+
+void z80_continue()
+{
+    mode = M_CONTINUE;
+}
+
+void z80_stop()
+{
+    mode = M_DEBUG;
 }
 
 void z80_set_last_keypress(uint8_t k)

@@ -122,10 +122,12 @@ int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
         zsend_noreply(data[i]);
     uint8_t status = zrecv();
     uint16_t rchecksum = zrecv16();
-    if (status == Z_INCORRECT_BUS)
+    if (status == Z_INCORRECT_BUS) {
         ERROR("Bus is in an incorrect state when writing to memory.");
-    if (checksum != rchecksum)
+    }
+    if (checksum != rchecksum) {
         ERROR("When writing to memory, received checksum (0x%x) does not match with calculated checksum (0x%x).", rchecksum, checksum);
+    }
     z_assert_empty_buffer();
     return 0;
 }

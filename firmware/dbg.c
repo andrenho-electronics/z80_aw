@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include "../common/protocol.h"
+#include "breakpoints.h"
 #include "memory.h"
 #include "serial.h"
 #include "util.h"
@@ -87,9 +88,55 @@ void debugger_cycle()
         // breakpoints
         //
 
-        case Z_REMOVE_ALL_BKPS:
-            serial_send(Z_OK);  // TODO
+        case Z_ADD_BKP:
+            if (bkp_add(serial_recv16()))
+                serial_send(Z_OK);
+            else
+                serial_send(Z_TOO_MANY_BKPS);
             break;
+        case Z_REMOVE_BKP:
+            bkp_remove(serial_recv16());
+            serial_send(Z_OK);
+            break;
+        case Z_REMOVE_ALL_BKPS:
+            bkp_remove_all();
+            serial_send(Z_OK);
+            break;
+        case Z_QUERY_BKPS: {
+                uint16_t bkps[MAX_BREAKPOINTS];
+                int count = bkp_query(bkps);
+                serial_send(count);
+                for (int i = 0; i < count; ++i)
+                    serial_send16(bkps[i]);
+            }
+            break;
+
+        //
+        // continue
+        //
+
+        case Z_LAST_EVENT:
+            switch (z80_last_event()) {
+                case E_NO_EVENT:
+                    serial_send(Z_OK);
+                    break;
+                case E_BREAKPOINT_HIT:
+                    serial_send(Z_BKP_REACHED);
+                    break;
+                default:
+                    serial_send(Z_INVALID_CMD);
+            }
+            /*
+            if (last_event == Z_PRINT_CHAR)
+                send(last_printed_char);
+            last_event = Z_OK;
+            */
+            break;
+
+        case Z_CONTINUE:
+            z80_continue();
+            serial_send(Z_OK);
+            return;
 
         // 
         // not matching

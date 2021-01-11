@@ -9,10 +9,8 @@ void     serial_init();
 void     serial_send(uint8_t byte);
 void     serial_send16(uint16_t word);
 uint8_t  serial_recv();
+uint8_t  serial_recv_noblock();
 uint16_t serial_recv16();
-
-void     serial_ei();    // enable interrupt
-void     serial_di();    // disable interrupt
 
 #endif
 
