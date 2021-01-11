@@ -31,6 +31,9 @@ void debugger_cycle()
         case Z_CTRL_INFO:
             serial_send16(free_ram());
             break;
+        case Z_EXIT_EMULATOR:  // command without effect
+            serial_send(Z_OK);
+            break;
 
         // 
         // memory

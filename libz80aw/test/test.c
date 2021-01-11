@@ -217,13 +217,11 @@ int main(int argc, char* argv[])
         printf("Compiler error output:\n\e[0;33m%s\e[0m\n\n", errbuf);
     ASSERT("Simple compilation with error", resp != 0);
     ASSERT("Compiler error message", strlen(errbuf) > 5);
-#endif
 
     //
     // CPU operations
     //
     
-#if 0
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
 
@@ -413,7 +411,6 @@ int main(int argc, char* argv[])
     for (int i = 0; i < 32; ++i)
         z80aw_cpu_step(NULL);
     uint16_t original_pc = z80aw_cpu_pc();
-#if 0
     ASSERT("Execute step debug", z80aw_cpu_step_debug(&r, NULL) == 0);
     ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
     ASSERT("BC' == 0xBC", r.BCx == 0xbc);
@@ -436,8 +433,6 @@ int main(int argc, char* argv[])
         ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
     
     debug_free(di);
-
-#endif
 
     z80aw_close();
 }
