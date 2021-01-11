@@ -223,6 +223,7 @@ int main(int argc, char* argv[])
     // CPU operations
     //
     
+#if 0
     ASSERT("CPU reset", z80aw_cpu_reset() == 0);
     ASSERT("PC == 0", z80aw_cpu_pc() == 0);
 
@@ -375,18 +376,7 @@ int main(int argc, char* argv[])
         }
     } while (e.type != Z80AW_PRINT_CHAR);
     z80aw_cpu_stop();
-    
-#if 0
-    //
-    // run cycles
-    //
-   
-    z80aw_cpu_reset();
-    Z80AW_Status s = z80aw_cpu_status();
-    ASSERT("Check CPU status (after reset)", s.cycle == 0);
-    ASSERT("CPU cycle", z80aw_cpu_cycle() == 0);
-    s = z80aw_cpu_status();
-    ASSERT("Check CPU status (after cycle)", s.cycle == 1);
+#endif
     
     //
     // load registers from Z80 code
@@ -417,11 +407,13 @@ int main(int argc, char* argv[])
              "  halt                    \n"
              "%s", reg_buf);
     COMPILE(code_buf);
+    z80aw_cpu_reset();
     
     Z80AW_Registers r;
     for (int i = 0; i < 32; ++i)
         z80aw_cpu_step(NULL);
     uint16_t original_pc = z80aw_cpu_pc();
+#if 0
     ASSERT("Execute step debug", z80aw_cpu_step_debug(&r, NULL) == 0);
     ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
     ASSERT("BC' == 0xBC", r.BCx == 0xbc);

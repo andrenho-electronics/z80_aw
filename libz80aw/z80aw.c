@@ -399,28 +399,3 @@ Z80AW_Event z80aw_last_event()
     }
     return (Z80AW_Event) { .type = Z80AW_ERROR };
 }
-
-int z80aw_cpu_cycle()
-{
-    int r = zsend_expect(Z_CYCLE, Z_OK);
-    z_assert_empty_buffer();
-    return r;
-}
-
-Z80AW_Status z80aw_cpu_status()
-{
-    zsend_noreply(Z_PIN_STATUS);
-    uint8_t ca = zrecv();
-    uint8_t cb = zrecv();
-    uint8_t cc = zrecv();
-    uint8_t cd = zrecv();
-    uint8_t a = zrecv16();
-    uint8_t data = zrecv();
-    uint16_t p = zrecv16();
-    return (Z80AW_Status) {
-        .cycle = ca | (cb << 8) | (cc << 16) | (cd << 24),
-        .addr = a,
-        .data = data,
-        .pins = *(Z80AW_Pins*) &p,
-    };
-}

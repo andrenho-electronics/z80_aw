@@ -12,6 +12,7 @@ static uint8_t   last_keypress = 0;
 static int       last_interrupt = -1;
 static Z80_Event last_event = E_NO_EVENT;
 static Z80_Mode  mode = M_DEBUG;
+static uint32_t  cycle_number = 0;
 
 Z80_Event z80_last_event()
 {
@@ -35,10 +36,11 @@ uint8_t z80_last_printed_char()
     return last_printed_char;
 }
 
-inline static void z80_clock()
+static inline void z80_clock()
 {
     set_ZCLK(1);
     set_ZCLK(0);
+    ++cycle_number;
 }
 
 static void z80_out(uint16_t addr, uint8_t data)
@@ -91,6 +93,7 @@ void z80_powerdown()
 void z80_reset()
 {
     pc = 0;
+    cycle_number = 0;
 
     set_BUSREQ(1);
     set_NMI(1);

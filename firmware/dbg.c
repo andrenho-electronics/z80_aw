@@ -134,11 +134,6 @@ void debugger_cycle()
                 default:
                     serial_send(Z_INVALID_CMD);
             }
-            /*
-            if (last_event == Z_PRINT_CHAR)
-                send(last_printed_char);
-            last_event = Z_OK;
-            */
             break;
 
         case Z_CONTINUE:
