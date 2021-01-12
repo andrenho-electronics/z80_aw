@@ -1,0 +1,33 @@
+- Code
+  - lines() -> Line, address, bytes, markers (breakpoint, pc)
+  - file_list(order)
+  - symbol_list(order)
+  - goto_file(file)
+  - goto_symbol(symbol)
+  - pause()
+  - next()
+  - continue() / stop()
+  - open_project()
+  - recompile()
+  - add/remove_breakpoint()
+
+- Memory
+  - data() -> bytes, pc
+  - page()
+  - goto_page()
+
+- CPU
+  - registers(), flags()
+  - reset()
+
+- Terminal
+  - text()
+  - simulate_keypress()
+
+- Other
+  - Controller info: memory
+  - Options:
+    - Serial port
+    - Ensure empty buffer
+
+- treat errors
