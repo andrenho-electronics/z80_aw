@@ -12,12 +12,11 @@ static int fd = -1;
 static bool log_to_stdout = false;
 static bool assert_empty_buffer = false;
 
-void open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_buffer_)
+int open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_buffer_)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        perror("open");
-        exit(EXIT_FAILURE);
+        ERROR("Could not open serial port: %s", strerror());
     }
     
     log_to_stdout = log_to_stdout_;
@@ -26,8 +25,7 @@ void open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_b
     // set interface attributes
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
-        perror("tgetattr");
-        exit(EXIT_FAILURE);
+        ERROR("Could not get terminal attributes: %s", strerror());
     }
     cfsetospeed(&tty, 114583);
     cfsetispeed(&tty, 114583);
@@ -59,8 +57,9 @@ int zsend_noreply(uint8_t byte)
         printf("\e[0;34m%02X \e[0m", byte);
         fflush(stdout);
     }
-    if (write(fd, &byte, 1) != 1)
+    if (write(fd, &byte, 1) != 1) {
         ERROR("Cannot write byte 0x%02X to controller", byte);
+    }
     return 0;
 }
 
