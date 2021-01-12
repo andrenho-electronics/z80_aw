@@ -255,7 +255,6 @@ void z80_step_debug()
         memory_bus_release();
     } while (next_instruction[0] != 0xed || next_instruction[1] != 0x45);  // ED4D = RETN
     z80_step();
-    z80_step();
 }
 
 // 
