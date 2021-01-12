@@ -1,0 +1,3 @@
+sources = [
+    { source = "simple.z80", address = 0x0 },
+]

@@ -45,6 +45,11 @@ uint8_t z80_last_printed_char()
     return last_printed_char;
 }
 
+void z80_clear_last_printed_char()
+{
+    last_printed_char = 0;
+}
+
 void z80_set_last_keypress(uint8_t k)
 {
     last_keypress = k;

@@ -473,6 +473,13 @@ int main(int argc, char* argv[])
     ASSERT("IY == 0x9F", r.IY == 0x9f);
     uint16_t new_pc = z80aw_cpu_pc();
     ASSERT("Returned to the next PC", new_pc == original_pc);
+
+    //
+    // let simple OS loaded into the memory
+    //
+    DebugInformation* dd = compile_vasm("simple/simple.toml");
+    z80aw_upload_compiled(dd, NULL, NULL);
+    debug_free(dd);
     
     //
     // finalize

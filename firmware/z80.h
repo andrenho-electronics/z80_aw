@@ -16,6 +16,7 @@ uint16_t      z80_pc();
 Z80_Event     z80_last_event();
 Z80_Mode      z80_mode();
 uint8_t       z80_last_printed_char();
+void          z80_clear_last_printed_char();
 void          z80_set_last_keypress(uint8_t k);
 Z80_Registers const* z80_registers_last_update();
 

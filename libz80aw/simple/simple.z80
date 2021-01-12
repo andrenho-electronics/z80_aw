@@ -1,0 +1,33 @@
+VIDEO	 = 0x0
+KEYBOARD = 0x1
+	
+	ld	sp, 0xfffe		; setup stack in RAM
+	jp	main			; skip interrupt area
+
+	;
+	; keyboard interrupt
+	;
+	org 0x8
+	in 	a, (KEYBOARD)		; read pressed key
+	out	(VIDEO), a		; print pressed key
+	ei				; reenable interrupts
+	reti
+
+	;
+	; main procedure
+	;
+main:
+	im	0			; set interrupt type
+	ei				; enable interrupts
+
+	ld	a, '?'			; print question mark
+	out	(VIDEO), a
+	ld	a, ' '
+	out	(VIDEO), a
+
+.continue:
+	halt				; wait for keypress		
+	jp	.continue
+	
+
+; vim:ts=8:sts=8:sw=8:noexpandtab
