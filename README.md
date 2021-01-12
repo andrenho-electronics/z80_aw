@@ -83,3 +83,7 @@ Pinout:
 ```
 
 ![Controller](images/Motherboard.png)
+
+## Architecture
+
+![Architecture](images/architecture.png)
