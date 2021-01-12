@@ -7,10 +7,10 @@ CPPFLAGS = -fPIC -Wall -Wextra -g -O0 -I../common -DTEST_CPU
 all: $(A)
 
 $(A): $(OBJ)
-	$(AR) rcs $@ $^
+	$(AR) rcsT $@ $^ $(TOML_LIB)
 
 tests: $(TEST_OBJ) $(A)
-	$(CC) $^ -o $@ $(TOML_LIB)
+	$(CC) $^ -o $@
 
 check: tests
 	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l
