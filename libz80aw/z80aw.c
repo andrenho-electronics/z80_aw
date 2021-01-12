@@ -12,16 +12,29 @@
 static char last_error[256] = "No error.";
 static bool log_to_stdout = false;
 static bool wait_for_emulator = true;
+static bool z80_power = false;
+static void (*error_cb)(const char* description, void* data) = NULL;
+static void* error_data = NULL;
 
-void z80aw_init(Z80AW_Config* cfg)
+int z80aw_init(Z80AW_Config* cfg)
 {
-    open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->assert_empty_buffer);
+    if (open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->assert_empty_buffer) != 0)
+        return -1;
     log_to_stdout = cfg->log_to_stdout;
+    return 0;
 }
 
-void z80aw_close()
+int z80aw_close()
 {
     close_serial_port();
+    return 0;
+}
+
+int z80aw_set_error_callback(void (*error_cb_)(const char* description, void* data), void* data)
+{
+    error_cb = error_cb_;
+    error_data = data;
+    return 0;
 }
 
 static void continue_execution(int sig)  // called when signal SIGUSR1 is received from emulator
@@ -35,8 +48,9 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
 {
     static char serial_port[256];
     
-    if (signal(SIGUSR1, continue_execution) == SIG_ERR)
+    if (signal(SIGUSR1, continue_execution) == SIG_ERR) {
         ERROR("Could not setup signal handler.\n");
+    }
     
     // initialize emulator
     pid_t my_pid = getpid();
@@ -58,8 +72,9 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
     
     // read port from file created by the emulator
     FILE* f = fopen("./.port", "r");
-    if (!f)
+    if (!f) {
         ERROR("Could not open port file from emulator");
+    }
     fread(serial_port, sizeof serial_port, sizeof serial_port - 1, f);
     fclose(f);
     unlink("./.port");
@@ -77,6 +92,9 @@ void z80aw_set_error(char* fmt, ...)
     if (log_to_stdout)
         printf("\e[0;31mERROR: %s\e[0m\n", last_error);
     va_end(ap);
+    
+    if (error_cb)
+        error_cb(last_error, error_data);
 }
 
 const char* z80aw_last_error()
@@ -251,6 +269,8 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
 int z80aw_cpu_reset()
 {
     int r = zsend_expect(Z_RESET, Z_OK);
+    if (r == 0)
+        z80_power = true;
     z_assert_empty_buffer();
     return r;
 }
@@ -258,6 +278,8 @@ int z80aw_cpu_reset()
 int z80aw_cpu_powerdown()
 {
     int r = zsend_expect(Z_POWERDOWN, Z_OK);
+    if (r == 0)
+        z80_power = false;
     z_assert_empty_buffer();
     return r;
 }
@@ -271,6 +293,10 @@ int z80aw_cpu_pc()
 
 int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
 {
+    if (z80_power == false) {
+        ERROR("CPU is not powered up.");
+    }
+    
     int resp = zsend_noreply(Z_STEP_DEBUG);
     if (resp != 0)
         return resp;
@@ -309,6 +335,10 @@ int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
 
 int z80aw_cpu_step(uint8_t* printed_char)
 {
+    if (z80_power == false) {
+        ERROR("CPU is not powered up.");
+    }
+    
     int r = zsend_noreply(Z_STEP);
     if (r != 0)
         return r;
@@ -335,8 +365,9 @@ int z80aw_add_breakpoint(uint16_t addr)
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
     int r = zrecv();
-    if (r == Z_TOO_MANY_BKPS)
+    if (r == Z_TOO_MANY_BKPS) {
         ERROR("Too many breakpoints.");
+    }
     z_assert_empty_buffer();
     return 0;
 }
@@ -374,12 +405,20 @@ int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz)
 
 int z80aw_cpu_continue()
 {
-    return zsend_expect(Z_CONTINUE, Z_OK);
+    if (z80_power == false) {
+        ERROR("CPU is not powered up.");
+    }
+    
+    int r = zsend_expect(Z_CONTINUE, Z_OK);
+    z_assert_empty_buffer();
+    return r;
 }
 
 int z80aw_cpu_stop()
 {
-    return zsend_expect(Z_STOP, Z_OK);
+    int r = zsend_expect(Z_STOP, Z_OK);
+    z_assert_empty_buffer();
+    return r;
 }
 
 Z80AW_Event z80aw_last_event()
@@ -390,12 +429,14 @@ Z80AW_Event z80aw_last_event()
         case Z_OK:
             return (Z80AW_Event) { .type = Z80AW_NO_EVENT, .data = zrecv16() };
         case Z_PRINT_CHAR: {
-                uint8_t c = zrecv();
+                uint8_t data = zrecv();
                 z80aw_cpu_continue();
-                return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = c };
+                return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = data };
             }
         case Z_BKP_REACHED:
             return (Z80AW_Event) { .type = Z80AW_BREAKPOINT };
+        default:
+            z80aw_set_error("Unexpected return 0x%02X from Z_LAST_EVENT.", c);
+            return (Z80AW_Event) { .type = Z80AW_ERROR };
     }
-    return (Z80AW_Event) { .type = Z80AW_ERROR };
 }

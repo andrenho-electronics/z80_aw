@@ -35,8 +35,10 @@ typedef struct {
 
 int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers);
 
-void z80aw_init(Z80AW_Config* cfg);
-void z80aw_close();
+int z80aw_init(Z80AW_Config* cfg);
+int z80aw_close();
+
+int z80aw_set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 
 Z80AW_ControllerInfo z80aw_controller_info();
 

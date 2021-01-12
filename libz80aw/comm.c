@@ -7,6 +7,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 static int fd = -1;
 static bool log_to_stdout = false;
@@ -16,7 +17,7 @@ int open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_bu
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
-        ERROR("Could not open serial port: %s", strerror());
+        ERROR("Could not open serial port: %s", strerror(errno));
     }
     
     log_to_stdout = log_to_stdout_;
@@ -25,7 +26,7 @@ int open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_bu
     // set interface attributes
     struct termios tty;
     if (tcgetattr(fd, &tty) != 0) {
-        ERROR("Could not get terminal attributes: %s", strerror());
+        ERROR("Could not get terminal attributes: %s", strerror(errno));
     }
     cfsetospeed(&tty, 114583);
     cfsetispeed(&tty, 114583);
@@ -41,9 +42,9 @@ int open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_bu
     tty.c_cflag &= ~CSTOPB;
     tty.c_cflag &= ~CRTSCTS;
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
-        perror("tcsetattr");
-        exit(EXIT_FAILURE);
+        ERROR("Could not get terminal attributes: %s", strerror(errno));
     }
+    return 0;
 }
 
 void close_serial_port()
@@ -76,8 +77,9 @@ int zsend_expect(uint8_t byte, uint8_t expect)
         return r;
         
     // check response
-    if (c != expect)
+    if (c != expect) {
         ERROR("Response does not match: expected 0x%02X, found 0x%02X", expect, c);
+    }
     return 0;
 }
 
@@ -89,8 +91,9 @@ int zrecv()
         printf("\e[0;33m%02X \e[0m", c);
         fflush(stdout);
     }
-    if (r == -1)
+    if (r == -1) {
         ERROR("Cannot read byte from controller");
+    }
     return c;
 }
 

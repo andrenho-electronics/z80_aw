@@ -77,6 +77,12 @@ Config initialize(int argc, char* argv[])
     return config;
 }
 
+static void error_cb(const char* error, void* data)
+{
+    (void) data;
+    fprintf(stderr, "ERROR DETECTED: %s\n", error);
+}
+
 int main(int argc, char* argv[])
 {
     srand(time(NULL));
@@ -95,12 +101,17 @@ int main(int argc, char* argv[])
     
     printf("Serial port: %s\n", serial_port);
     
+    z80aw_set_error_callback(error_cb, NULL);
+    
     Z80AW_Config cfg = {
             .serial_port         = serial_port,
             .log_to_stdout       = config.log_to_stdout,
             .assert_empty_buffer = false, //true,
     };
-    z80aw_init(&cfg);
+    if (z80aw_init(&cfg) < 0) {
+        fprintf(stderr, "%s\n", z80aw_last_error());
+        return EXIT_FAILURE;
+    }
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 
@@ -108,7 +119,6 @@ int main(int argc, char* argv[])
     // generic commands
     //
     
-#if 0
     ASSERT("Basic test", zsend_expect('A', 'a') == 0);
 
     ASSERT("Invalid command", zsend_expect(Z_ACK_REQUEST, 0) == -1);
@@ -150,7 +160,7 @@ int main(int argc, char* argv[])
     ASSERT("Read byte", z80aw_read_byte(0x8) == byte);
     
     for (size_t unit = 0; unit < 2; ++unit) {
-        printf("Memory unit %d\n", unit + 1);
+        printf("Memory unit %lu\n", unit + 1);
         for (size_t i = 0; i < MAX_BLOCK_SIZE; ++i)
             block[i] = (byte++) & 0xff;
         printf("Write block\n");
@@ -162,7 +172,7 @@ int main(int argc, char* argv[])
         if (h != 0) {
             printf("There was a check sum error when writing to memory. Here's the data.\n");
             for (int i = 0; i < MAX_BLOCK_SIZE; i += 0x20) {
-                printf("%04X : ", 0x100 + (unit * 0x8000) + i);
+                printf("%04lX : ", 0x100 + (unit * 0x8000) + i);
                 printf("W "); for (int j = 0; j < 0x20; ++j) printf("%02X ", block[i + j]); printf("\n");
                 printf("       R "); for (int j = 0; j < 0x20; ++j) printf("%s%02X\e[0m ", block[i + j] != rblock[i + j] ? "\e[0;33m" : "", rblock[i + j]); printf("\n");
             }
@@ -411,7 +421,6 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(NULL);
     z80aw_cpu_step(NULL);
     ASSERT("Stack working fine", z80aw_read_byte(0xfffd) == 0x12);
-#endif
     
     //
     // load registers from Z80 code
