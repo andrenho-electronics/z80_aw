@@ -114,7 +114,7 @@ static uint8_t z80_in(uint16_t addr)
     return 0;
 }
 
-inline static void z80_check_iorq()
+void z80_check_iorq()
 {
     if (get_IORQ() == 0) {
         uint16_t addr = memory_read_addr();

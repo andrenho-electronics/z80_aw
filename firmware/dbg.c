@@ -5,6 +5,7 @@
 #include "../common/protocol.h"
 #include "breakpoints.h"
 #include "memory.h"
+#include "run.h"
 #include "serial.h"
 #include "util.h"
 #include "z80.h"
@@ -95,6 +96,9 @@ void debugger_cycle()
             z80_set_last_keypress(serial_recv());
             z80_interrupt(0xcf);   // RST 0x8  
             serial_send(Z_OK);
+            break;
+        case Z_RUN:
+            run();
             break;
 
         //

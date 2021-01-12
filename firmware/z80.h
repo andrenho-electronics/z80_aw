@@ -21,6 +21,7 @@ Z80_Registers const* z80_registers_last_update();
 
 // I/O
 void    z80_interrupt(uint8_t vector);
+void    z80_check_iorq();
 
 // power
 void    z80_powerdown();

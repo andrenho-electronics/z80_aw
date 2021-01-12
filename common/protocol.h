@@ -28,6 +28,8 @@
 #define Z_PC                0xf2   //  -> [PC]
 #define Z_POWERDOWN         0xf3   // Z_OK
 
+#define Z_RUN               'R'    // no response
+
 // responses
 
 #define Z_OK                0xd0
