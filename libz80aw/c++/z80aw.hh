@@ -32,14 +32,19 @@ uint8_t read_byte(uint16_t addr);
 void                 write_block(uint16_t addr, std::vector<uint8_t> const& data);
 std::vector<uint8_t> read_block(uint16_t addr, uint16_t sz);
 
-void upload_compiled(z80aw::DebugInformation const& di, std::function<void(void*, float)> const& f = nullptr, void* data = nullptr);
+void upload_compiled(z80aw::DebugInformation const& di, void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
 bool is_uploaded(z80aw::DebugInformation const& di);
 
 void      reset();
 void      powerdown();
 uint16_t  pc();
 uint8_t   step();   //  return printed char
-Registers step_debug();
+
+struct StepResult {
+    Registers registers;
+    uint8_t   printed_char;
+};
+StepResult step_debug();
 
 void                  add_breakpoint(uint16_t addr);
 void                  remove_breakpoint(uint16_t addr);
@@ -66,18 +71,26 @@ public:
         uint16_t    addr;
     };
     
+    static DebugInformation compile_vasm(std::string const& project_file);
+    
     ~DebugInformation();
     
-    const std::vector<std::string> filenames;
-    const std::vector<Binary>      binaries;
-    std::string                    sourceline(SourceLocation sl) const;
-    SourceLocation                 location(uint16_t addr) const;
-    uint16_t                       rlocation(SourceLocation sl) const;
+    std::vector<std::string> const& filenames() const { return filenames_; }
+    std::vector<Binary> const&      binaries() const { return binaries_; }
+    std::string                     sourceline(SourceLocation sl) const;
+    SourceLocation                  location(uint16_t addr) const;
+    uint16_t                        rlocation(SourceLocation sl) const;
+    ::DebugInformation const*       raw_ptr() const { return raw_ptr_; }
     
-    static DebugInformation compile_vasm(std::string const& project_file);
-
+    std::string                     compiler_output() const;
+    void                            print() const;
+    
 private:
-    DebugInformation() = default;
+    explicit DebugInformation(::DebugInformation* raw_ptr) : raw_ptr_(raw_ptr) {}
+    
+    ::DebugInformation*      raw_ptr_;
+    std::vector<std::string> filenames_;
+    std::vector<Binary>      binaries_;
 };
 
 }

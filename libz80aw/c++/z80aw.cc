@@ -52,96 +52,155 @@ void write_block(uint16_t addr, std::vector<uint8_t> const& data)
 
 std::vector<uint8_t> read_block(uint16_t addr, uint16_t sz)
 {
-
+    std::vector<uint8_t> data(sz);
+    CHECKED(z80aw_read_block(addr, sz, data.data()));
+    return data;
 }
 
-void upload_compiled(z80aw::DebugInformation const& di, std::function<void(void*, float)> const& f, void* data)
+void upload_compiled(z80aw::DebugInformation const& di, void (*upload_callback)(void* data, float perc), void* data)
 {
+    CHECKED(z80aw_upload_compiled(di.raw_ptr(), upload_callback, data));
 }
 
 bool is_uploaded(z80aw::DebugInformation const& di)
 {
+    return z80aw_is_uploaded(di.raw_ptr());
 }
 
 void reset()
 {
+    CHECKED(z80aw_cpu_reset());
 }
 
 void powerdown()
 {
+    CHECKED(z80aw_cpu_powerdown());
 }
 
 uint16_t pc()
 {
+    int p = z80aw_cpu_pc();
+    CHECKED(p);
+    return p;
 }
 
 uint8_t step()
 {
+    uint8_t printed_char;
+    CHECKED(z80aw_cpu_step(&printed_char));
+    return printed_char;
 }
 
-Registers step_debug()
+StepResult step_debug()
 {
+    StepResult sr {};
+    CHECKED(z80aw_cpu_step_debug(&sr.registers, &sr.printed_char));
+    return sr;
 }
 
 void add_breakpoint(uint16_t addr)
 {
+    CHECKED(z80aw_add_breakpoint(addr));
 }
 
 void remove_breakpoint(uint16_t addr)
 {
+    CHECKED(z80aw_remove_breakpoint(addr));
 }
 
 void remove_all_breakpoints()
 {
+    CHECKED(z80aw_remove_all_breakpoints());
 }
 
 std::vector<uint16_t> query_breakpoints()
 {
+    uint16_t addr[512];
+    int sz = z80aw_query_breakpoints(addr, sizeof addr);
+    CHECKED(sz);
+    return std::vector<uint16_t>(addr, addr + sz);
 }
 
-void keypress(uint8_t)
+void keypress(uint8_t k)
 {
+    CHECKED(z80aw_keypress(k));
 }
 
 void continue_()
 {
+    CHECKED(z80aw_cpu_continue());
 }
 
 void stop()
 {
+    CHECKED(z80aw_cpu_stop());
 }
 
 Event last_event()
 {
+    return z80aw_last_event();
 }
 
 std::string last_error()
 {
+    return z80aw_last_error();
 }
 
 DebugInformation::~DebugInformation()
 {
-
+    debug_free(raw_ptr_);
 }
 
 std::string DebugInformation::sourceline(SourceLocation sl) const
 {
-    return std::__cxx11::string();
+    return debug_sourceline(raw_ptr_, sl);
 }
 
 SourceLocation DebugInformation::location(uint16_t addr) const
 {
-    return SourceLocation();
+    return debug_location(raw_ptr_, addr);
 }
 
 uint16_t DebugInformation::rlocation(SourceLocation sl) const
 {
-    return 0;
+    return debug_rlocation(raw_ptr_, sl);
 }
 
 DebugInformation DebugInformation::compile_vasm(std::string const& project_file)
 {
-    return DebugInformation();
+    ::DebugInformation* raw = ::compile_vasm(project_file.c_str());
+    
+    char error_msg[4096];
+    if (!debug_output(raw, error_msg, sizeof error_msg)) {
+        debug_free(raw);
+        throw std::runtime_error(std::string("Compilation error:\n") + error_msg);
+    }
+    
+    DebugInformation di(raw);
+    
+    size_t n = debug_file_count(di.raw_ptr_);
+    for (size_t i = 0; i < n; ++i)
+        di.filenames_.emplace_back(debug_filename(di.raw_ptr_, i));
+    
+    n = debug_binary_count(di.raw_ptr_);
+    for (size_t i = 0; i < n; ++i) {
+        ::Binary const* bin = debug_binary(di.raw_ptr_, i);
+        di.binaries_.push_back({ std::vector<uint8_t>(bin->data, bin->data + bin->sz), bin->addr });
+    }
+    
+    return di;
+}
+
+std::string DebugInformation::compiler_output() const
+{
+    char error_msg[4096];
+    debug_output(raw_ptr_, error_msg, sizeof error_msg);
+    return error_msg;
+}
+
+void DebugInformation::print() const
+{
+    debug_print(raw_ptr_);
 }
 
 }
