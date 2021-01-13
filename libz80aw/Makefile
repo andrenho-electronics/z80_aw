@@ -11,13 +11,13 @@ $(A): $(OBJ)
 	$(AR) rcsT $@ $^ $(TOML_LIB)
 
 tests: $(TEST_OBJ) $(A)
-	$(CC) $^ -o $@
+	$(CXX) $^ -o $@
 
 check: tests
-	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l
+	./tests -z -l
 
 check-real: tests
-	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l -r /dev/ttyUSB0
+	./tests -z -l -r /dev/ttyUSB0
 
 check-leaks: tests
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./tests

@@ -1,19 +1,20 @@
-OBJ      = code.o
-TEST_OBJ = test.o
+OBJ      = z80pres.o
+TEST_OBJ = test/tests.o
 A        = libz80pres.a
-TOML_LIB = ../contrib/tomlc99/libtoml.a
-CPPFLAGS = -fPIC -Wall -Wextra -g -O0 -I../common -DTEST_CPU
+LIB      = ../libz80aw/libz80aw.a
+CPPFLAGS = -Wall -Wextra -g -O0
+CXXFLAGS = -std=c++17
 
 all: $(A)
 
 $(A): $(OBJ)
-	$(AR) rcs $@ $^
+	$(AR) rcsT $@ $^ $(LIB)
 
 tests: $(TEST_OBJ) $(A)
-	$(CC) $^ -o $@ $(TOML_LIB)
+	$(CXX) $^ -o $@
 
 check: tests
-	LD_LIBRARY_PATH=$$LD_LIBRARY_PATH:. ./tests -z -l
+	./tests
 
 check-leaks: tests
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./tests

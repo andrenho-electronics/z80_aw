@@ -7,10 +7,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+extern "C" {
+
 #include "../z80aw.h"
 #include "../compiler.h"
 #include "protocol.h"
 #include "../comm.h"
+
+}
 
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
@@ -36,7 +40,7 @@ typedef struct {
 static void dump_memory(uint16_t addr, uint16_t sz)
 {
     (void) dump_memory;
-    uint8_t* data = malloc(sz);
+    uint8_t* data = (uint8_t*) malloc(sz);
     z80aw_read_block(addr, sz, data);
     printf("\n");
     for (uint16_t a = 0; a < sz; a += 0x10) {
