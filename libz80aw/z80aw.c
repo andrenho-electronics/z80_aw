@@ -440,3 +440,10 @@ Z80AW_Event z80aw_last_event()
             return (Z80AW_Event) { .type = Z80AW_ERROR };
     }
 }
+
+int z80aw_finalize_emulator()
+{
+    int r = zsend_expect(Z_EXIT_EMULATOR, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}

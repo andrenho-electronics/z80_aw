@@ -4,7 +4,10 @@
 #include <functional>
 #include <string>
 #include <vector>
+
+extern "C" {
 #include "../z80aw.h"
+}
 
 namespace z80aw {
 
@@ -58,6 +61,8 @@ void stop();
 
 Event       last_event();
 std::string last_error();
+
+void finalize_emulator();
 
 class DebugInformation {
 public:

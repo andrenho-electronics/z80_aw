@@ -489,7 +489,7 @@ int main(int argc, char* argv[])
     // finalize
     //
     if (config.hardware_type == EMULATOR) {
-        ASSERT("Finalizing emulator", zsend_expect(Z_EXIT_EMULATOR, Z_OK) == 0);
+        ASSERT("Finalizing emulator", z80aw_finalize_emulator() == 0);
     }
     
     z80aw_close();

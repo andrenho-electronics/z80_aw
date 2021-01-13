@@ -74,4 +74,6 @@ Z80AW_Event z80aw_last_event();
 
 const char* z80aw_last_error();
 
+int z80aw_finalize_emulator();
+
 #endif

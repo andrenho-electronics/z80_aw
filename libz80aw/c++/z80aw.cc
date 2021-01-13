@@ -146,6 +146,11 @@ std::string last_error()
     return z80aw_last_error();
 }
 
+void finalize_emulator()
+{
+    CHECKED(z80aw_finalize_emulator());
+}
+
 DebugInformation::~DebugInformation()
 {
     debug_free(raw_ptr_);

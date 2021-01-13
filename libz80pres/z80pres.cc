@@ -6,7 +6,7 @@ namespace z80pres {
 
 void initialize_real_hardware(std::string const& serial_port)
 {
-    z80aw::init({ serial_port, false, false });
+    z80aw::init({ serial_port, true, false });
 }
 
 void initialize_emulator(std::string const& emulator_path)
@@ -17,6 +17,7 @@ void initialize_emulator(std::string const& emulator_path)
 
 void finalize()
 {
+    z80aw::finalize_emulator();
     z80aw::close();
 }
 
