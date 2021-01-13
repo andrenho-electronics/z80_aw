@@ -3,13 +3,23 @@
 
 #include <string>
 
-namespace z80pres {
+#include "codeview.hh"
 
-void initialize_real_hardware(std::string const& serial_port);
-void initialize_emulator(std::string const& emulator_path);
+class Z80Presentation {
+public:
+    static Z80Presentation initialize_with_emulator(std::string const& emulator_path);
+    
+    explicit Z80Presentation(std::string const& serial_port);
+    ~Z80Presentation();
+    
+    Z80Presentation(Z80Presentation const&) = delete;
+    Z80Presentation& operator=(Z80Presentation const&) = delete;
+    Z80Presentation(Z80Presentation&&) = default;
+    Z80Presentation& operator=(Z80Presentation&&) = default;
+    
+    void compile_project_vasm(std::string const& project_path);
 
-void finalize();
-
-}
+private:
+};
 
 #endif //LIBZ80PRES_Z80PRES_HH

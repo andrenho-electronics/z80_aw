@@ -1,4 +1,4 @@
-OBJ      = z80pres.o
+OBJ      = z80pres.o codeview.o
 TEST_OBJ = test/tests.o
 A        = libz80pres.a
 LIB      = ../libz80aw/libz80aw.a
