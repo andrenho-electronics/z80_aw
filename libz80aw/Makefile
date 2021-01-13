@@ -1,8 +1,9 @@
-OBJ      = z80aw.o comm.o compiler.o contrib/map.o
+OBJ      = z80aw.o comm.o compiler.o contrib/map.o c++/z80aw.o
 TEST_OBJ = test/test.o
 A        = libz80aw.a
 TOML_LIB = ../contrib/tomlc99/libtoml.a
-CPPFLAGS = -fPIC -Wall -Wextra -g -O0 -I../common -DTEST_CPU
+CPPFLAGS = -Wall -Wextra -g -O0 -I../common -DTEST_CPU
+CXXFLAGS = -std=c++17
 
 all: $(A)
 
