@@ -22,4 +22,5 @@ Z80Presentation::~Z80Presentation()
 void Z80Presentation::compile_project_vasm(std::string const& project_path)
 {
     debug_information.emplace(z80aw::DebugInformation::CompilerType::Vasm, project_path);
+    codeview_.set_debug_information(*debug_information);
 }

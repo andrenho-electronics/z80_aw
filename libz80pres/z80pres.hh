@@ -20,9 +20,13 @@ public:
     Z80Presentation& operator=(Z80Presentation&&) = default;
     
     void compile_project_vasm(std::string const& project_path);
+    
+    CodeView const& codeview() const { return codeview_; }
 
 private:
     std::optional<z80aw::DebugInformation> debug_information {};
+    
+    CodeView codeview_;
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH
