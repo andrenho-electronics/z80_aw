@@ -2,10 +2,6 @@
 
 #include <stdexcept>
 
-#include "../libz80aw/c++/z80aw.hh"
-
-static bool initialized = false;
-
 Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emulator_path)
 {
     std::string serial_port = z80aw::initialize_emulator(emulator_path, false);
@@ -25,5 +21,5 @@ Z80Presentation::~Z80Presentation()
 
 void Z80Presentation::compile_project_vasm(std::string const& project_path)
 {
-
+    debug_information.emplace(z80aw::DebugInformation::CompilerType::Vasm, project_path);
 }

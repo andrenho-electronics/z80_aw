@@ -351,8 +351,10 @@ DebugInformation* compile_vasm(const char* project_file)
     int file_offset = 0;
     
     SourceFile* source_files = load_project_file(project_file);
-    if (!source_files)
+    if (!source_files) {
+        debug_free(di);
         return NULL;
+    }
     bool error_found = false;
     for (SourceFile* source_file = source_files; source_file->source_file; ++source_file) {
         if (!error_found) {

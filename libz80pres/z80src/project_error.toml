@@ -1,0 +1,3 @@
+sources = [
+    { source = "project_error.z80", address = 0x0 },
+]

@@ -1,7 +1,9 @@
 #ifndef LIBZ80PRES_Z80PRES_HH
 #define LIBZ80PRES_Z80PRES_HH
 
+#include <optional>
 #include <string>
+#include "../libz80aw/c++/z80aw.hh"
 
 #include "codeview.hh"
 
@@ -20,6 +22,7 @@ public:
     void compile_project_vasm(std::string const& project_path);
 
 private:
+    std::optional<z80aw::DebugInformation> debug_information {};
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH

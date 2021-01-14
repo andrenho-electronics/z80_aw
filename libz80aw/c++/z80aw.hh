@@ -76,8 +76,9 @@ public:
         uint16_t    addr;
     };
     
-    static DebugInformation compile_vasm(std::string const& project_file);
+    enum CompilerType { Vasm };
     
+    DebugInformation(CompilerType compiler_type, std::string const& project_file);
     ~DebugInformation();
     
     std::vector<std::string> const& filenames() const { return filenames_; }
@@ -89,6 +90,11 @@ public:
     
     std::string                     compiler_output() const;
     void                            print() const;
+    
+    DebugInformation(DebugInformation const&) = delete;
+    DebugInformation& operator=(DebugInformation const&) = delete;
+    DebugInformation(DebugInformation&&) = default;
+    DebugInformation& operator=(DebugInformation&&) = default;
     
 private:
     explicit DebugInformation(::DebugInformation* raw_ptr) : raw_ptr_(raw_ptr) {}

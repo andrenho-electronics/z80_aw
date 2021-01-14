@@ -1,0 +1,7 @@
+TEST = 0x1234
+
+	nop
+main:
+	include project_include.z80
+
+; vim:ts=8:sts=8:sw=8:noexpandtab

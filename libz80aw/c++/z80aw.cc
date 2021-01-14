@@ -171,29 +171,30 @@ uint16_t DebugInformation::rlocation(SourceLocation sl) const
     return debug_rlocation(raw_ptr_, sl);
 }
 
-DebugInformation DebugInformation::compile_vasm(std::string const& project_file)
+DebugInformation::DebugInformation(CompilerType compiler_type, std::string const& project_file)
+    : raw_ptr_(::compile_vasm(project_file.c_str()))
 {
-    ::DebugInformation* raw = ::compile_vasm(project_file.c_str());
+    if (compiler_type != CompilerType::Vasm)
+        throw std::runtime_error("Compiler unsupported.");
+    
+    if (raw_ptr_ == nullptr)
+        throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
     
     char error_msg[4096];
-    if (!debug_output(raw, error_msg, sizeof error_msg)) {
-        debug_free(raw);
+    if (!debug_output(raw_ptr_, error_msg, sizeof error_msg)) {
+        debug_free(raw_ptr_);
         throw std::runtime_error(std::string("Compilation error:\n") + error_msg);
     }
     
-    DebugInformation di(raw);
-    
-    size_t n = debug_file_count(di.raw_ptr_);
+    size_t n = debug_file_count(raw_ptr_);
     for (size_t i = 0; i < n; ++i)
-        di.filenames_.emplace_back(debug_filename(di.raw_ptr_, i));
+        filenames_.emplace_back(debug_filename(raw_ptr_, i));
     
-    n = debug_binary_count(di.raw_ptr_);
+    n = debug_binary_count(raw_ptr_);
     for (size_t i = 0; i < n; ++i) {
-        ::Binary const* bin = debug_binary(di.raw_ptr_, i);
-        di.binaries_.push_back({ std::vector<uint8_t>(bin->data, bin->data + bin->sz), bin->addr });
+        ::Binary const* bin = debug_binary(raw_ptr_, i);
+        binaries_.push_back({ std::vector<uint8_t>(bin->data, bin->data + bin->sz), bin->addr });
     }
-    
-    return di;
 }
 
 std::string DebugInformation::compiler_output() const
