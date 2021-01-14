@@ -2,6 +2,7 @@
 #define LIBZ80AW_Z80AW_HH
 
 #include <functional>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -83,9 +84,9 @@ public:
     
     std::vector<std::string> const& filenames() const { return filenames_; }
     std::vector<Binary> const&      binaries() const { return binaries_; }
-    std::string                     sourceline(SourceLocation sl) const;
-    SourceLocation                  location(uint16_t addr) const;
-    uint16_t                        rlocation(SourceLocation sl) const;
+    std::optional<std::string>      sourceline(SourceLocation sl) const;
+    std::optional<SourceLocation>   location(uint16_t addr) const;
+    std::optional<uint16_t>         rlocation(SourceLocation sl) const;
     ::DebugInformation const*       raw_ptr() const { return raw_ptr_; }
     
     std::string                     compiler_output() const;

@@ -156,19 +156,31 @@ DebugInformation::~DebugInformation()
     debug_free(raw_ptr_);
 }
 
-std::string DebugInformation::sourceline(SourceLocation sl) const
+std::optional<std::string> DebugInformation::sourceline(SourceLocation sl) const
 {
-    return debug_sourceline(raw_ptr_, sl);
+    char* s = debug_sourceline(raw_ptr_, sl);
+    if (!s)
+        return {};
+    else
+        return s;
 }
 
-SourceLocation DebugInformation::location(uint16_t addr) const
+std::optional<SourceLocation> DebugInformation::location(uint16_t addr) const
 {
-    return debug_location(raw_ptr_, addr);
+    SourceLocation sl = debug_location(raw_ptr_, addr);
+    if (sl.file == -1)
+        return {};
+    else
+        return sl;
 }
 
-uint16_t DebugInformation::rlocation(SourceLocation sl) const
+std::optional<uint16_t> DebugInformation::rlocation(SourceLocation sl) const
 {
-    return debug_rlocation(raw_ptr_, sl);
+    int n = debug_rlocation(raw_ptr_, sl);
+    if (n < 0)
+        return {};
+    else
+        return static_cast<uint16_t>(n);
 }
 
 DebugInformation::DebugInformation(CompilerType compiler_type, std::string const& project_file)

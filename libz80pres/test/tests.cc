@@ -38,4 +38,9 @@ int main()
     ASSERT("Second line address", p.codeview().lines().at(0).address.value_or(0xff) == 0);
     ASSERT("Second line bytes", p.codeview().lines().at(0).bytes == std::vector<uint8_t> { 0 });
     ASSERT("Second line PC", p.codeview().lines().at(0).is_pc);
+    
+    // TODO - file list (order)
+    // TODO - go to another file
+    // TODO - go to another symbol
+    // TODO - step
 }

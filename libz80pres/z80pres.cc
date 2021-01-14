@@ -23,4 +23,11 @@ void Z80Presentation::compile_project_vasm(std::string const& project_path)
 {
     debug_information.emplace(z80aw::DebugInformation::CompilerType::Vasm, project_path);
     codeview_.set_debug_information(*debug_information);
+    update();
+}
+
+void Z80Presentation::update()
+{
+    uint16_t pc = z80aw::pc();
+    codeview_.update(pc);
 }

@@ -46,7 +46,7 @@ static void continue_execution(int sig)  // called when signal SIGUSR1 is receiv
 
 int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers)
 {
-    static char serial_port[256];
+    char serial_port[256] = "";
     
     if (signal(SIGUSR1, continue_execution) == SIG_ERR) {
         ERROR("Could not setup signal handler.\n");
@@ -75,7 +75,7 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
     if (!f) {
         ERROR("Could not open port file from emulator");
     }
-    fread(serial_port, sizeof serial_port, sizeof serial_port - 1, f);
+    fread(serial_port, sizeof serial_port, 1, f);
     fclose(f);
     unlink("./.port");
     

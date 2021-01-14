@@ -1,12 +1,39 @@
 #include "codeview.hh"
-
-void CodeView::update()
-{
-    lines_.clear();
-}
+#include "z80pres.hh"
 
 void CodeView::set_debug_information(z80aw::DebugInformation const& di)
 {
     di_ = &di;
-    update();
+}
+
+void CodeView::update(uint16_t pc)
+{
+    lines_.clear();
+    
+    // find PC location, and return empty if PC does not appear on code
+    std::optional<SourceLocation> osl = di_->location(pc);
+    if (!osl.has_value()) {
+        file_selected_ = {};
+        return;
+    }
+    
+    // find selected file
+    SourceLocation sl = osl.value();
+    file_selected_ = di_->filenames().at(sl.file);
+    
+    // create lines
+    size_t i = 1;
+    while (true) {
+        SourceLocation sl_line { sl.file, i };
+        auto oline = di_->sourceline(sl_line);
+        if (!oline.has_value())
+            break;
+        auto oaddr = di_->rlocation(sl_line);
+        // TODO - check breakpoints
+        bool is_breakpoint = false;
+        lines_.emplace_back(oline.value(), oaddr, oaddr.value_or(-1) == pc, is_breakpoint);
+        ++i;
+    }
+    
+    // load memory
 }

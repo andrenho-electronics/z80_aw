@@ -20,6 +20,7 @@ public:
     Z80Presentation& operator=(Z80Presentation&&) = default;
     
     void compile_project_vasm(std::string const& project_path);
+    void update();
     
     CodeView const& codeview() const { return codeview_; }
 
