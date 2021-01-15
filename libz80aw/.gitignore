@@ -1,3 +1,7 @@
 tests
 *.so
 *.dll
+*.a
+tests-comm
+tests-pres
+emulator
