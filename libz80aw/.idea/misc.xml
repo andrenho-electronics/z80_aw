@@ -3,6 +3,7 @@
   <component name="CidrRootsConfiguration">
     <sourceRoots>
       <file path="$PROJECT_DIR$/comm" />
+      <file path="$PROJECT_DIR$/contrib" />
       <file path="$PROJECT_DIR$/emu" />
       <file path="$PROJECT_DIR$/pres" />
       <file path="$PROJECT_DIR$/tests" />

@@ -23,7 +23,7 @@ public:
     void compile_project_vasm(std::string const& project_path);
     void update();
     
-    CodeView const& codeview() const { return codeview_; }
+    CodeView& codeview() { return codeview_; }
 
 private:
     std::optional<z80aw::DebugInformation> debug_information {};
