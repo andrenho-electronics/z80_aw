@@ -9,7 +9,7 @@
 #include <toml.h>
 #include <sys/param.h>
 
-#include "contrib/map.h"
+#include "../contrib/map.h"
 #include "z80aw_priv.h"
 
 typedef struct DebugInformation {

@@ -1,4 +1,0 @@
-TEST = 0x1234
-	nop
-main:
-	include project_include.z80

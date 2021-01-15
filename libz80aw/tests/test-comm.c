@@ -7,14 +7,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-extern "C" {
-
-#include "../z80aw.h"
-#include "../compiler.h"
+#include "../comm/z80aw.h"
+#include "../comm/compiler.h"
+#include "../comm/comm.h"
 #include "protocol.h"
-#include "../comm.h"
-
-}
 
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
@@ -54,7 +50,12 @@ static void dump_memory(uint16_t addr, uint16_t sz)
 
 Config initialize(int argc, char* argv[])
 {
-    Config config = { .hardware_type = EMULATOR };
+    Config config = { 
+        .hardware_type = EMULATOR, 
+        .serial_port   = NULL, 
+        .log_to_stdout = false,
+        .z80_registers = false
+    };
     
     int opt;
     while ((opt = getopt(argc, argv, "hzr:l")) != -1) {
@@ -95,7 +96,7 @@ int main(int argc, char* argv[])
     Config config = initialize(argc, argv);
     
     if (config.hardware_type == EMULATOR) {
-        if (z80aw_initialize_emulator("../emulator", serial_port, sizeof serial_port, config.z80_registers) != 0) {
+        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, config.z80_registers) != 0) {
             fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
             exit(1);
         }
@@ -392,7 +393,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_reset();
     z80aw_cpu_continue();
     usleep(10000);
-    Z80AW_Event e = { .type = Z80AW_NO_EVENT };
+    Z80AW_Event e = { .type = Z80AW_NO_EVENT, .data = 0 };
     do {
         e = z80aw_last_event();
         if (e.type == Z80AW_PRINT_CHAR) {
@@ -430,7 +431,7 @@ int main(int argc, char* argv[])
     // load registers from Z80 code
     //
     
-    FILE* f = fopen("test/registers.z80", "r");
+    FILE* f = fopen("tests/registers.z80", "r");
     ASSERT("Open register asm file", f);
     char reg_buf[8 * 1024];
     fread(reg_buf, sizeof reg_buf, 1, f);
@@ -481,7 +482,7 @@ int main(int argc, char* argv[])
     //
     // let simple OS loaded into the memory
     //
-    DebugInformation* dd = compile_vasm("simple/simple.toml");
+    DebugInformation* dd = compile_vasm("z80src/simple/simple.toml");
     z80aw_upload_compiled(dd, NULL, NULL);
     debug_free(dd);
     

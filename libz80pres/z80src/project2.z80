@@ -1,5 +1,0 @@
-	org	0x10
-project2:
-	rst 0x8
-.hang:
-    jp .hang

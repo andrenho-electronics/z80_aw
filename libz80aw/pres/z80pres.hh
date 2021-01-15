@@ -3,7 +3,7 @@
 
 #include <optional>
 #include <string>
-#include "../libz80aw/c++/z80aw.hh"
+#include "z80aw.hh"
 
 #include "codeview.hh"
 

@@ -7,7 +7,7 @@
 #include <vector>
 
 extern "C" {
-#include "../z80aw.h"
+#include "../comm/z80aw.h"
 }
 
 namespace z80aw {

@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <sys/types.h>
 
 typedef struct DebugInformation DebugInformation;
 
