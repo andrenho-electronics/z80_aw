@@ -10,8 +10,8 @@
 namespace z80aw { class DebugInformation; }
 
 struct CodeViewLine {
-    CodeViewLine(std::string const& code, std::optional<uint16_t> const& address, bool is_pc, bool is_breakpoint)
-            : code(code), address(address), is_pc(is_pc), is_breakpoint(is_breakpoint) {}
+    CodeViewLine(std::string const& code, std::optional<uint16_t> const& address, bool is_pc, bool is_breakpoint, std::vector<uint8_t> const& bytes)
+        : code(code), address(address), is_pc(is_pc), is_breakpoint(is_breakpoint), bytes(bytes) {}
     
     std::string             code;
     std::optional<uint16_t> address;

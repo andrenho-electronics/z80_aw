@@ -221,4 +221,14 @@ void DebugInformation::print() const
     debug_print(raw_ptr_);
 }
 
+std::vector<uint8_t> DebugInformation::bytes(SourceLocation sl) const
+{
+    uint8_t buf[16];
+    int r = debug_sourcebytes(raw_ptr_, sl, buf, sizeof buf);
+    CHECKED(r);
+    if (r == 0)
+        return {};
+    return std::vector(buf, buf + r);
+}
+
 }

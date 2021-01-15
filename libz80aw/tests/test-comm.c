@@ -205,8 +205,6 @@ int main(int argc, char* argv[])
         printf("\e[0m\n");
     }
     
-    exit(0);
-    
     DebugInformation* di_error = compile_vasm("z80src/project_error.toml");
     ASSERT("DebugInformation is not null", di_error);
     {

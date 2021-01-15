@@ -31,9 +31,7 @@ void CodeView::update()
         auto oaddr = di_->rlocation(sl_line);
         // TODO - check breakpoints
         bool is_breakpoint = false;
-        lines_.emplace_back(oline.value(), oaddr, oaddr.value_or(-1) == z80_state_.pc, is_breakpoint);
+        lines_.emplace_back(oline.value(), oaddr, oaddr.value_or(-1) == z80_state_.pc, is_breakpoint, di_->bytes(sl_line));
         ++i;
     }
-    
-    // load memory
 }

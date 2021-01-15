@@ -87,6 +87,7 @@ public:
     std::optional<std::string>      sourceline(SourceLocation sl) const;
     std::optional<SourceLocation>   location(uint16_t addr) const;
     std::optional<uint16_t>         rlocation(SourceLocation sl) const;
+    std::vector<uint8_t>            bytes(SourceLocation sl) const;
     ::DebugInformation const*       raw_ptr() const { return raw_ptr_; }
     
     std::string                     compiler_output() const;
