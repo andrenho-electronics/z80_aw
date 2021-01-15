@@ -9,6 +9,7 @@ Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emu
 }
 
 Z80Presentation::Z80Presentation(std::string const& serial_port)
+    : codeview_(z80_state_)
 {
     z80aw::init({ serial_port, false, false });
 }
@@ -28,6 +29,6 @@ void Z80Presentation::compile_project_vasm(std::string const& project_path)
 
 void Z80Presentation::update()
 {
-    uint16_t pc = z80aw::pc();
-    codeview_.update(pc);
+    z80_state_.pc = z80aw::pc();
+    codeview_.update();
 }

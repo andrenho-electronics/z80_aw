@@ -40,7 +40,7 @@ check-pres: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 check-comm-leaks: $(TEST_COMM_EXE) $(EMULATOR_EXE)
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./$<
 
-check-pres-leaks: $(TEST_COMM_EXE) $(EMULATOR_EXE)
+check-pres-leaks: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	valgrind --track-origins=yes --leak-check=full --show-leak-kinds=all ./$<
 
 .PHONY: clean

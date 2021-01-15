@@ -6,12 +6,12 @@ void CodeView::set_debug_information(z80aw::DebugInformation const& di)
     di_ = &di;
 }
 
-void CodeView::update(uint16_t pc)
+void CodeView::update()
 {
     lines_.clear();
     
     // find PC location, and return empty if PC does not appear on code
-    std::optional<SourceLocation> osl = di_->location(pc);
+    std::optional<SourceLocation> osl = di_->location(z80_state_.pc);
     if (!osl.has_value()) {
         file_selected_ = {};
         return;
@@ -31,7 +31,7 @@ void CodeView::update(uint16_t pc)
         auto oaddr = di_->rlocation(sl_line);
         // TODO - check breakpoints
         bool is_breakpoint = false;
-        lines_.emplace_back(oline.value(), oaddr, oaddr.value_or(-1) == pc, is_breakpoint);
+        lines_.emplace_back(oline.value(), oaddr, oaddr.value_or(-1) == z80_state_.pc, is_breakpoint);
         ++i;
     }
     

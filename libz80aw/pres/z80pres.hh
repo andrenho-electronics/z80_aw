@@ -6,6 +6,7 @@
 #include "z80aw.hh"
 
 #include "codeview.hh"
+#include "z80state.hh"
 
 class Z80Presentation {
 public:
@@ -27,6 +28,7 @@ public:
 private:
     std::optional<z80aw::DebugInformation> debug_information {};
     
+    Z80State z80_state_;
     CodeView codeview_;
 };
 

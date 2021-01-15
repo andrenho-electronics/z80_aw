@@ -5,6 +5,7 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include "view.hh"
 
 namespace z80aw { class DebugInformation; }
 
@@ -19,9 +20,11 @@ struct CodeViewLine {
     std::vector<uint8_t>    bytes;
 };
 
-class CodeView {
+class CodeView : public View {
 public:
-    void update(uint16_t pc);
+    explicit CodeView(Z80State z80_state) : View(z80_state) {}
+    
+    void update();
     void set_debug_information(z80aw::DebugInformation const& di);
     
     std::vector<CodeViewLine> const& lines() const { return lines_; }
