@@ -1,16 +1,23 @@
 #include "compiler.h"
 
+#include <stdio.h>
 #include <limits.h>
 #include <regex.h>
 #include <stdlib.h>
-#include <stdio.h>
+#include <string.h>
 #include <libgen.h>
 #include <unistd.h>
 #include <toml.h>
 #include <sys/param.h>
+#include <ctype.h>
 
 #include "../contrib/map.h"
 #include "z80aw_priv.h"
+
+typedef struct {
+    uint8_t* data;
+    size_t   sz;
+} Bytes;
 
 typedef struct DebugInformation {
     char**       filenames;
@@ -18,6 +25,7 @@ typedef struct DebugInformation {
     map_str_t    source_map;
     map_int_t    location_map;     // key: address, value: source location
     map_int_t    rlocation_map;    // key: source location, value: address
+    map_void_t   bytes_map;        // key: source location, value: Bytes
     DebugSymbol* symbols;
     size_t       n_symbols;
     bool         success;
@@ -46,6 +54,18 @@ char* debug_sourceline(DebugInformation const* di, SourceLocation sl)
     snprintf(key, sizeof key, "%zd:%zu", sl.file, sl.line);
     char** value = map_get(&((DebugInformation*)di)->source_map, key);
     return value ? *value : NULL;
+}
+
+int debug_sourcebytes(DebugInformation const* di, SourceLocation sl, uint8_t* buf, size_t buf_sz)
+{
+    int hash = (int) ((sl.file << 16) | (sl.line));
+    char key[16];
+    snprintf(key, sizeof key, "%d", hash);
+    Bytes** bytes = (Bytes**) map_get(&((DebugInformation*)di)->bytes_map, key);
+    if (!bytes)
+        return 0;
+    memcpy(buf, (*bytes)->data, (*bytes)->sz);
+    return (*bytes)->sz;
 }
 
 SourceLocation debug_location(DebugInformation const* di, uint16_t addr)
@@ -253,18 +273,45 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             map_set(&di->source_map, key, strdup(source));
     
         } else if (section == SOURCE && line[0] == ' ') {  // address
+            SourceLocation sl = { .file = file_number, .line = file_line };
+    
+            // read address
             char buf[10];
             strncpy(buf, &line[23], 4); buf[4] = '\0';
             size_t addr = strtoul(buf, NULL, 16);
             if (addr == ULONG_MAX)
                 ERROR("Invalid listing file format.");
-            SourceLocation sl = { .file = file_number, .line = file_line };
+            
+            // store address in location and rlocation
             int hash = (int) ((sl.file << 16) | (sl.line));
             char hash_str[16], addr_str[16];
             snprintf(hash_str, sizeof hash_str, "%d", hash);
             snprintf(addr_str, sizeof addr_str, "%zu", addr);
             map_set(&di->location_map, addr_str, hash);
             map_set(&di->rlocation_map, hash_str, addr);
+            
+            // add bytes
+            size_t pos = 30;
+            uint8_t data[16];
+            size_t sz = 0;
+            while (sz < sizeof data) {
+                if (strlen(line) < pos + 2)
+                    break;
+                char hbuf[3] = {0};
+                strncpy(hbuf, &line[pos], 2);
+                if (!isxdigit(hbuf[0]))
+                    break;
+                size_t byte = strtoul(hbuf, NULL, 16);
+                if (byte == ULONG_MAX)
+                    break;
+                data[sz++] = byte;
+                pos += 3;
+            }
+            Bytes* bytes = malloc(sizeof(Bytes));
+            bytes->sz = sz;
+            bytes->data = malloc(sz);
+            memcpy(bytes->data, data, sz);
+            map_set(&di->bytes_map, hash_str, bytes);
         
         } else if (section == FILENAMES && line[0] == 'F') {
             char bf[10];
@@ -341,6 +388,7 @@ DebugInformation* compile_vasm(const char* project_file)
     map_init(&di->source_map);
     map_init(&di->location_map);
     map_init(&di->rlocation_map);
+    map_init(&di->bytes_map);
     di->output = strdup("");
     di->success = true;
     
@@ -393,6 +441,12 @@ void debug_free(DebugInformation* di)
         free(*map_get(&di->source_map, key));
     map_deinit(&di->source_map);
     
+    // bytes
+    iter = map_iter(&di->source_map);
+    while ((key = map_next(&di->bytes_map, &iter)))
+        free(*map_get(&di->bytes_map, key));
+    map_deinit(&di->bytes_map);
+    
     // maps
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
@@ -425,15 +479,23 @@ void debug_print(DebugInformation const* di)
     printf("  sources: {\n");
     for (size_t i = 0; i < debug_file_count(di); ++i) {
         printf("    { \"%s\" : [\n", debug_filename(di, i));
-        size_t j = 1;
         char* line;
-        while ((line = debug_sourceline(di, (SourceLocation) { .file = i, .line = j }))) {
+        SourceLocation sl = { .file = i, .line = 1 };
+        while ((line = debug_sourceline(di, sl))) {
             printf("      { line: \"%s\"", line);
-            int addr = debug_rlocation(di, (SourceLocation) { .file = i, .line = j });
+            int addr = debug_rlocation(di, sl);
             if (addr != -1)
                 printf(", addr: 0x%x", addr);
+            uint8_t buf[10];
+            int r = debug_sourcebytes(di, sl, buf, sizeof buf);
+            if (r > 0) {
+                printf(", bytes: [ ");
+                for (int k = 0; k < r; ++k)
+                    printf("%02X ", buf[k]);
+                printf("] ");
+            }
             printf(" },\n");
-            ++j;
+            ++sl.line;
         }
         printf("    ] },\n");
     }

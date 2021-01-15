@@ -32,6 +32,7 @@ void              debug_free(DebugInformation* di);
 char*               debug_filename(DebugInformation const* di, size_t i);
 size_t              debug_file_count(DebugInformation const* di);
 char*               debug_sourceline(DebugInformation const* di, SourceLocation sl);
+int                 debug_sourcebytes(DebugInformation const* di, SourceLocation sl, uint8_t* buf, size_t buf_sz);  // return -1 if not found, else return size of struct
 SourceLocation      debug_location(DebugInformation const* di, uint16_t addr);        // file = -1 if location is not found
 int                 debug_rlocation(DebugInformation const* di, SourceLocation sl);   // -1 if not found
 DebugSymbol const*  debug_symbol(DebugInformation const* di, size_t i);

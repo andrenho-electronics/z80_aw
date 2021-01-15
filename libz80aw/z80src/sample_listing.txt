@@ -1,0 +1,37 @@
+F00:0001       TEST = 0x1234
+F00:0002       
+F00:0003       	nop
+               S01:00000000:  00
+F00:0004       main:
+F00:0005       	include project_include.z80
+F01:0001       	nop
+               S01:00000001:  00
+F01:0002       	ld a, 0x60
+               S01:00000002:  3E 60
+F01:0003       	jp main
+               S01:00000004:  C3 01 00 [R]
+F01:0004       
+F01:0005       ; vim:ts=8:sts=8:sw=8:noexpandtab
+F01:0006       
+F00:0006       
+F00:0007       ; vim:ts=8:sts=8:sw=8:noexpandtab
+F00:0008       
+
+
+Sections:
+S01  .text
+
+
+Sources:
+F00  project1.z80
+F01  project_include.z80
+
+
+Symbols:
+main LAB (0x1) EXPORT REF sec=.text 
+TEST EXPR(4660=0x1234) UNUSED EXPORT EQU 
+__RPTCNT EXPR(-1=0xffff) INTERNAL 
+__VASM EXPR(0=0x0) INTERNAL 
+__UNIXFS EXPR(0=0x0) INTERNAL 
+
+There have been no errors.
