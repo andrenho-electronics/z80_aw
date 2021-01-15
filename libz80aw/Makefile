@@ -13,7 +13,7 @@ CXXFLAGS      = -std=c++17
 
 all: $(LIB) $(EMULATOR_EXE)
 
-$(EMULATOR_EXE): emu/main.c emu/z80/Z80.c
+$(EMULATOR_EXE): emu/emulator.c emu/z80/Z80.c
 	$(CC) $^ -o $@ $(CFLAGS) $(CPPFLAGS) -DLSB_FIRST -lutil
 
 $(LIB): $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
