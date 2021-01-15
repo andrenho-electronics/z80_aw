@@ -24,21 +24,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment="Reorganized project.">
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/clean.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/tests_comm.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/tests_pres.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/.idea/emulator.iml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/.idea/misc.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/.idea/modules.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/.idea/vcs.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/emulator" beforeDir="false" afterPath="$PROJECT_DIR$/emulator" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests-comm" beforeDir="false" afterPath="$PROJECT_DIR$/tests-comm" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests-pres" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -147,7 +133,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610705465938</updated>
-      <workItem from="1610705469433" duration="3650000" />
+      <workItem from="1610705469433" duration="3760000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -156,7 +142,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610705502744</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Reorganized project.">
+      <created>1610709594046</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1610709594046</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

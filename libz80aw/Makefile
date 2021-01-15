@@ -25,6 +25,9 @@ $(TEST_COMM_EXE): $(TEST_COMM_OBJ) $(OBJ_COMM) $(TOML_LIB)
 $(TEST_PRES_EXE): $(TEST_PRES_OBJ) $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(CXX) $^ -o $@
 
+check: $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
+	./$(TEST_COMM_EXE) && ./$(TEST_PRES_EXE)
+
 check-comm: $(TEST_COMM_EXE) $(EMULATOR_EXE)
 	./$< -z -l
 
