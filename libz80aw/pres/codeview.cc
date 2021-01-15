@@ -1,6 +1,8 @@
 #include "codeview.hh"
 #include "z80pres.hh"
 
+#include "z80aw.hh"
+
 void CodeView::set_debug_information(z80aw::DebugInformation const& di)
 {
     di_ = &di;
@@ -56,4 +58,26 @@ std::vector<std::string> CodeView::files(Order order) const
     if (order == Order::Alphabetical)
         std::sort(f.begin(), f.end());
     return f;
+}
+
+std::vector<Symbol> CodeView::symbols(Order order) const
+{
+    std::vector<Symbol> ss;
+    auto syms = di_->symbols();
+    std::transform(syms.begin(), syms.end(), std::back_inserter(ss), [](auto const& s) -> Symbol { return { s.symbol, s.addr }; });
+    return ss;
+}
+
+std::optional<size_t> CodeView::goto_symbol(std::string const& symbol)
+{
+    // find symbol
+    auto syms = di_->symbols();
+    auto it = std::find_if(syms.begin(), syms.end(), [&symbol](Symbol const& s) { return s.symbol == symbol; });
+    if (it == syms.end())
+        return {};
+    
+    // find file and line
+    // auto osl = di_->location()
+    
+    return 0;
 }

@@ -231,4 +231,17 @@ std::vector<uint8_t> DebugInformation::bytes(SourceLocation sl) const
     return std::vector(buf, buf + r);
 }
 
+std::vector<DebugInformation::Symbol> DebugInformation::symbols() const
+{
+    std::vector<DebugInformation::Symbol> ss;
+    size_t i = 0;
+    for (;;) {
+        DebugSymbol const* sym = debug_symbol(raw_ptr_, i++);
+        if (!sym)
+            break;
+        ss.push_back({ sym->symbol, sym->addr });
+    }
+    return ss;
+}
+
 }
