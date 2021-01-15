@@ -276,10 +276,14 @@ int main(int argc, char* argv[])
     
     // compile and execute step
     COMPILE(" ld a, 0x42\n ld (0x8300), a");
+    uint8_t expected_code[] = { 0x3e, 0x42, 0x32, 0x00, 0x83 };
+    uint8_t compiled_code[sizeof expected_code];
+    z80aw_read_block(0x0, sizeof expected_code, compiled_code);
+    ASSERT("Code compiled correctly", memcmp(expected_code, compiled_code, sizeof expected_code) == 0);
     z80aw_cpu_reset();
-    ASSERT("Step [0x300] = 0x42", z80aw_cpu_step(NULL) == 0);
+    ASSERT("Step [0x8300] = 0x42", z80aw_cpu_step(NULL) == 0);
     z80aw_cpu_step(NULL);
-    ASSERT("[0x300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
+    ASSERT("[0x8300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
     
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video

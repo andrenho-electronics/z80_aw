@@ -1,6 +1,5 @@
 OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o contrib/map.o
 OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o
-OBJ_EMULATOR  = emu/main.o emu/z80/Z80.o
 TEST_COMM_OBJ = tests/test-comm.o
 TEST_COMM_EXE = tests-comm
 TEST_PRES_OBJ = tests/test-pres.o
@@ -14,7 +13,7 @@ CXXFLAGS      = -std=c++17
 
 all: $(LIB) $(EMULATOR_EXE)
 
-$(EMULATOR_EXE): $(OBJ_EMULATOR)
+$(EMULATOR_EXE): emu/main.c emu/z80/Z80.c
 	$(CC) $^ -o $@ $(CFLAGS) $(CPPFLAGS) -DLSB_FIRST -lutil
 
 $(LIB): $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
