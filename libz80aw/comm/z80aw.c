@@ -1,11 +1,13 @@
 #include "z80aw.h"
 
+#include <errno.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <protocol.h>
 #include <signal.h>
+#include <string.h>
 #include <unistd.h>
 
+#include "protocol.h"
 #include "comm.h"
 #include "z80aw_priv.h"
 
@@ -53,19 +55,28 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
     }
     
     // initialize emulator
+    char cmdbuf[1024];
+    snprintf(cmdbuf, sizeof cmdbuf, "%s/emulator", emulator_path);
+    if (access(cmdbuf, F_OK) != 0) {
+        ERROR("Could not find emulator executable at path '%s'", cmdbuf);
+    }
+    
     pid_t my_pid = getpid();
     pid_t emulator_pid = fork();
-    if (emulator_pid == 1) {
+    int r = 0;
+    if (emulator_pid == -1) {
         ERROR("Could not fork.");
     } else if (emulator_pid == 0) {
-        char pid_s[16], cmdbuf[1024];
+        char pid_s[16];
         snprintf(pid_s, sizeof pid_s, "%d", my_pid);
-        snprintf(cmdbuf, sizeof cmdbuf, "%s/emulator", emulator_path);
         printf("Starting emulator with '%s -p %s'\n", cmdbuf, pid_s);
         if (z80_registers)
-            execl(cmdbuf, cmdbuf, "-z", "-p", pid_s, NULL);
+            r = execl(cmdbuf, cmdbuf, "-z", "-p", pid_s, NULL);
         else
-            execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
+            r = execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
+        if (r < 0) {
+            ERROR("Could not initialize emulator: %s", strerror(errno));
+        }
     }
     
     while (wait_for_emulator);   // this variable is swapped when signal SIGUSR1 is received from emulator
