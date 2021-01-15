@@ -6,6 +6,7 @@
 #include <signal.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/prctl.h>
 
 #include "protocol.h"
 #include "comm.h"
@@ -61,14 +62,22 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
         ERROR("Could not find emulator executable at path '%s'", cmdbuf);
     }
     
-    pid_t my_pid = getpid();
+    pid_t parent_pid = getpid();
     pid_t emulator_pid = fork();
     int r = 0;
     if (emulator_pid == -1) {
         ERROR("Could not fork.");
     } else if (emulator_pid == 0) {
+        // child code
+        // prepare emulator to die with parent
+        if (prctl(PR_SET_PDEATHSIG, SIGTERM) < 0)
+            abort();
+        if (getppid() != parent_pid)
+            abort();
+    
+        // start emulator
         char pid_s[16];
-        snprintf(pid_s, sizeof pid_s, "%d", my_pid);
+        snprintf(pid_s, sizeof pid_s, "%d", parent_pid);
         printf("Starting emulator with '%s -p %s'\n", cmdbuf, pid_s);
         if (z80_registers)
             r = execl(cmdbuf, cmdbuf, "-z", "-p", pid_s, NULL);
@@ -77,20 +86,21 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
         if (r < 0) {
             ERROR("Could not initialize emulator: %s", strerror(errno));
         }
+    } else {
+        // parent code
+        while (wait_for_emulator);   // this variable is swapped when signal SIGUSR1 is received from emulator
+    
+        // read port from file created by the emulator
+        FILE* f = fopen("./.port", "r");
+        if (!f) {
+            ERROR("Could not open port file from emulator");
+        }
+        fread(serial_port, sizeof serial_port, 1, f);
+        fclose(f);
+        unlink("./.port");
+    
+        snprintf(serial_port_buf, serial_port_buf_sz, "%s", serial_port);
     }
-    
-    while (wait_for_emulator);   // this variable is swapped when signal SIGUSR1 is received from emulator
-    
-    // read port from file created by the emulator
-    FILE* f = fopen("./.port", "r");
-    if (!f) {
-        ERROR("Could not open port file from emulator");
-    }
-    fread(serial_port, sizeof serial_port, 1, f);
-    fclose(f);
-    unlink("./.port");
-    
-    snprintf(serial_port_buf, serial_port_buf_sz, "%s", serial_port);
     
     return 0;
 }

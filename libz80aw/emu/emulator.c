@@ -100,16 +100,16 @@ static void exit_if_parent_died()
 }
 
 static uint8_t recv() {
-    /*
     fd_set set;
     struct timeval timeout;
     FD_ZERO(&set);
     FD_SET(master, &set);
     timeout.tv_sec = 5;    // 5 seconds
     timeout.tv_usec = 0;
-    while (select(FD_SETSIZE, &set, NULL, NULL, &timeout) == 0)
-     */
-    exit_if_parent_died();
+    while (select(FD_SETSIZE, &set, NULL, NULL, &timeout) == 0) {
+        timeout.tv_sec = 5;    // 5 seconds
+        exit_if_parent_died();
+    }
     
     uint8_t c;
     int r = 0;
