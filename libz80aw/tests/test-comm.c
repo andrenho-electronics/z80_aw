@@ -108,15 +108,12 @@ int main(int argc, char* argv[])
     
     z80aw_set_error_callback(error_cb, NULL);
     
-    Z80AW_Config cfg = {
-            .serial_port         = serial_port,
-            .log_to_stdout       = config.log_to_stdout,
-            .assert_empty_buffer = false, //true,
-    };
-    if (z80aw_init(&cfg) < 0) {
+    if (z80aw_init(serial_port) < 0) {
         fprintf(stderr, "%s\n", z80aw_last_error());
         return EXIT_FAILURE;
     }
+    z80aw_set_logging_to_stdout(config.log_to_stdout);
+    z80aw_set_assert_empty_buffer(false);
     
     uint8_t block[MAX_BLOCK_SIZE], rblock[MAX_BLOCK_SIZE];
 

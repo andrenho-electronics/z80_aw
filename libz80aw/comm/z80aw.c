@@ -13,17 +13,15 @@
 #include "z80aw_priv.h"
 
 static char last_error[256] = "No error.";
-static bool log_to_stdout = false;
 static bool wait_for_emulator = true;
 static bool z80_power = false;
 static void (*error_cb)(const char* description, void* data) = NULL;
 static void* error_data = NULL;
 
-int z80aw_init(Z80AW_Config* cfg)
+int z80aw_init(const char* serial_port)
 {
-    if (open_serial_port(cfg->serial_port, cfg->log_to_stdout, cfg->assert_empty_buffer) != 0)
+    if (open_serial_port(serial_port) != 0)
         return -1;
-    log_to_stdout = cfg->log_to_stdout;
     return 0;
 }
 
@@ -31,6 +29,16 @@ int z80aw_close()
 {
     close_serial_port();
     return 0;
+}
+
+int z80aw_set_logging_to_stdout(bool v)
+{
+    log_to_stdout = v;
+}
+
+int z80aw_set_assert_empty_buffer(bool v)
+{
+    assert_empty_buffer = v;
 }
 
 int z80aw_set_error_callback(void (*error_cb_)(const char* description, void* data), void* data)

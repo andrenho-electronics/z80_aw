@@ -10,18 +10,15 @@
 #include <errno.h>
 
 static int fd = -1;
-static bool log_to_stdout = false;
-static bool assert_empty_buffer = false;
+bool log_to_stdout = false;
+bool assert_empty_buffer = false;
 
-int open_serial_port(char const* port, bool log_to_stdout_, bool assert_empty_buffer_)
+int open_serial_port(char const* port)
 {
     fd = open(port, O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         ERROR("Could not open serial port: %s", strerror(errno));
     }
-    
-    log_to_stdout = log_to_stdout_;
-    assert_empty_buffer = assert_empty_buffer_;
     
     // set interface attributes
     struct termios tty;

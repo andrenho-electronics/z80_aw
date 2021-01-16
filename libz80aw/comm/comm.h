@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int  open_serial_port(char const* port, bool log_to_stdout, bool assert_empty_buffer_);
+int  open_serial_port(char const* port);
 void close_serial_port();
 
 int zsend_noreply(uint8_t byte);
@@ -14,5 +14,8 @@ int zrecv16();
 
 bool z_empty_buffer();
 void z_assert_empty_buffer();
+
+extern bool log_to_stdout;
+extern bool assert_empty_buffer;
 
 #endif //LIBZ80AW_COMM_H

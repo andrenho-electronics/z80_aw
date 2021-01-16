@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="tests-comm" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-l" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-comm" CONFIG_NAME="tests-comm" version="1" RUN_PATH="$PROJECT_DIR$/tests-comm">
+  <configuration default="false" name="tests-comm" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-lz" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-comm" CONFIG_NAME="tests-comm" version="1" RUN_PATH="$PROJECT_DIR$/tests-comm">
     <method v="2">
       <option name="CLION.COMPOUND.BUILD" enabled="true" />
     </method>

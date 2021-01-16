@@ -8,12 +8,6 @@
 #include "compiler.h"
 
 typedef struct {
-    const char* serial_port;
-    bool        log_to_stdout;
-    bool        assert_empty_buffer;
-} Z80AW_Config;
-
-typedef struct {
     uint16_t free_memory;
 } Z80AW_ControllerInfo;
 
@@ -35,8 +29,11 @@ typedef struct {
 
 int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers);
 
-int z80aw_init(Z80AW_Config* cfg);
+int z80aw_init(const char* serial_port);
 int z80aw_close();
+
+int z80aw_set_logging_to_stdout(bool v);
+int z80aw_set_assert_empty_buffer(bool v);
 
 int z80aw_set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 
