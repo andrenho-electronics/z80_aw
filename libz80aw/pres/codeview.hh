@@ -33,7 +33,7 @@ struct Symbol {
 
 class CodeView : public View {
 public:
-    explicit CodeView(Z80State z80_state) : View(z80_state) {}
+    explicit CodeView(Z80State const& z80_state) : View(z80_state) {}
     
     void update(bool update_file_selected=true);
     void set_debug_information(z80aw::DebugInformation const& di);
@@ -47,10 +47,15 @@ public:
     std::vector<std::string> files(Order order) const;
     std::vector<Symbol>      symbols(Order order) const;
     
+    void add_breakpoint(size_t line);
+    void remove_breakpoint(size_t line);
+    
 private:
     z80aw::DebugInformation const* di_ = nullptr;
     std::optional<std::string>     file_selected_;
     std::vector<CodeViewLine>      lines_;
+    
+    ssize_t find_file_idx(std::string const& filename) const;
 };
 
 #endif

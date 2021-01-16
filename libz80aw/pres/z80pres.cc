@@ -32,3 +32,20 @@ void Z80Presentation::update()
     z80_state_.pc = z80aw::pc();
     codeview_.update();
 }
+
+void Z80Presentation::step()
+{
+    z80aw::step_debug();
+    update();
+}
+
+void Z80Presentation::reset()
+{
+    z80aw::reset();
+}
+
+void Z80Presentation::remove_all_breakpoints()
+{
+    z80aw::remove_all_breakpoints();
+    update();
+}

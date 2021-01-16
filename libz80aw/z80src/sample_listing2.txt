@@ -1,0 +1,24 @@
+F00:0001       	org	0x10
+F00:0002       project2:
+F00:0003       	rst 0x8
+               S01:00000010:  CF
+F00:0004       
+F00:0005       ; vim:ts=8:sts=8:sw=8:noexpandtab
+F00:0006       
+
+
+Sections:
+S01  seg10
+
+
+Sources:
+F00  project2.z80
+
+
+Symbols:
+project2 EXPR(16=0x10) UNUSED ABS 
+__RPTCNT EXPR(-1=0xffff) INTERNAL 
+__VASM EXPR(0=0x0) INTERNAL 
+__UNIXFS EXPR(0=0x0) INTERNAL 
+
+There have been no errors.

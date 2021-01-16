@@ -24,6 +24,11 @@ public:
     void update();
     
     CodeView& codeview() { return codeview_; }
+    
+    void reset();
+    void step();
+    
+    void remove_all_breakpoints();
 
 private:
     std::optional<z80aw::DebugInformation> debug_information {};

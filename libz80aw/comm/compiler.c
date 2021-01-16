@@ -64,7 +64,7 @@ int debug_sourcebytes(DebugInformation const* di, SourceLocation sl, uint8_t* bu
     Bytes** bytes = (Bytes**) map_get(&((DebugInformation*)di)->bytes_map, key);
     if (!bytes)
         return 0;
-    memcpy(buf, (*bytes)->data, (*bytes)->sz);
+    memcpy(buf, (*bytes)->data, MIN(buf_sz, (*bytes)->sz));
     return (*bytes)->sz;
 }
 
