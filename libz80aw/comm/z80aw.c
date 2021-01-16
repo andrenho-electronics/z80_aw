@@ -424,6 +424,17 @@ int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz)
     return count;
 }
 
+int z80aw_cpu_next()
+{
+    if (z80_power == false) {
+        ERROR("CPU is not powered up.");
+    }
+    
+    int r = zsend_expect(Z_NEXT, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
 int z80aw_cpu_continue()
 {
     if (z80_power == false) {

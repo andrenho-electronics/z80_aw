@@ -67,6 +67,7 @@ int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz);   // return address
 
 int z80aw_keypress(uint8_t key);
 
+int z80aw_cpu_next();
 int z80aw_cpu_continue();
 int z80aw_cpu_stop();
 

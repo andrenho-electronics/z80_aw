@@ -411,6 +411,21 @@ int main(int argc, char* argv[])
         }
     } while (e.type != Z80AW_PRINT_CHAR);
     z80aw_cpu_stop();
+    
+    //
+    // next
+    //
+    COMPILE(" nop            \n"
+            " call sr        \n"
+            " nop            \n"
+            " sr: ld a, 0x68 \n"
+            " ld (0x8800), a \n"
+            " ret            \n");
+    z80aw_cpu_reset();
+    z80aw_cpu_step(NULL);
+    z80aw_cpu_next();
+    ASSERT("Next: returned from subroutine", z80aw_cpu_pc() == 0x4);
+    ASSERT("Next: memory was set correctly", z80aw_read_byte(0x8800) == 0x68);
 
     // 
     // set and read high memory location

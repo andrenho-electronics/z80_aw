@@ -337,6 +337,38 @@ int bkp_query(uint16_t bkps[16])
 }
 
 //
+// next
+//
+
+static void step_debug()
+{
+    if (load_registers_native) {
+        step_debug_native();
+    } else {
+        step_debug_nmi();
+    }
+}
+
+static void next()
+{
+    switch (memory[z80.PC.W]) {
+        case 0xcd:  // CALL
+        case 0xdc:
+        case 0xfc:
+        case 0xd4:
+        case 0xc4:
+        case 0xf4:
+        case 0xec:
+        case 0xe4:
+        case 0xcc:
+            bkp_add(z80.PC.W + 3);
+            continue_mode = true;
+            break;
+    }
+    RunZ80(&z80);   // TODO - use step debug?
+}
+
+//
 // Z80
 //
 
@@ -443,11 +475,7 @@ void command_loop()
                 }
                 return;
             case Z_STEP_DEBUG:
-                if (load_registers_native) {
-                    step_debug_native();
-                } else {
-                    step_debug_nmi();
-                }
+                step_debug();
                 return;
             case Z_STEP:
                 RunZ80(&z80);
@@ -458,6 +486,10 @@ void command_loop()
                 send(Z_OK);
                 continue_mode = true;
                 RunZ80(&z80);
+                return;
+            case Z_NEXT:
+                send(Z_OK);
+                next();
                 return;
             case Z_PIN_STATUS:
                 send_pins();

@@ -27,6 +27,7 @@
 #define Z_CYCLE             0xf1   // Z_OK
 #define Z_PC                0xf2   //  -> [PC]
 #define Z_POWERDOWN         0xf3   // Z_OK
+#define Z_NEXT              0xf4   // Z_OK
 
 #define Z_RUN               'R'    // no response
 

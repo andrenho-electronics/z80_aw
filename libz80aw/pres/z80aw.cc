@@ -126,6 +126,11 @@ void keypress(uint8_t k)
     CHECKED(z80aw_keypress(k));
 }
 
+void next()
+{
+    CHECKED(z80aw_cpu_next());
+}
+
 void continue_()
 {
     CHECKED(z80aw_cpu_continue());

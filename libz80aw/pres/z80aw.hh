@@ -57,6 +57,7 @@ std::vector<uint16_t> query_breakpoints();
 
 void keypress(uint8_t);
 
+void next();
 void continue_();
 void stop();
 
