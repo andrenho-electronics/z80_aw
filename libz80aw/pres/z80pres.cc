@@ -11,7 +11,7 @@ Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emu
 Z80Presentation::Z80Presentation(std::string const& serial_port)
     : codeview_(z80_state_)
 {
-    z80aw::init({ serial_port, false, false });
+    z80aw::init(serial_port);
 }
 
 Z80Presentation::~Z80Presentation()
@@ -48,4 +48,14 @@ void Z80Presentation::remove_all_breakpoints()
 {
     z80aw::remove_all_breakpoints();
     update();
+}
+
+void Z80Presentation::set_logging_to_stdout(bool v)
+{
+    z80aw::set_logging_to_stdout(v);
+}
+
+void Z80Presentation::set_assert_empty_buffer(bool v)
+{
+    z80aw::set_assert_empty_buffer(v);
 }

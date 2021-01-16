@@ -13,19 +13,24 @@ std::string initialize_emulator(std::string const& emulator_path, bool z80_regis
     return serial_port_buf;
 }
 
-void init(Config const& config)
+void init(std::string const& serial_port)
 {
-    Z80AW_Config cfg = {
-            config.serial_port.c_str(),
-            config.log_to_stdout,
-            config.assert_empty_buffer,
-    };
-    CHECKED(z80aw_init(&cfg));
+    CHECKED(z80aw_init(serial_port.c_str()));
 }
 
 void close()
 {
     CHECKED(z80aw_close());
+}
+
+void set_logging_to_stdout(bool v)
+{
+    CHECKED(z80aw_set_logging_to_stdout(v));
+}
+
+void set_assert_empty_buffer(bool v)
+{
+    CHECKED(z80aw_set_assert_empty_buffer(v));
 }
 
 void set_error_callback(void (*error_cb)(const char* description, void* data), void* data)

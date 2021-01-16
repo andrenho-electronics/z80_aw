@@ -14,19 +14,16 @@ namespace z80aw {
 
 class DebugInformation;
 
-struct Config {
-    std::string serial_port;
-    bool        log_to_stdout = false;
-    bool        assert_empty_buffer = false;
-};
-
 using Registers = Z80AW_Registers;
 using Event = Z80AW_Event;
 
 std::string initialize_emulator(std::string const& emulator_path, bool z80_registers=false);  // return serial port
 
-void init(Config const& config);
+void init(std::string const& serial_port);
 void close();
+
+void set_logging_to_stdout(bool v);
+void set_assert_empty_buffer(bool v);
 
 void set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 

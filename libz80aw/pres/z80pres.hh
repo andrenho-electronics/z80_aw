@@ -25,6 +25,9 @@ public:
     
     CodeView& codeview() { return codeview_; }
     
+    void set_logging_to_stdout(bool v);
+    void set_assert_empty_buffer(bool v);
+    
     void reset();
     void step();
     

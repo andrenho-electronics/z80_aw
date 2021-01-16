@@ -34,11 +34,13 @@ int z80aw_close()
 int z80aw_set_logging_to_stdout(bool v)
 {
     log_to_stdout = v;
+    return 0;
 }
 
 int z80aw_set_assert_empty_buffer(bool v)
 {
     assert_empty_buffer = v;
+    return 0;
 }
 
 int z80aw_set_error_callback(void (*error_cb_)(const char* description, void* data), void* data)
