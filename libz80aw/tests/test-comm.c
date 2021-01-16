@@ -422,7 +422,7 @@ int main(int argc, char* argv[])
             " ld (0x8800), a \n"
             " ret            \n");
     z80aw_cpu_reset();
-    z80aw_cpu_step(NULL);
+    z80aw_cpu_next();
     z80aw_cpu_next();
     ASSERT("Next: returned from subroutine", z80aw_cpu_pc() == 0x4);
     ASSERT("Next: memory was set correctly", z80aw_read_byte(0x8800) == 0x68);
