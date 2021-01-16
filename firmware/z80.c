@@ -233,6 +233,7 @@ uint8_t z80_step()
             if (bkp_in_list(pc)) {
                 last_event = E_BREAKPOINT_HIT;
                 mode = M_DEBUG;
+                z80_busreq();
             }
             return 0;
     }
@@ -266,6 +267,30 @@ void z80_step_debug()
 // 
 // CONTINUE
 //
+
+void z80_next()
+{
+    uint8_t instruction;
+
+    memory_read_page(pc, &instruction, 1);
+    switch (instruction) {
+        case 0xcd:  // CALL
+        case 0xdc:
+        case 0xfc:
+        case 0xd4:
+        case 0xc4:
+        case 0xf4:
+        case 0xec:
+        case 0xe4:
+        case 0xcc:
+            bkp_add(pc + 3);
+            mode = M_CONTINUE;
+            break;
+        default:
+            z80_step();
+            break;
+    }
+}
 
 void z80_continue()
 {

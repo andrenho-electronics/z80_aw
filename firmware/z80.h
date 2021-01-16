@@ -33,6 +33,7 @@ uint8_t z80_step();
 void    z80_step_debug();
 
 // continue
+void    z80_next();
 void    z80_continue();
 void    z80_stop();
 

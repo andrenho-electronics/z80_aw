@@ -92,6 +92,11 @@ void debugger_cycle()
                 send_registers(z80_registers_last_update());
             }
             break;
+        case Z_NEXT: {
+                z80_next();
+                serial_send(Z_OK);
+            }
+            break;
         case Z_KEYPRESS:
             z80_set_last_keypress(serial_recv());
             z80_interrupt(0xcf);   // RST 0x8  
