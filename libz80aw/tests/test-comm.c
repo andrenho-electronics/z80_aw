@@ -30,7 +30,6 @@ typedef struct {
     HardwareType hardware_type;
     const char*  serial_port;
     bool         log_to_stdout;
-    bool         z80_registers;
 } Config;
 
 static void dump_memory(uint16_t addr, uint16_t sz)
@@ -54,7 +53,6 @@ Config initialize(int argc, char* argv[])
         .hardware_type = EMULATOR, 
         .serial_port   = NULL, 
         .log_to_stdout = false,
-        .z80_registers = false
     };
     
     int opt;
@@ -67,13 +65,9 @@ Config initialize(int argc, char* argv[])
                 config.hardware_type = REALHARDWARE;
                 config.serial_port = optarg;
                 break;
-            case 'z':
-                config.z80_registers = true;
-                break;
             default:
                 printf("Usage: %s [-r PORT]\n", argv[0]);
                 printf("     -r      Run on real hardware, where PORT is the serial port (ex. /dev/ttyUSB0)\n");
-                printf("     -z      When using emulator, use Z80 logic to retrieve registers, instead of emulator native interface\n");
                 printf("     -l      Log bytes to stdout\n");
                 exit(EXIT_FAILURE);
         }
@@ -96,7 +90,7 @@ int main(int argc, char* argv[])
     Config config = initialize(argc, argv);
     
     if (config.hardware_type == EMULATOR) {
-        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, config.z80_registers) != 0) {
+        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port) != 0) {
             fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
             exit(1);
         }
@@ -260,7 +254,7 @@ int main(int argc, char* argv[])
     z80aw_write_byte(0, 0);
     z80aw_write_byte(1, 0);
     z80aw_cpu_reset();
-    ASSERT("Step (nop)", z80aw_cpu_step(NULL) == 0);
+    ASSERT("Step (nop)", z80aw_cpu_step(NULL, NULL) == 0);
     ASSERT("PC == 0x1", z80aw_cpu_pc() == 0x1);
    
     // single step
@@ -268,7 +262,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_powerdown();
     z80aw_write_block(0, sizeof jp, jp);
     z80aw_cpu_reset();
-    ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL) == 0);
+    ASSERT("Step (jp 0xc3c3)",z80aw_cpu_step(NULL, NULL) == 0);
     ASSERT("PC == 0xC3C3", z80aw_cpu_pc() == 0xc3c3);
     
     // compile and execute step
@@ -278,28 +272,28 @@ int main(int argc, char* argv[])
     z80aw_read_block(0x0, sizeof expected_code, compiled_code);
     ASSERT("Code compiled correctly", memcmp(expected_code, compiled_code, sizeof expected_code) == 0);
     z80aw_cpu_reset();
-    ASSERT("Step [0x8300] = 0x42", z80aw_cpu_step(NULL) == 0);
-    z80aw_cpu_step(NULL);
+    ASSERT("Step [0x8300] = 0x42", z80aw_cpu_step(NULL, NULL) == 0);
+    z80aw_cpu_step(NULL, NULL);
     ASSERT("[0x8300] == 0x42", z80aw_read_byte(0x8300) == 0x42);
     
     // char on the screen
     COMPILE(" ld a, 'H'\n out (0), a\n nop");   // device 0x0 = video
     uint8_t c;
     z80aw_cpu_reset();
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(&c);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, &c);
     ASSERT("Char printed = 'H'", c == 'H');
-    z80aw_cpu_step(&c);
+    z80aw_cpu_step(NULL, &c);
     ASSERT("Print char is cleared", c == 0);
     
     // receive keypress
     COMPILE(" nop\n in a, (0x1)\n ld (0x8500), a\n nop");   // device 0x1 = keyboard
     z80aw_cpu_reset();
     z80aw_keypress('r');
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
     ASSERT("Receive keypress", z80aw_read_byte(0x8500) == 'r');
     
     // keypress interrupt
@@ -314,10 +308,10 @@ int main(int argc, char* argv[])
             "cc: jp cc");
     z80aw_cpu_reset();
     for (size_t i = 0; i < 6; ++i)
-        z80aw_cpu_step(NULL);
+        z80aw_cpu_step(NULL, NULL);
     z80aw_keypress('k');
     for (size_t i = 0; i < 6; ++i)
-        z80aw_cpu_step(NULL);
+        z80aw_cpu_step(NULL, NULL);
     ASSERT("Keyboard interrupt was received", z80aw_read_byte(0x8400) == 'k');
     
     //
@@ -429,8 +423,8 @@ int main(int argc, char* argv[])
     //
     COMPILE(" ld a, 0x78\n ld (0xfe00), a");
     z80aw_cpu_reset();
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
     ASSERT("High memory working fine", z80aw_read_byte(0xfe00) == 0x78);
 
     //
@@ -438,9 +432,9 @@ int main(int argc, char* argv[])
     //
     COMPILE(" ld sp, 0xfffe\n ld bc, 0x1234\n push bc");
     z80aw_cpu_reset();
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
-    z80aw_cpu_step(NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
+    z80aw_cpu_step(NULL, NULL);
     ASSERT("Stack working fine", z80aw_read_byte(0xfffd) == 0x12);
     
     //
@@ -476,24 +470,38 @@ int main(int argc, char* argv[])
              "cc: jp cc                 \n"
              "%s", reg_buf);
     COMPILE(code_buf);
-    z80aw_cpu_reset();
     
-    Z80AW_Registers r;
-    for (int i = 0; i < 32; ++i)
-        z80aw_cpu_step(NULL);
-    uint16_t original_pc = z80aw_cpu_pc();
-    ASSERT("Execute step debug", z80aw_cpu_step_debug(&r, NULL) == 0);
-    dump_memory(0xffe0, 0x20);
-    ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
-    ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
-    ASSERT("BC' == 0xBC", r.BCx == 0xbc);
-    ASSERT("HL == 0xHL", r.HL == 0x41);
-    ASSERT("A == 0x1", (r.AF >> 8) == 0x1);
-    ASSERT("I == 0x1", r.I == 0x1);
-    ASSERT("DE == 0xDE", r.DE == 0xde);
-    ASSERT("IY == 0x9F", r.IY == 0x9f);
-    uint16_t new_pc = z80aw_cpu_pc();
-    ASSERT("Returned to the next PC", new_pc == original_pc);
+    // here we test fetching the registers using the two modes (NMI and emulator)
+    for (int k = 0; k < 2; ++k) {
+        if (k == 0) {
+            printf("Preparing NMI register fetch mode...\n");
+            z80aw_set_register_fetch_mode(Z80AW_REGFETCH_NMI);
+        } else {
+            if (config.hardware_type != EMULATOR)
+                break;
+            printf("Preparing emulator register fetch mode...\n");
+            z80aw_set_register_fetch_mode(Z80AW_REGFETCH_EMULATOR);
+        }
+        printf("Done.\n");
+        
+        Z80AW_Registers r;
+        z80aw_cpu_reset();
+        for (int i = 0; i < 32; ++i)
+            z80aw_cpu_step(NULL, NULL);
+        uint16_t original_pc = z80aw_cpu_pc();
+        ASSERT("Execute step debug", z80aw_cpu_step(&r, NULL) == 0);
+        dump_memory(0xffe0, 0x20);
+        ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
+        ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
+        ASSERT("BC' == 0xBC", r.BCx == 0xbc);
+        ASSERT("HL == 0xHL", r.HL == 0x41);
+        ASSERT("A == 0x1", (r.AF >> 8) == 0x1);
+        ASSERT("I == 0x1", r.I == 0x1);
+        ASSERT("DE == 0xDE", r.DE == 0xde);
+        ASSERT("IY == 0x9F", r.IY == 0x9f);
+        uint16_t new_pc = z80aw_cpu_pc();
+        ASSERT("Returned to the next PC", new_pc == original_pc);
+    }
 
     //
     // let simple OS loaded into the memory

@@ -17,6 +17,7 @@ static bool wait_for_emulator = true;
 static bool z80_power = false;
 static void (*error_cb)(const char* description, void* data) = NULL;
 static void* error_data = NULL;
+static bool regfetch_enabled = false;
 
 int z80aw_init(const char* serial_port)
 {
@@ -43,6 +44,21 @@ int z80aw_set_assert_empty_buffer(bool v)
     return 0;
 }
 
+int z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode)
+{
+    zsend_noreply(Z_REGFETCH_MODE);
+    zsend_noreply(mode);
+    int r = zrecv();
+    if (r == Z_EMULATOR_ONLY) {
+        ERROR("The register emulator mode can only be set when using the emulator.");
+    } else if (r != Z_OK) {
+        ERROR("Unknown error when setting emulator mode.");
+    }
+    
+    regfetch_enabled = (mode != Z80AW_REGFETCH_DISABLED);
+    return 0;
+}
+
 int z80aw_set_error_callback(void (*error_cb_)(const char* description, void* data), void* data)
 {
     error_cb = error_cb_;
@@ -57,7 +73,7 @@ static void continue_execution(int sig)  // called when signal SIGUSR1 is receiv
     printf("Signal received from emulator.\n");
 }
 
-int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers)
+int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz)
 {
     char serial_port[256] = "";
     
@@ -89,10 +105,7 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
         char pid_s[16];
         snprintf(pid_s, sizeof pid_s, "%d", parent_pid);
         printf("Starting emulator with '%s -p %s'\n", cmdbuf, pid_s);
-        if (z80_registers)
-            r = execl(cmdbuf, cmdbuf, "-z", "-p", pid_s, NULL);
-        else
-            r = execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
+        r = execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
         if (r < 0) {
             ERROR("Could not initialize emulator: %s", strerror(errno));
         }
@@ -322,13 +335,13 @@ int z80aw_cpu_pc()
     return r < 0 ? 0 : pc;
 }
 
-int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
+static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
 {
     if (z80_power == false) {
         ERROR("CPU is not powered up.");
     }
     
-    int resp = zsend_noreply(Z_STEP_DEBUG);
+    int resp = zsend_noreply(Z_STEP);
     if (resp != 0)
         return resp;
     
@@ -357,6 +370,7 @@ int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
                 .R = r[24],
                 .I = r[25],
                 .HALT = r[26],
+                .valid = true,
         };
     }
     
@@ -364,7 +378,7 @@ int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
     return 0;
 }
 
-int z80aw_cpu_step(uint8_t* printed_char)
+static int z80aw_cpu_step_disabled(uint8_t* printed_char)
 {
     if (z80_power == false) {
         ERROR("CPU is not powered up.");
@@ -380,6 +394,17 @@ int z80aw_cpu_step(uint8_t* printed_char)
     
     z_assert_empty_buffer();
     return 0;
+}
+
+int z80aw_cpu_step(Z80AW_Registers* reg, uint8_t* printed_char)
+{
+    if (regfetch_enabled) {
+        return z80aw_cpu_step_debug(reg, printed_char);
+    } else {
+        if (reg)
+            reg->valid = false;
+        return z80aw_cpu_step_disabled(printed_char);
+    }
 }
 
 int z80aw_keypress(uint8_t key)

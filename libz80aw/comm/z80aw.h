@@ -15,9 +15,12 @@ typedef struct {
     uint16_t AF, BC, DE, HL, AFx, BCx, DEx, HLx, IX, IY, PC, SP;
     uint8_t R, I;
     bool HALT;
+    bool valid;
 } Z80AW_Registers;
 
 typedef enum { Z80AW_NO_EVENT, Z80AW_PRINT_CHAR, Z80AW_BREAKPOINT, Z80AW_ERROR } Z80AW_EventType;
+
+typedef enum { Z80AW_REGFETCH_DISABLED = 0, Z80AW_REGFETCH_NMI = 1, Z80AW_REGFETCH_EMULATOR = 2 } Z80AW_RegisterFetchMode;
 
 typedef struct {
     Z80AW_EventType type;
@@ -27,13 +30,14 @@ typedef struct {
 #define MAX_BLOCK_SIZE 512
 #define UPLOAD_CHECKSUM_LOCATION 0x7ffe
 
-int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, bool z80_registers);
+int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz);
 
 int z80aw_init(const char* serial_port);
 int z80aw_close();
 
 int z80aw_set_logging_to_stdout(bool v);
 int z80aw_set_assert_empty_buffer(bool v);
+int z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode);
 
 int z80aw_set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 
@@ -54,8 +58,7 @@ int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz
 int z80aw_cpu_reset();
 int z80aw_cpu_powerdown();
 int z80aw_cpu_pc();
-int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char);
-int z80aw_cpu_step(uint8_t* printed_char);
+int z80aw_cpu_step(Z80AW_Registers* reg, uint8_t* printed_char);
 
 int z80aw_add_breakpoint(uint16_t addr);
 int z80aw_remove_breakpoint(uint16_t addr);

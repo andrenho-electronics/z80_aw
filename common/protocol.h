@@ -9,8 +9,8 @@
 #define Z_WRITE_BLOCK       0xe3   // [Aa] [Ab] [Sa] [Sb] [bytes...] -> [Status] [Ca] [Cb]  (A = address, S = size, C = checksum)
 #define Z_READ_BLOCK        0xe4   // [Aa] [Ab] [Sa] [Sb] -> [Status] [bytes...]
 #define Z_RESET             0xe5   //  -> Z_OK
-#define Z_STEP_DEBUG        0xe6   //  -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT] [printed char]
-#define Z_STEP              0xe7   //  -> [printed char]
+#define Z_STEP              0xe6   //  if NMI or EMULATOR -> [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT] [printed char]
+                                   //  if DISABLED -> [printed char]
 #define Z_KEYPRESS          0xe8   // [Key] -> Z_OK
 #define Z_ADD_BKP           0xe9   // [Aa] [Ab] -> Z_OK / Z_TOO_MANY_BKPS
 #define Z_REMOVE_BKP        0xea   // [Aa] [Ab] -> Z_OK
@@ -28,6 +28,7 @@
 #define Z_PC                0xf2   //  -> [PC]
 #define Z_POWERDOWN         0xf3   // Z_OK
 #define Z_NEXT              0xf4   // Z_OK
+#define Z_REGFETCH_MODE     0xf5   // [0: no fetch, 1: nmi, 2: emulator] -> [Z_OK or Z_EMULATOR_ONLY]
 
 #define Z_RUN               'R'    // no response
 
@@ -40,5 +41,6 @@
 #define Z_PRINT_CHAR        0xd4   // [char]
 #define Z_BKP_REACHED       0xd5
 #define Z_INCORRECT_BUS     0xd6
+#define Z_EMULATOR_ONLY     0xd7
 
 #endif //LIBZ80AW_PROTOCOL_H

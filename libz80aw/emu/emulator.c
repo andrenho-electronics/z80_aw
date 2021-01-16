@@ -34,11 +34,13 @@ uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
-bool     load_registers_native = true;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
 uint16_t          register_stack_location = 0;
+
+typedef enum { REGFETCH_DISABLED = 0, REGFETCH_NMI = 1, REGFETCH_EMULATOR = 2 } RegisterFetchMode;
+RegisterFetchMode register_fetch_mode = REGFETCH_DISABLED;
 
 //
 // command line options
@@ -47,7 +49,7 @@ uint16_t          register_stack_location = 0;
 void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hlzp:")) != -1) {
+    while ((opt = getopt(argc, argv, "hlp:")) != -1) {
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
@@ -56,13 +58,9 @@ void get_options(int argc, char* argv[])
             case 'l':
                 log_to_stdout = true;
                 break;
-            case 'z':
-                load_registers_native = false;
-                break;
             case 'h':
                 printf("Usage: %s [-p PID] [-l]\n", argv[0]);
                 printf("     -p      Parent pid. Use this when started by another process.\n");
-                printf("     -z      When used, will fire a NMI on Z80 to load registers. Otherwise, use emulator native interface.\n");
                 printf("     -l      Log bytes to stdout\n");
                 exit(EXIT_FAILURE);
             default:
@@ -233,7 +231,6 @@ static void step_debug_native()
     send(z80.I);
     send((z80.IFF & IFF_HALT) ? 1 : 0);
     send(last_printed_char);
-    last_printed_char = 0;
 }
 
 static void step_debug_nmi()
@@ -301,7 +298,6 @@ static void step_debug_nmi()
     send(ir >> 8);
     send(halt);
     send(last_printed_char);
-    last_printed_char = 0;
 }
 
 //
@@ -342,13 +338,23 @@ int bkp_query(uint16_t bkps[16])
 // next
 //
 
-static void step_debug()
+static void step()
 {
-    if (load_registers_native) {
-        step_debug_native();
-    } else {
-        step_debug_nmi();
+    switch (register_fetch_mode) {
+        case REGFETCH_DISABLED:
+            RunZ80(&z80);
+            send(last_printed_char);
+            break;
+        case REGFETCH_NMI:
+            step_debug_nmi();
+            break;
+        case REGFETCH_EMULATOR:
+            step_debug_native();
+            break;
+        default:
+            send(Z_INVALID_CMD);
     }
+    last_printed_char = 0;
 }
 
 static void next()
@@ -476,13 +482,8 @@ void command_loop()
                     send16(chk);
                 }
                 return;
-            case Z_STEP_DEBUG:
-                step_debug();
-                return;
             case Z_STEP:
-                RunZ80(&z80);
-                send(last_printed_char);
-                last_printed_char = 0;
+                step();
                 return;
             case Z_CONTINUE:
                 send(Z_OK);
@@ -566,6 +567,16 @@ void command_loop()
             break;
         case Z_POWERDOWN:
             send(Z_OK);
+            break;
+        case Z_REGFETCH_MODE: {
+                int m = recv();
+                if (m <= 2) {
+                    register_fetch_mode = m;
+                    send(Z_OK);
+                } else {
+                    send(Z_INVALID_CMD);
+                }
+            }
             break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
