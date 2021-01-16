@@ -443,8 +443,11 @@ void debug_free(DebugInformation* di)
     
     // bytes
     iter = map_iter(&di->source_map);
-    while ((key = map_next(&di->bytes_map, &iter)))
-        free(*map_get(&di->bytes_map, key));
+    while ((key = map_next(&di->bytes_map, &iter))) {
+        Bytes* bs = *map_get(&di->bytes_map, key);
+        free(bs->data);
+        free(bs);
+    }
     map_deinit(&di->bytes_map);
     
     // maps

@@ -151,6 +151,36 @@ void finalize_emulator()
     CHECKED(z80aw_finalize_emulator());
 }
 
+//
+// DEBUG INFORMATION
+//
+
+DebugInformation::DebugInformation(CompilerType compiler_type, std::string const& project_file)
+        : raw_ptr_(::compile_vasm(project_file.c_str()))
+{
+    if (compiler_type != CompilerType::Vasm)
+        throw std::runtime_error("Compiler unsupported.");
+    
+    if (raw_ptr_ == nullptr)
+        throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
+    
+    char error_msg[4096];
+    if (!debug_output(raw_ptr_, error_msg, sizeof error_msg)) {
+        debug_free(raw_ptr_);
+        throw std::runtime_error(std::string("Compilation error:\n") + error_msg);
+    }
+    
+    size_t n = debug_file_count(raw_ptr_);
+    for (size_t i = 0; i < n; ++i)
+        filenames_.emplace_back(debug_filename(raw_ptr_, i));
+    
+    n = debug_binary_count(raw_ptr_);
+    for (size_t i = 0; i < n; ++i) {
+        ::Binary const* bin = debug_binary(raw_ptr_, i);
+        binaries_.push_back({ std::vector<uint8_t>(bin->data, bin->data + bin->sz), bin->addr });
+    }
+}
+
 DebugInformation::~DebugInformation()
 {
     debug_free(raw_ptr_);
@@ -181,32 +211,6 @@ std::optional<uint16_t> DebugInformation::rlocation(SourceLocation sl) const
         return {};
     else
         return static_cast<uint16_t>(n);
-}
-
-DebugInformation::DebugInformation(CompilerType compiler_type, std::string const& project_file)
-    : raw_ptr_(::compile_vasm(project_file.c_str()))
-{
-    if (compiler_type != CompilerType::Vasm)
-        throw std::runtime_error("Compiler unsupported.");
-    
-    if (raw_ptr_ == nullptr)
-        throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
-    
-    char error_msg[4096];
-    if (!debug_output(raw_ptr_, error_msg, sizeof error_msg)) {
-        debug_free(raw_ptr_);
-        throw std::runtime_error(std::string("Compilation error:\n") + error_msg);
-    }
-    
-    size_t n = debug_file_count(raw_ptr_);
-    for (size_t i = 0; i < n; ++i)
-        filenames_.emplace_back(debug_filename(raw_ptr_, i));
-    
-    n = debug_binary_count(raw_ptr_);
-    for (size_t i = 0; i < n; ++i) {
-        ::Binary const* bin = debug_binary(raw_ptr_, i);
-        binaries_.push_back({ std::vector<uint8_t>(bin->data, bin->data + bin->sz), bin->addr });
-    }
 }
 
 std::string DebugInformation::compiler_output() const
