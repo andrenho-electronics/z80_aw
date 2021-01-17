@@ -82,7 +82,7 @@ public:
         uint16_t    addr;
     };
     
-    enum CompilerType { Vasm };
+    enum CompilerType { Vasm, VasmCode };
     
     DebugInformation(CompilerType compiler_type, std::string const& project_file);
     ~DebugInformation();
@@ -107,7 +107,7 @@ public:
 private:
     explicit DebugInformation(::DebugInformation* raw_ptr) : raw_ptr_(raw_ptr) {}
     
-    ::DebugInformation*      raw_ptr_;
+    ::DebugInformation*      raw_ptr_ = nullptr;
     std::vector<std::string> filenames_;
     std::vector<Binary>      binaries_;
 };

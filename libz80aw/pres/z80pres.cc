@@ -20,11 +20,19 @@ Z80Presentation::~Z80Presentation()
     z80aw::close();
 }
 
-void Z80Presentation::compile_project_vasm(std::string const& project_path)
+void Z80Presentation::compile_project(CompilerType compiler_type, std::string const& text)
 {
-    debug_information.emplace(z80aw::DebugInformation::CompilerType::Vasm, project_path);
+    debug_information.emplace(compiler_type, text);
+    last_compilation_ = { compiler_type, text };
     codeview_.set_debug_information(*debug_information);
     update();
+}
+
+
+void Z80Presentation::recompile_project()
+{
+    if (last_compilation_)
+        compile_project(last_compilation_.value().mode, last_compilation_.value().project_name);
 }
 
 void Z80Presentation::update()
@@ -104,8 +112,9 @@ void Z80Presentation::check_events()
     }
 }
 
-void Z80Presentation::simple_compilation_vasm(std::string const& code)
+void Z80Presentation::next()
 {
-
+    z80aw::next();
+    update();
 }
 

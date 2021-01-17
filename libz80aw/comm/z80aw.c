@@ -269,18 +269,29 @@ bool z80aw_is_uploaded(DebugInformation const* di)
 
 int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
 {
+    struct DebugInformation* di = z80aw_simple_compilation_debug(code, err_buf, err_buf_sz);
+    if (di) {
+        debug_free(di);
+        return 0;
+    } else {
+        return -1;
+    }
+}
+
+DebugInformation* z80aw_simple_compilation_debug(const char* code, char* err_buf, size_t err_buf_sz)
+{
     // create temporary directory
     char tmpdir[256];
     snprintf(tmpdir, sizeof tmpdir, "%s/z80_XXXXXX", P_tmpdir);
     if (mkdtemp(tmpdir) == NULL)
-        ERROR("Could not create temp dir.");
+        ERROR_N("Could not create temp dir.");
     
     // create source file
     char filename[512];
     snprintf(filename, sizeof filename, "%s/project.z80", tmpdir);
     FILE* f = fopen(filename, "w");
     if (!f)
-        ERROR("Could not create source file.");
+        ERROR_N("Could not create source file.");
     fprintf(f, "%s", code);
     fclose(f);
     
@@ -295,24 +306,23 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
     DebugInformation* di = compile_vasm(pfilename);
     if (!di) {
         snprintf(err_buf, err_buf_sz, "%s", last_error);
-        return -1;
+        return NULL;
     }
     bool success = debug_output(di, err_buf, err_buf_sz);
-    z80aw_upload_compiled(di, NULL, NULL);
-    z_assert_empty_buffer();
-    debug_free(di);
+    if (success) {
+        z80aw_upload_compiled(di, NULL, NULL);
+        z_assert_empty_buffer();
+    } else {
+        debug_free(di);
+        di = NULL;
+    }
     
     // cleanup
     unlink(filename);
     unlink(pfilename);
     rmdir(tmpdir);
     
-    return success ? 0 : -1;
-}
-
-DebugInformation* z80aw_simple_compilation_debug(const char* code, char* err_buf, size_t err_buf_sz)
-{
-    // TODO - ...
+    return di;
 }
 
 int z80aw_cpu_reset()

@@ -415,8 +415,10 @@ int main(int argc, char* argv[])
     z80aw_cpu_reset();
     z80aw_cpu_next();
     usleep(10000);
+    ASSERT("Next: last event after regular opcode", z80aw_last_event().type == Z80AW_BREAKPOINT);
     z80aw_cpu_next();
     usleep(10000);
+    ASSERT("Next: last event after subrouting opcode", z80aw_last_event().type == Z80AW_BREAKPOINT);
     ASSERT("Next: returned from subroutine", z80aw_cpu_pc() == 0x4);
     ASSERT("Next: memory was set correctly", z80aw_read_byte(0x8800) == 0x68);
 

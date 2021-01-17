@@ -9,6 +9,7 @@
 #include "z80state.hh"
 
 using RegisterFetchMode = z80aw::RegisterFetchMode;
+using CompilerType = z80aw::DebugInformation::CompilerType;
 
 class Z80Presentation {
 public:
@@ -22,8 +23,8 @@ public:
     Z80Presentation(Z80Presentation&&) = delete;
     Z80Presentation& operator=(Z80Presentation&&) = delete;
     
-    void compile_project_vasm(std::string const& project_path);
-    void simple_compilation_vasm(std::string const& code);
+    void compile_project(CompilerType compiler_type, std::string const& text);
+    void recompile_project();
     void update();
     
     CodeView& codeview() { return codeview_; }
@@ -36,6 +37,7 @@ public:
     void step();
     void continue_();
     void stop();
+    void next();
     void check_events();
     
     void remove_all_breakpoints();
@@ -47,6 +49,12 @@ public:
 private:
     std::optional<z80aw::DebugInformation> debug_information {};
     
+    struct LastCompilation {
+        z80aw::DebugInformation::CompilerType mode;
+        std::string                           project_name;
+    };
+    
+    std::optional<LastCompilation> last_compilation_ {};
     Z80State z80_state_;
     CodeView codeview_;
 };

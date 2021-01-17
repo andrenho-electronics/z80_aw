@@ -25,14 +25,21 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/../firmware/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../firmware/.idea/firmware.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../firmware/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../firmware/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../firmware/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../common/protocol.h" beforeDir="false" afterPath="$PROJECT_DIR$/../common/protocol.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/z80.c" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/z80.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80aw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80aw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80state.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80state.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -106,7 +113,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../common/protocol.h" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../firmware" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RunManager" selected="Makefile Application.tests-pres">
@@ -140,6 +147,16 @@
         <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="lua.app" factoryName="Lua Application">
+      <option name="program" value="/usr/bin/lua" />
+      <option name="file" value="" />
+      <option name="workingDir" value="$PROJECT_DIR$/pres" />
+      <option name="debuggerType" value="2" />
+      <option name="params" value="" />
+      <option name="charset" value="UTF-8" />
+      <option name="showConsole" value="true" />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="Makefile.clean" />
       <item itemvalue="Makefile Application.all" />
@@ -163,7 +180,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610705465938</updated>
-      <workItem from="1610705469433" duration="47537000" />
+      <workItem from="1610705469433" duration="51634000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -291,7 +308,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610880521241</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary=".">
+      <created>1610900003702</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1610900003702</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

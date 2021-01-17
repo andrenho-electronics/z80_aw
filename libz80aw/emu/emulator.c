@@ -12,6 +12,7 @@
 
 #include "protocol.h"
 #include "z80/Z80.h"
+#include "../comm/z80aw.h"
 
 static int     master;
 static char    serial_port_name[256];
@@ -372,6 +373,8 @@ static void next()
             bkp_add(z80.PC.W + 3);
             continue_mode = true;
             break;
+        default:
+            last_event = Z_BKP_REACHED;
     }
     RunZ80(&z80);   // TODO - use step debug?
 }

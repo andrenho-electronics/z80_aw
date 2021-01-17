@@ -288,6 +288,7 @@ void z80_next()
             break;
         default:
             z80_step();
+            last_event = E_BREAKPOINT_HIT;
             break;
     }
 }
