@@ -21,6 +21,7 @@ void          z80_set_last_keypress(uint8_t k);
 Z80_Registers const* z80_registers_last_update();
 
 // I/O
+void    z80_nmi();
 void    z80_interrupt(uint8_t vector);
 void    z80_check_iorq();
 

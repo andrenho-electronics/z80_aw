@@ -64,6 +64,13 @@ Z80_Registers const* z80_registers_last_update()
 // I/O REQUEST, INTERRUPTS
 //
 
+void z80_nmi()
+{
+    set_NMI(0);
+    z80_step();
+    set_NMI(1);
+}
+
 static void z80_update_registers()
 {
     uint8_t r[22];
@@ -248,9 +255,7 @@ void z80_step_debug()
     register_stack_location = 0;
 
     // send NMI
-    set_NMI(0);
-    z80_step();
-    set_NMI(1);
+    z80_nmi();
 
     // run the whole subroutine until it reaches an RETN instruction
     uint8_t next_instruction[2];

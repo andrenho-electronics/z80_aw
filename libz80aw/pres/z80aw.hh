@@ -47,6 +47,7 @@ void simple_compilation(std::string const& code);
 void      reset();
 void      powerdown();
 uint16_t  pc();
+void      nmi();
 
 struct StepResult {
     Registers registers;

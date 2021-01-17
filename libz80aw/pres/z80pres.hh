@@ -41,6 +41,7 @@ public:
     void stop();
     void next();
     void check_events();
+    void nmi();
     
     void remove_all_breakpoints();
     

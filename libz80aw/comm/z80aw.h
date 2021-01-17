@@ -62,6 +62,7 @@ int z80aw_cpu_pc();
 int z80aw_cpu_step(Z80AW_Registers* reg, uint8_t* printed_char);
 
 int z80aw_cpu_registers(Z80AW_Registers* reg);
+int z80aw_cpu_nmi();
 
 int z80aw_add_breakpoint(uint16_t addr);
 int z80aw_remove_breakpoint(uint16_t addr);

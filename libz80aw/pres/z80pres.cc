@@ -56,6 +56,12 @@ void Z80Presentation::step()
 void Z80Presentation::reset()
 {
     z80aw::reset();
+    update();
+}
+
+void Z80Presentation::nmi()
+{
+    z80aw::nmi();
 }
 
 void Z80Presentation::remove_all_breakpoints()

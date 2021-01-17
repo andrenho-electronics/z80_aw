@@ -122,6 +122,10 @@ void debugger_cycle()
         case Z_RUN:
             run();
             break;
+        case Z_NMI:
+            z80_nmi();
+            serial_send(Z_OK);
+            break;
 
         //
         // breakpoints

@@ -31,6 +31,7 @@
 #define Z_REGFETCH_MODE     0xf5   // [0: no fetch, 1: nmi, 2: emulator] -> [Z_OK or Z_EMULATOR_ONLY]
 #define Z_REGISTERS         0xf6   // if emulator -> Z_OK [A] [F] [B] [C] [D] [E] [H] [L] [A'] [F'] [B'] [C'] [D'] [E'] [H'] [L'] [SPa] [SPb] [IXa] [IXb] [IYa] [IYb] [I] [R] [HALT]
                                    // if real hardware -> Z_EMULATOR_ONLY
+#define Z_NMI               0xf7   // Z_OK
 #define Z_RUN               'R'    // no response
 
 // responses

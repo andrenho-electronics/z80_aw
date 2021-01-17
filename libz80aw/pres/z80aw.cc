@@ -159,6 +159,11 @@ void stop()
     CHECKED(z80aw_cpu_stop());
 }
 
+void nmi()
+{
+    CHECKED(z80aw_cpu_nmi());
+}
+
 Event last_event()
 {
     return z80aw_last_event();

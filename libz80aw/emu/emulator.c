@@ -35,6 +35,7 @@ uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
+bool     nmi = false;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -425,6 +426,11 @@ word LoopZ80(Z80 *R)
 {
     void command_loop();
     
+    if (nmi) {
+        nmi = false;
+        return INT_NMI;
+    }
+    
     if (register_load_state == SEND_NMI) {
         register_load_state = WAITING_IO;
         return INT_NMI;
@@ -589,6 +595,10 @@ void command_loop()
         case Z_REGISTERS:
             send(Z_OK);
             send_registers();
+            break;
+        case Z_NMI:
+            nmi = true;
+            send(Z_OK);
             break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);

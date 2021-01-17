@@ -391,6 +391,13 @@ int z80aw_cpu_registers(Z80AW_Registers* reg)
     return 0;
 }
 
+int z80aw_cpu_nmi()
+{
+    int r = zsend_expect(Z_NMI, Z_OK);
+    z_assert_empty_buffer();
+    return r;
+}
+
 static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
 {
     if (z80_power == false) {
