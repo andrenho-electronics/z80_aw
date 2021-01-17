@@ -350,24 +350,11 @@ int z80aw_cpu_pc()
     return r < 0 ? 0 : pc;
 }
 
-static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
+static void recv_registers(Z80AW_Registers* reg)
 {
-    if (z80_power == false) {
-        ERROR("CPU is not powered up.");
-    }
-    
-    int resp = zsend_noreply(Z_STEP);
-    if (resp != 0)
-        return resp;
-    
     uint8_t r[27];
     for (size_t i = 0; i < 27; ++i)
         r[i] = zrecv();
-    
-    uint8_t pchar = zrecv();
-    if (printed_char)
-        *printed_char = pchar;
-    
     if (reg) {
         *reg = (Z80AW_Registers) {
                 .AF = (uint16_t) (r[1] | r[0] << 8),
@@ -388,6 +375,37 @@ static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
                 .valid = true,
         };
     }
+}
+
+int z80aw_cpu_registers(Z80AW_Registers* reg)
+{
+    zsend_noreply(Z_REGISTERS);
+    int r = zrecv();
+    if (r == Z_OK) {
+        recv_registers(reg);
+    } else if (r == Z_EMULATOR_ONLY) {
+        ERROR("Registers can only be fetched from the emulator.");
+    } else {
+        ERROR("Invalid response from register fetch.");
+    }
+    return 0;
+}
+
+static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
+{
+    if (z80_power == false) {
+        ERROR("CPU is not powered up.");
+    }
+    
+    int resp = zsend_noreply(Z_STEP);
+    if (resp != 0)
+        return resp;
+    
+    recv_registers(reg);
+    
+    uint8_t pchar = zrecv();
+    if (printed_char)
+        *printed_char = pchar;
     
     z_assert_empty_buffer();
     return 0;

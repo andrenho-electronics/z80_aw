@@ -201,9 +201,8 @@ static void send_pins()
 // load registers
 //
 
-static void step_debug_native()
+static void send_registers()
 {
-    RunZ80(&z80);
     send(z80.AF.B.h);
     send(z80.AF.B.l);
     send(z80.BC.B.h);
@@ -231,6 +230,12 @@ static void step_debug_native()
     send(z80.R);
     send(z80.I);
     send((z80.IFF & IFF_HALT) ? 1 : 0);
+}
+
+static void step_debug_native()
+{
+    RunZ80(&z80);
+    send_registers();
     send(last_printed_char);
 }
 
@@ -580,6 +585,10 @@ void command_loop()
                     send(Z_INVALID_CMD);
                 }
             }
+            break;
+        case Z_REGISTERS:
+            send(Z_OK);
+            send_registers();
             break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);

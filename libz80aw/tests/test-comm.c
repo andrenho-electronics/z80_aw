@@ -379,6 +379,13 @@ int main(int argc, char* argv[])
     z80aw_cpu_stop();
     ASSERT("Stop stopped at the correct moment (after interrupt)", z80aw_read_byte(0x8400) == 'g');
     
+    // fetch registers
+    if (config.hardware_type == EMULATOR) {
+        Z80AW_Registers reg;
+        ASSERT("Fetching registers from emulator", z80aw_cpu_registers(&reg) == 0);
+        ASSERT("Check that registers were loaded correctly", (reg.AF >> 8) == 'g');
+    }
+    
     // print
     COMPILE(" ld a, 'A'\n"
             " out (0), a\n"      // device 0x0 = video
