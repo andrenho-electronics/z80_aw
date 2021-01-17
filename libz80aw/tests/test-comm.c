@@ -444,17 +444,21 @@ int main(int argc, char* argv[])
     //
     char code_buf[16 * 1024];
     snprintf(code_buf, sizeof code_buf,
-             "  ld   sp, 0xfffe         \n"
-             "  jp   main               \n"
+             "  ld   sp, 0xfffe         \n"   // 00
+             "  jp   main               \n"   // 03
              "  org  0x66               \n"
-             "  halt                    \n"
+             "  halt                    \n"   // 66
              "main:                     \n"
-             "  ld   a, 0xfd            \n"
-             "  ld   (0x9400), a        \n"
-             "hng: jp hng               \n");
+             "  ld   a, 0xfd            \n"   // 67
+             "  ld   (0x9400), a        \n"   // 69
+             "hng: jp hng               \n"); // 6c
+    COMPILE(code_buf);
     z80aw_cpu_reset();
-    for (int i = 0; i < 32; ++i)
+    for (int i = 0; i < 8; ++i) {
+        if (log_to_stdout)
+            printf(" [PC = 0x%x] ", z80aw_cpu_pc());
         z80aw_cpu_step(NULL, NULL);
+    }
     ASSERT("Jumps are working fine", z80aw_read_byte(0x9400) == 0xfd);
     
     //
@@ -508,7 +512,8 @@ int main(int argc, char* argv[])
         Z80AW_Registers r;
         z80aw_cpu_reset();
         for (int i = 0; i < 32; ++i) {
-            printf(" [PC = 0x%x] ", z80aw_cpu_pc());
+            if (log_to_stdout)
+                printf(" [PC = 0x%x] ", z80aw_cpu_pc());
             z80aw_cpu_step(NULL, NULL);
         }
         uint16_t original_pc = z80aw_cpu_pc();
