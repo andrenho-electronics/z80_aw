@@ -6,7 +6,7 @@
 
 namespace z80aw {
 
-std::string initialize_emulator(std::string const& emulator_path, bool z80_registers)
+std::string initialize_emulator(std::string const& emulator_path)
 {
     char serial_port_buf[255];
     CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf));
@@ -36,6 +36,11 @@ void set_assert_empty_buffer(bool v)
 void set_error_callback(void (*error_cb)(const char* description, void* data), void* data)
 {
     CHECKED(z80aw_set_error_callback(error_cb, data));
+}
+
+void set_register_fetch_mode(RegisterFetchMode mode)
+{
+    CHECKED(z80aw_set_register_fetch_mode(static_cast<Z80AW_RegisterFetchMode>(mode)));
 }
 
 void write_byte(uint16_t addr, uint8_t data)
@@ -96,17 +101,11 @@ uint16_t pc()
     return p;
 }
 
-uint8_t step()
-{
-    uint8_t printed_char;
-    CHECKED(z80aw_cpu_step(&printed_char));
-    return printed_char;
-}
-
-StepResult step_debug()
+StepResult step()
 {
     StepResult sr {};
-    CHECKED(z80aw_cpu_step_debug(&sr.registers, &sr.printed_char));
+    uint8_t printed_char;
+    CHECKED(z80aw_cpu_step(&sr.registers, &printed_char));
     return sr;
 }
 

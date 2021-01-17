@@ -4,7 +4,7 @@
 
 Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emulator_path)
 {
-    std::string serial_port = z80aw::initialize_emulator(emulator_path, false);
+    std::string serial_port = z80aw::initialize_emulator(emulator_path);
     return Z80Presentation(serial_port);
 }
 
@@ -35,7 +35,12 @@ void Z80Presentation::update()
 
 void Z80Presentation::step()
 {
-    z80aw::step_debug();
+    z80aw::StepResult sr = z80aw::step();
+    // TODO - send character to terminal
+    if (sr.registers.valid)
+        z80_state_.registers = sr.registers;
+    else
+        z80_state_.registers = {};
     update();
 }
 
@@ -60,14 +65,47 @@ void Z80Presentation::set_assert_empty_buffer(bool v)
     z80aw::set_assert_empty_buffer(v);
 }
 
+
+void Z80Presentation::set_register_fetch_mode(RegisterFetchMode mode)
+{
+    z80aw::set_register_fetch_mode(mode);
+}
+
 void Z80Presentation::continue_()
 {
     z80aw::continue_();
     z80_state_.mode = Z80State::Running;
+    update();
 }
 
 void Z80Presentation::stop()
 {
     z80aw::stop();
     z80_state_.mode = Z80State::Stopped;
+    update();
 }
+
+void Z80Presentation::check_events()
+{
+    auto le = z80aw::last_event();
+    switch (le.type) {
+        case Z80AW_PRINT_CHAR:
+            // TODO - print char in terminal
+            update();
+            break;
+        case Z80AW_BREAKPOINT:
+            z80_state_.mode = Z80State::Stopped;
+            update();
+            break;
+        case Z80AW_ERROR:
+            throw std::runtime_error("There was an error fetch last event.");
+        case Z80AW_NO_EVENT:
+            break;
+    }
+}
+
+void Z80Presentation::simple_compilation_vasm(std::string const& code)
+{
+
+}
+

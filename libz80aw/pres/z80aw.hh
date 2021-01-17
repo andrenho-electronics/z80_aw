@@ -17,13 +17,20 @@ class DebugInformation;
 using Registers = Z80AW_Registers;
 using Event = Z80AW_Event;
 
-std::string initialize_emulator(std::string const& emulator_path, bool z80_registers=false);  // return serial port
+enum RegisterFetchMode {
+    Disabled = Z80AW_REGFETCH_DISABLED,
+    NMI      = Z80AW_REGFETCH_NMI,
+    Emulator = Z80AW_REGFETCH_EMULATOR,
+};
+
+std::string initialize_emulator(std::string const& emulator_path);  // return serial port
 
 void init(std::string const& serial_port);
 void close();
 
 void set_logging_to_stdout(bool v);
 void set_assert_empty_buffer(bool v);
+void set_register_fetch_mode(RegisterFetchMode mode);
 
 void set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 
@@ -40,13 +47,12 @@ void simple_compilation(std::string const& code);
 void      reset();
 void      powerdown();
 uint16_t  pc();
-uint8_t   step();   //  return printed char
 
 struct StepResult {
     Registers registers;
     uint8_t   printed_char;
 };
-StepResult step_debug();
+StepResult step();   //  return printed char
 
 void                  add_breakpoint(uint16_t addr);
 void                  remove_breakpoint(uint16_t addr);

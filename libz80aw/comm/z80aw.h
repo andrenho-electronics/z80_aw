@@ -54,6 +54,7 @@ uint16_t z80aw_checksum(size_t sz, uint8_t const* data);
 int  z80aw_upload_compiled(DebugInformation const* di, void (*upload_callback)(void* data, float perc), void* data);
 bool z80aw_is_uploaded(DebugInformation const* di);
 int  z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz);
+DebugInformation* z80aw_simple_compilation_debug(const char* code, char* err_buf, size_t err_buf_sz);
 
 int z80aw_cpu_reset();
 int z80aw_cpu_powerdown();

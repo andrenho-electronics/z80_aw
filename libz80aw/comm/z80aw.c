@@ -310,6 +310,11 @@ int z80aw_simple_compilation(const char* code, char* err_buf, size_t err_buf_sz)
     return success ? 0 : -1;
 }
 
+DebugInformation* z80aw_simple_compilation_debug(const char* code, char* err_buf, size_t err_buf_sz)
+{
+    // TODO - ...
+}
+
 int z80aw_cpu_reset()
 {
     int r = zsend_expect(Z_RESET, Z_OK);
