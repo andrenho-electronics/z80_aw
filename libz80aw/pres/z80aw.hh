@@ -54,6 +54,8 @@ struct StepResult {
 };
 StepResult step();   //  return printed char
 
+Registers registers();
+
 void                  add_breakpoint(uint16_t addr);
 void                  remove_breakpoint(uint16_t addr);
 void                  remove_all_breakpoints();

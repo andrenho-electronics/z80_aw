@@ -90,6 +90,7 @@ void Z80Presentation::stop()
 {
     z80aw::stop();
     z80_state_.mode = Z80State::Stopped;
+    step();
     update();
 }
 
@@ -103,6 +104,9 @@ void Z80Presentation::check_events()
             break;
         case Z80AW_BREAKPOINT:
             z80_state_.mode = Z80State::Stopped;
+            try {
+                z80_state_.registers = z80aw::registers();
+            } catch(...) {}
             update();
             break;
         case Z80AW_ERROR:

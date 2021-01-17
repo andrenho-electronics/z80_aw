@@ -109,6 +109,13 @@ StepResult step()
     return sr;
 }
 
+Registers registers()
+{
+    Z80AW_Registers reg;
+    CHECKED(z80aw_cpu_registers(&reg));
+    return reg;
+}
+
 void add_breakpoint(uint16_t addr)
 {
     CHECKED(z80aw_add_breakpoint(addr));

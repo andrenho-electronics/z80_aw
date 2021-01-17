@@ -52,6 +52,9 @@ void debugger_cycle()
                 }
             }
             break;
+        case Z_REGISTERS:
+            serial_send(Z_EMULATOR_ONLY);
+            break;
 
         // 
         // memory
