@@ -9,7 +9,7 @@ namespace z80aw {
 std::string initialize_emulator(std::string const& emulator_path, bool z80_registers)
 {
     char serial_port_buf[255];
-    CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf, z80_registers));
+    CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf));
     return serial_port_buf;
 }
 
@@ -65,6 +65,13 @@ std::vector<uint8_t> read_block(uint16_t addr, uint16_t sz)
 void upload_compiled(z80aw::DebugInformation const& di, void (*upload_callback)(void* data, float perc), void* data)
 {
     CHECKED(z80aw_upload_compiled(di.raw_ptr(), upload_callback, data));
+}
+
+void simple_compilation(std::string const& code)
+{
+    char err_buf[4096];
+    if (z80aw_simple_compilation(code.c_str(), err_buf, sizeof err_buf) < 0)
+        throw std::runtime_error(err_buf);
 }
 
 bool is_uploaded(z80aw::DebugInformation const& di)

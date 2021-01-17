@@ -59,3 +59,15 @@ void Z80Presentation::set_assert_empty_buffer(bool v)
 {
     z80aw::set_assert_empty_buffer(v);
 }
+
+void Z80Presentation::continue_()
+{
+    z80aw::continue_();
+    z80_state_.mode = Z80State::Running;
+}
+
+void Z80Presentation::stop()
+{
+    z80aw::stop();
+    z80_state_.mode = Z80State::Stopped;
+}

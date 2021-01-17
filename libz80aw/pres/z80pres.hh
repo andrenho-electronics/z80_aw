@@ -30,6 +30,8 @@ public:
     
     void reset();
     void step();
+    void continue_();
+    void stop();
     
     void remove_all_breakpoints();
 

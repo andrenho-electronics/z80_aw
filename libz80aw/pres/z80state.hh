@@ -4,7 +4,10 @@
 #include <cstdint>
 
 struct Z80State {
+    enum Mode { Stopped, Running };
+    
     uint16_t pc = 0;
+    Mode     mode = Stopped;
 };
 
 #endif

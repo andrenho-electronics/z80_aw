@@ -35,6 +35,7 @@ std::vector<uint8_t> read_block(uint16_t addr, uint16_t sz);
 
 void upload_compiled(z80aw::DebugInformation const& di, void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
 bool is_uploaded(z80aw::DebugInformation const& di);
+void simple_compilation(std::string const& code);
 
 void      reset();
 void      powerdown();
