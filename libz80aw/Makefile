@@ -1,5 +1,5 @@
 OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o contrib/map.o
-OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o
+OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o
 TEST_COMM_OBJ = tests/test-comm.o
 TEST_COMM_EXE = tests-comm
 TEST_PRES_OBJ = tests/test-pres.o

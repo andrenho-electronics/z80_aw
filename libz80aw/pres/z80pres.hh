@@ -7,6 +7,7 @@
 
 #include "codeview.hh"
 #include "z80state.hh"
+#include "memoryview.hh"
 
 using RegisterFetchMode = z80aw::RegisterFetchMode;
 using CompilerType = z80aw::DebugInformation::CompilerType;
@@ -28,6 +29,7 @@ public:
     void update();
     
     CodeView& codeview() { return codeview_; }
+    MemoryView& memoryview() { return memoryview_; }
     
     void set_logging_to_stdout(bool v);
     void set_assert_empty_buffer(bool v);
@@ -57,6 +59,7 @@ private:
     std::optional<LastCompilation> last_compilation_ {};
     Z80State z80_state_;
     CodeView codeview_;
+    MemoryView memoryview_;
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH

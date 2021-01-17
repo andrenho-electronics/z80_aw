@@ -25,12 +25,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../firmware/.idea/firmware.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/.idea/firmware.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../firmware/dbg.c" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/dbg.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pres/memoryview.cc" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/pres/memoryview.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/codeview.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/codeview.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -171,7 +172,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1610705465938</updated>
-      <workItem from="1610705469433" duration="52736000" />
+      <workItem from="1610705469433" duration="57867000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -320,7 +321,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610920277336</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary=".">
+      <created>1610920602249</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1610920602249</updated>
+    </task>
+    <option name="localTasksCounter" value="23" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

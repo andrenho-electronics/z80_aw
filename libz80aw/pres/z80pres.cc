@@ -9,7 +9,7 @@ Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emu
 }
 
 Z80Presentation::Z80Presentation(std::string const& serial_port)
-    : codeview_(z80_state_)
+    : codeview_(z80_state_), memoryview_(z80_state_)
 {
     z80aw::init(serial_port);
 }
@@ -39,6 +39,7 @@ void Z80Presentation::update()
 {
     z80_state_.pc = z80aw::pc();
     codeview_.update();
+    memoryview_.update();
 }
 
 void Z80Presentation::step()
