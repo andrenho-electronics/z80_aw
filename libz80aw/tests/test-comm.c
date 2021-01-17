@@ -486,8 +486,10 @@ int main(int argc, char* argv[])
         
         Z80AW_Registers r;
         z80aw_cpu_reset();
-        for (int i = 0; i < 32; ++i)
+        for (int i = 0; i < 32; ++i) {
+            printf(" [PC = 0x%x] ", z80aw_cpu_pc());
             z80aw_cpu_step(NULL, NULL);
+        }
         uint16_t original_pc = z80aw_cpu_pc();
         ASSERT("Execute step debug", z80aw_cpu_step(&r, NULL) == 0);
         dump_memory(0xffe0, 0x20);

@@ -29,10 +29,10 @@ check: $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$(TEST_COMM_EXE) && ./$(TEST_PRES_EXE)
 
 check-comm: $(TEST_COMM_EXE) $(EMULATOR_EXE)
-	./$< -z -l
+	./$< -l
 
 check-comm-real: $(TEST_COMM_EXE)
-	./$< -z -l -r /dev/ttyUSB0
+	./$< -l -r /dev/ttyUSB0
 
 check-pres: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$<

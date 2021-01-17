@@ -10,6 +10,9 @@
 #include "util.h"
 #include "z80.h"
 
+typedef enum { REGFETCH_DISABLED = 0, REGFETCH_NMI = 1, REGFETCH_EMULATOR = 2 } RegisterFetchMode;
+RegisterFetchMode register_fetch_mode = REGFETCH_DISABLED;
+
 static void send_registers(Z80_Registers const* r);
 
 void debugger_cycle()
@@ -36,6 +39,18 @@ void debugger_cycle()
             break;
         case Z_EXIT_EMULATOR:  // command without effect
             serial_send(Z_OK);
+            break;
+        case Z_REGFETCH_MODE: {
+                int m = serial_recv();
+                if (m <= 2) {
+                    register_fetch_mode = m;
+                    serial_send(Z_OK);
+                } else if (m == REGFETCH_EMULATOR) {
+                    serial_send(Z_EMULATOR_ONLY);
+                } else {
+                    serial_send(Z_INVALID_CMD);
+                }
+            }
             break;
 
         // 
@@ -82,12 +97,11 @@ void debugger_cycle()
         case Z_PC:
             serial_send16(z80_pc());
             break;
-        case Z_STEP: {
+        case Z_STEP:
+            if (register_fetch_mode == REGFETCH_DISABLED) {
                 uint8_t printed_char = z80_step();
                 serial_send(printed_char);
-            }
-            break;
-        case Z_STEP_DEBUG: {
+            } else {
                 z80_step_debug();
                 send_registers(z80_registers_last_update());
             }
