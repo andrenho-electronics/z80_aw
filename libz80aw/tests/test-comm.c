@@ -438,6 +438,24 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(NULL, NULL);
     z80aw_cpu_step(NULL, NULL);
     ASSERT("Stack working fine", z80aw_read_byte(0xfffd) == 0x12);
+
+    //
+    // test jump
+    //
+    char code_buf[16 * 1024];
+    snprintf(code_buf, sizeof code_buf,
+             "  ld   sp, 0xfffe         \n"
+             "  jp   main               \n"
+             "  org  0x66               \n"
+             "  halt                    \n"
+             "main:                     \n"
+             "  ld   a, 0xfd            \n"
+             "  ld   (0x9400), a        \n"
+             "hng: jp hng               \n");
+    z80aw_cpu_reset();
+    for (int i = 0; i < 32; ++i)
+        z80aw_cpu_step(NULL, NULL);
+    ASSERT("Jumps are working fine", z80aw_read_byte(0x9400) == 0xfd);
     
     //
     // load registers from Z80 code
@@ -449,7 +467,6 @@ int main(int argc, char* argv[])
     fread(reg_buf, sizeof reg_buf, 1, f);
     fclose(f);
     
-    char code_buf[16 * 1024];
     snprintf(code_buf, sizeof code_buf,
              "  ld   sp, 0xfffe         \n"
              "  jp   main               \n"
@@ -472,6 +489,8 @@ int main(int argc, char* argv[])
              "cc: jp cc                 \n"
              "%s", reg_buf);
     COMPILE(code_buf);
+
+    dump_memory(0, 0x100);
     
     // here we test fetching the registers using the two modes (NMI and emulator)
     for (int k = 0; k < 2; ++k) {
