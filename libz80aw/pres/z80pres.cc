@@ -9,7 +9,7 @@ Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emu
 }
 
 Z80Presentation::Z80Presentation(std::string const& serial_port)
-    : codeview_(z80_state_), memoryview_(z80_state_)
+    : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80)
 {
     z80aw::init(serial_port);
 }
@@ -45,7 +45,8 @@ void Z80Presentation::update()
 void Z80Presentation::step()
 {
     z80aw::StepResult sr = z80aw::step();
-    // TODO - send character to terminal
+    if (sr.printed_char != 0)
+        terminalview_.add_char(sr.printed_char);
     if (sr.registers.valid)
         z80_state_.registers = sr.registers;
     else
@@ -56,6 +57,7 @@ void Z80Presentation::step()
 void Z80Presentation::reset()
 {
     z80aw::reset();
+    terminalview_.reset();
     update();
 }
 
@@ -106,8 +108,7 @@ void Z80Presentation::check_events()
     auto le = z80aw::last_event();
     switch (le.type) {
         case Z80AW_PRINT_CHAR:
-            // TODO - print char in terminal
-            update();
+            terminalview_.add_char(le.data);
             break;
         case Z80AW_BREAKPOINT:
             z80_state_.mode = Z80State::Stopped;
@@ -127,5 +128,10 @@ void Z80Presentation::next()
 {
     z80aw::next();
     update();
+}
+
+void Z80Presentation::keypress(uint8_t key)
+{
+    z80aw::keypress(key);
 }
 

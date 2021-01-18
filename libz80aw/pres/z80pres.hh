@@ -8,6 +8,7 @@
 #include "codeview.hh"
 #include "z80state.hh"
 #include "memoryview.hh"
+#include "terminalview.hh"
 
 using RegisterFetchMode = z80aw::RegisterFetchMode;
 using CompilerType = z80aw::DebugInformation::CompilerType;
@@ -30,6 +31,7 @@ public:
     
     CodeView& codeview() { return codeview_; }
     MemoryView& memoryview() { return memoryview_; }
+    TerminalView const& terminalview() const { return terminalview_; }
     
     void set_logging_to_stdout(bool v);
     void set_assert_empty_buffer(bool v);
@@ -42,6 +44,8 @@ public:
     void next();
     void check_events();
     void nmi();
+    
+    void keypress(uint8_t key);
     
     void remove_all_breakpoints();
     
@@ -61,6 +65,7 @@ private:
     Z80State z80_state_;
     CodeView codeview_;
     MemoryView memoryview_;
+    TerminalView terminalview_;
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH

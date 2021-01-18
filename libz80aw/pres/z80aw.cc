@@ -106,6 +106,7 @@ StepResult step()
     StepResult sr {};
     uint8_t printed_char;
     CHECKED(z80aw_cpu_step(&sr.registers, &printed_char));
+    sr.printed_char = printed_char;
     return sr;
 }
 
