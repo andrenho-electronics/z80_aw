@@ -8,7 +8,6 @@ UI::UI(Window const& window)
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    ImGui::StyleColorsDark();
     ImGui_ImplGlfw_InitForOpenGL(window.ptr(), true);
     ImGui_ImplOpenGL3_Init("#version 150");
 }

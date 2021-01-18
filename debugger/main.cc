@@ -1,13 +1,12 @@
-#include <cstdlib>
-#include <iostream>
-
 #include "window.hh"
 #include "myui.hh"
+#include "options.hh"
 
-int main()
+int main(int argc, char* argv[])
 {
+    Options options(argc, argv);
     Window window;
-    MyUI ui(window);
+    MyUI ui(window, options);
     
     while (window.running()) {
         window.do_events();
