@@ -44,6 +44,8 @@ private:
     void start_execution();
     
     void draw_advanced();
+    
+    void draw_code_view();
 };
 
 #endif

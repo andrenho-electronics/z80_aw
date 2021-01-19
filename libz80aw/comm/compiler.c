@@ -208,6 +208,22 @@ static void ensure_file_count(DebugInformation* di, size_t file_number)
     }
 }
 
+static char* strdup_adjust_tabs(const char* original)
+{
+    char buf[4096] = { 0 };
+    size_t ib = 0;
+    for (size_t io = 0; io < strlen(original); ++io) {
+        if (original[io] != '\t') {
+            buf[ib++] = original[io];
+        } else {
+            size_t f = 8 - (ib % 8);
+            for (size_t i = 0; i < f; ++i)
+                buf[ib++] = ' ';
+        }
+    }
+    return strdup(buf);
+}
+
 static int load_listing(DebugInformation* di, const char* path, int file_offset)
 {
     char filename[512];
@@ -270,7 +286,7 @@ static int load_listing(DebugInformation* di, const char* path, int file_offset)
             // add source line
             char key[16];
             snprintf(key, sizeof key, "%zd:%zu", file_number, file_line);
-            map_set(&di->source_map, key, strdup(source));
+            map_set(&di->source_map, key, strdup_adjust_tabs(source));
     
         } else if (section == SOURCE && line[0] == ' ') {  // address
             SourceLocation sl = { .file = file_number, .line = file_line };

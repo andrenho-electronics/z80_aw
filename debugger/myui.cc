@@ -91,13 +91,10 @@ void MyUI::draw_code()
         }
     }
     
-    ImGui::Separator();
-    
-    ImGui::Separator();
-    
     if (ImGui::Button("Reset CPU")) {
         try { p().reset(); } catch (std::runtime_error& e) { error("Error resetting CPU", e.what()); }
     }
+    ImGui::SameLine();
     ImGui::Button("Go to file...");
     ImGui::SameLine();
     ImGui::Button("Go to symbol...");
@@ -106,7 +103,65 @@ void MyUI::draw_code()
     if (ImGui::Button("Advanced..."))
         show_advanced_window = true;
     
+    ImGui::Separator();
+    
+    draw_code_view();
+    
     ImGui::End();
+}
+
+void MyUI::draw_code_view()
+{
+    CodeView& c = p().codeview();
+    
+    int tbl_flags = ImGuiTableFlags_BordersOuterH
+                  | ImGuiTableFlags_BordersOuterV
+                  | ImGuiTableFlags_BordersInnerV
+                  | ImGuiTableFlags_BordersOuter
+                  | ImGuiTableFlags_RowBg
+                  | ImGuiTableFlags_ScrollY
+                  | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+    
+    ImGui::PushID(0);
+    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
+    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
+    ImGui::Button(c.file_selected().has_value() ? c.file_selected()->c_str() : "Code in execution...");
+    ImGui::PopStyleColor(3);
+    ImGui::PopID();
+    
+    if (ImGui::BeginTable("##code", 4, tbl_flags)) {
+    
+        ImGui::TableSetupColumn("Bkp", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Bytes", ImGuiTableColumnFlags_WidthFixed);
+        ImGui::TableSetupColumn("Code", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableHeadersRow();
+    
+        for (auto const& line: c.lines()) {
+            ImGui::TableNextRow();
+            // TODO - add color when PC
+            // TODO - add breakpoint
+            
+            if (line.address.has_value()) {
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%04X", *line.address);
+            }
+            
+            ImGui::TableSetColumnIndex(2);
+            char buf[30] = { 0 };
+            int pos = 0;
+            for (auto b: line.bytes)
+                pos += sprintf(&buf[pos], "%02X ", b);
+            if (!line.bytes.empty())
+                ImGui::Text("%s", buf);
+            
+            ImGui::TableSetColumnIndex(3);
+            ImGui::Text("%s", line.code.c_str());
+        }
+        
+        ImGui::EndTable();
+    }
 }
 
 void MyUI::draw_memory()
@@ -123,7 +178,6 @@ void MyUI::draw_advanced()
 {
     bool logging = p().logging_to_stdout();
     bool empty = p().assert_empty_buffer();
-    RegisterFetchMode mode = p().register_fetch_mode();
     
     ImGui::Begin("Advanced", &show_advanced_window);
     
