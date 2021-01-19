@@ -25,7 +25,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change beforePath="$PROJECT_DIR$/../debugger/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/myui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -102,7 +107,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../debugger" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
-  <component name="RunManager" selected="Makefile Application.tests-pres">
+  <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -152,11 +157,6 @@
       <item itemvalue="Makefile Application.tests-comm-headless" />
       <item itemvalue="Makefile Application.tests-pres" />
     </list>
-    <recent_temporary>
-      <list>
-        <item itemvalue="Makefile.clean" />
-      </list>
-    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -167,6 +167,8 @@
       <option name="presentableId" value="Default" />
       <updated>1610705465938</updated>
       <workItem from="1610705469433" duration="61427000" />
+      <workItem from="1611018468202" duration="29000" />
+      <workItem from="1611018991427" duration="40000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -366,6 +368,7 @@
         </entry>
       </map>
     </option>
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Reorganized project." />

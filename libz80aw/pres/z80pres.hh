@@ -20,10 +20,10 @@ public:
     explicit Z80Presentation(std::string const& serial_port);
     ~Z80Presentation();
     
-    Z80Presentation(Z80Presentation const&) = delete;
-    Z80Presentation& operator=(Z80Presentation const&) = delete;
-    Z80Presentation(Z80Presentation&&) = delete;
-    Z80Presentation& operator=(Z80Presentation&&) = delete;
+    Z80Presentation(Z80Presentation const&) = default;
+    Z80Presentation& operator=(Z80Presentation const&) = default;
+    Z80Presentation(Z80Presentation&&) = default;
+    Z80Presentation& operator=(Z80Presentation&&) = default;
     
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();

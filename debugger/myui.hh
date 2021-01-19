@@ -1,8 +1,11 @@
 #ifndef DEBUGGER_MYUI_HH
 #define DEBUGGER_MYUI_HH
 
+#include <optional>
+
 #include "ui.hh"
 #include "options.hh"
+#include "../libz80aw/pres/z80pres.hh"
 
 class MyUI : public UI {
 public:
@@ -12,10 +15,12 @@ public:
     void draw() override;
     
 private:
+    std::optional<Z80Presentation> pres {};
+    
     bool show_demo_window;
     
     // start window
-    bool show_start_window = true;
+    char emulator_path[1024] = "../libz80aw";
     char project_file[2048] { 0 };
     char serial_port[256] { 0 };
     bool emulator_mode = true;
