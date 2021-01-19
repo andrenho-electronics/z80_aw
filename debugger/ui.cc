@@ -34,6 +34,6 @@ void UI::render_draw()
 ImGuiIO& UI::init()
 {
     IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
+    this->context = ImGui::CreateContext();
     return ImGui::GetIO();
 }

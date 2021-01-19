@@ -10,7 +10,7 @@ static const int F9 = 0x12a;
 static const int F12 = 0x12d;
 
 MyUI::MyUI(Window const& window, Options const& options)
-    : UI(window), show_demo_window(options.show_demo_window())
+    : UI(window), show_demo_window(options.show_demo_window()), config(this->context)
 {
 }
 
@@ -61,7 +61,6 @@ void MyUI::draw_start()
     ImGui::Separator();
     
     if (ImGui::Button("Start execution (F12)") || ImGui::IsKeyPressed(F12, false)) {
-        config.save();
         start_execution();
     }
     

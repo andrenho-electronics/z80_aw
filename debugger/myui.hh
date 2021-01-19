@@ -25,7 +25,7 @@ private:
     
     // start window
     Config config;
-    std::optional<ErrorMessage> error_message;
+    std::optional<ErrorMessage> error_message {};
     
     Z80Presentation& p() { return presentation.value(); }
     
