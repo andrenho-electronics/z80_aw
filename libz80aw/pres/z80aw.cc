@@ -191,12 +191,12 @@ DebugInformation::DebugInformation(CompilerType compiler_type, std::string const
     switch (compiler_type) {
         case Vasm:
             raw_ptr_ = ::compile_vasm(project_file.c_str());
+            if (raw_ptr_ == nullptr)
+                throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
             if (!debug_output(raw_ptr_, error_msg, sizeof error_msg)) {
                 debug_free(raw_ptr_);
                 throw std::runtime_error(std::string("Compilation error:\n") + error_msg);
             }
-            if (raw_ptr_ == nullptr)
-                throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
             break;
         case VasmCode:
             raw_ptr_ = z80aw_simple_compilation_debug(project_file.c_str(), error_msg, sizeof error_msg);

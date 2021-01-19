@@ -7,6 +7,11 @@
 #include "options.hh"
 #include "../libz80aw/pres/z80pres.hh"
 
+struct ErrorMessage {
+    std::string title;
+    std::string message;
+};
+
 class MyUI : public UI {
 public:
     explicit MyUI(Window const& window, Options const& options);
@@ -22,6 +27,7 @@ private:
     char project_file[2048] { 0 };
     char serial_port[256] = "/dev/ttyUSB0";
     bool emulator_mode = true;
+    std::optional<ErrorMessage> error_message;
     
     Z80Presentation& p() { return presentation.value(); }
     
@@ -29,6 +35,10 @@ private:
     void draw_code();
     void draw_memory();
     void draw_cpu();
+    
+    void error(std::string const& title, std::string const& message);
+    
+    void draw_error_modal();
 };
 
 #endif

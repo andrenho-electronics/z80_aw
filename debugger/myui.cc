@@ -1,3 +1,4 @@
+#include <iostream>
 #include "myui.hh"
 
 #include "imgui/imgui.h"
@@ -23,11 +24,13 @@ void MyUI::draw()
         draw_memory();
         draw_cpu();
     }
+    if (error_message.has_value())
+        draw_error_modal();
 }
 
 void MyUI::draw_start()
 {
-    ImGui::Begin("Welcome to Z80AW debugger");
+    ImGui::Begin("Welcome to Z80AW debugger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
 
     ImGui::Text("Execution type");
     ImGui::SameLine();
@@ -36,6 +39,8 @@ void MyUI::draw_start()
     ImGui::SameLine();
     if (ImGui::RadioButton("Real hardware", !emulator_mode))
         emulator_mode = false;
+    
+    ImGui::Separator();
     
     ImGui::Text("Select project file"); ImGui::SameLine();
     ImGui::InputText("##b", project_file, sizeof project_file);
@@ -48,12 +53,26 @@ void MyUI::draw_start()
         ImGui::InputText("##e", emulator_path, sizeof serial_port);
     }
     
+    ImGui::Separator();
+    
     if (ImGui::Button("Start execution (F12)") || ImGui::IsKeyPressed(F12, false)) {
-        if (emulator_mode)
-            presentation.emplace(emulator_path, true);
-        else
-            presentation.emplace(serial_port, false);
-        p().reset();
+        std::string step;
+        try {
+            step = "connecting to emulator or serial port";
+            if (emulator_mode)
+                presentation.emplace(emulator_path, true);
+            else
+                presentation.emplace(serial_port, false);
+            
+            step = "compiling project";
+            p().compile_project(z80aw::DebugInformation::Vasm, project_file);
+            
+            step = "resetting CPU";
+            p().reset();
+        } catch (std::runtime_error& e) {
+            error("Error " + step, e.what());
+            presentation.reset();
+        }
     }
     
     ImGui::End();
@@ -100,5 +119,25 @@ void MyUI::draw_memory()
 void MyUI::draw_cpu()
 {
 
+}
+
+void MyUI::error(std::string const& title, std::string const& message)
+{
+    error_message = { title, message };
+}
+
+void MyUI::draw_error_modal()
+{
+    ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+    if (ImGui::BeginPopupModal((*error_message).title.c_str(), nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text((*error_message).message.c_str());
+        ImGui::Separator();
+        if (ImGui::Button("Ok"))
+            error_message.reset();
+        ImGui::EndPopup();
+    }
+    ImGui::PopStyleColor();
+    
+    ImGui::OpenPopup((*error_message).title.c_str());
 }
 
