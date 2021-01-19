@@ -6,6 +6,7 @@
 #include "ui.hh"
 #include "options.hh"
 #include "../libz80aw/pres/z80pres.hh"
+#include "config.hh"
 
 struct ErrorMessage {
     std::string title;
@@ -23,22 +24,23 @@ private:
     bool show_demo_window;
     
     // start window
-    char emulator_path[1024] = "../libz80aw";
-    char project_file[2048] { 0 };
-    char serial_port[256] = "/dev/ttyUSB0";
-    bool emulator_mode = true;
+    Config config;
     std::optional<ErrorMessage> error_message;
     
     Z80Presentation& p() { return presentation.value(); }
     
+    // draw
     void draw_start();
     void draw_code();
     void draw_memory();
     void draw_cpu();
     
+    // errors
     void error(std::string const& title, std::string const& message);
-    
     void draw_error_modal();
+    
+    // actions
+    void start_execution();
 };
 
 #endif
