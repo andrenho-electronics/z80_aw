@@ -90,14 +90,25 @@ void MyUI::draw_code()
             try { p().stop(); } catch (std::runtime_error& e) { error("Error stopping execution", e.what()); }
         }
     }
-    
+    ImGui::SameLine();
     if (ImGui::Button("Reset CPU")) {
         try { p().reset(); } catch (std::runtime_error& e) { error("Error resetting CPU", e.what()); }
     }
+    
+    if (ImGui::Button("Recompile project (Ctrl+R)") || (io.KeyCtrl && ImGui::IsKeyPressed('r', false))) {
+        try {
+            p().recompile_project();
+            if (config.emulator_mode)
+                p().upload_compiled();
+            p().reset();
+        } catch (std::runtime_error& e) {
+            error("Error recompiling project", e.what());
+        }
+    }
     ImGui::SameLine();
-    ImGui::Button("Go to file...");
+    ImGui::Button("Go to file... (F)");
     ImGui::SameLine();
-    ImGui::Button("Go to symbol...");
+    ImGui::Button("Go to symbol... (S)");
     ImGui::SameLine();
     
     if (ImGui::Button("Advanced..."))
@@ -114,14 +125,7 @@ void MyUI::draw_code_view()
 {
     CodeView& c = p().codeview();
     
-    int tbl_flags = ImGuiTableFlags_BordersOuterH
-                  | ImGuiTableFlags_BordersOuterV
-                  | ImGuiTableFlags_BordersInnerV
-                  | ImGuiTableFlags_BordersOuter
-                  | ImGuiTableFlags_RowBg
-                  | ImGuiTableFlags_ScrollY
-                  | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
-    
+    // filename
     ImGui::PushID(0);
     ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
@@ -130,25 +134,47 @@ void MyUI::draw_code_view()
     ImGui::PopStyleColor(3);
     ImGui::PopID();
     
-    if (ImGui::BeginTable("##code", 4, tbl_flags)) {
+    // table
+    static int tbl_flags = ImGuiTableFlags_BordersOuterH
+                           | ImGuiTableFlags_BordersOuterV
+                           | ImGuiTableFlags_BordersInnerV
+                           | ImGuiTableFlags_BordersOuter
+                           | ImGuiTableFlags_RowBg
+                           | ImGuiTableFlags_ScrollY
+                           | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+    static ImU32 pc_row_color = ImGui::GetColorU32(ImVec4(0.3f, 0.7f, 0.3f, 0.65f));
+    static ImU32 bkp_cell_color = ImGui::GetColorU32(ImVec4(0.8f, 0.2f, 0.2f, 0.65f));
     
-        ImGui::TableSetupColumn("Bkp", ImGuiTableColumnFlags_WidthFixed);
+    if (ImGui::BeginTable("##code", 3, tbl_flags)) {
+    
         ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Bytes", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Code", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableHeadersRow();
     
+        size_t nline = 1;
         for (auto const& line: c.lines()) {
             ImGui::TableNextRow();
-            // TODO - add color when PC
-            // TODO - add breakpoint
             
             if (line.address.has_value()) {
-                ImGui::TableSetColumnIndex(1);
-                ImGui::Text("%04X", *line.address);
+                if (*line.address == p().pc())
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, pc_row_color);
+                
+                if (line.is_breakpoint)
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, bkp_cell_color, 0);
+                
+                ImGui::TableSetColumnIndex(0);
+                char buf[5];
+                sprintf(buf, "%04X", *line.address);
+                if (ImGui::Selectable(buf)) {
+                    if (line.is_breakpoint)
+                        c.remove_breakpoint(nline);
+                    else
+                        c.add_breakpoint(nline);
+                }
             }
             
-            ImGui::TableSetColumnIndex(2);
+            ImGui::TableSetColumnIndex(1);
             char buf[30] = { 0 };
             int pos = 0;
             for (auto b: line.bytes)
@@ -156,8 +182,10 @@ void MyUI::draw_code_view()
             if (!line.bytes.empty())
                 ImGui::Text("%s", buf);
             
-            ImGui::TableSetColumnIndex(3);
+            ImGui::TableSetColumnIndex(2);
             ImGui::Text("%s", line.code.c_str());
+            
+            ++nline;
         }
         
         ImGui::EndTable();
@@ -247,13 +275,16 @@ void MyUI::start_execution()
         step = "connecting to emulator or serial port";
         if (config.emulator_mode) {
             presentation.emplace(config.emulator_path, true);
-            p().set_register_fetch_mode(RegisterFetchMode::Emulator);
         } else {
             presentation.emplace(config.serial_port, false);
         }
         
         step = "compiling project";
         p().compile_project(z80aw::DebugInformation::Vasm, config.project_file);
+        if (config.emulator_mode) {
+            p().set_register_fetch_mode(RegisterFetchMode::Emulator);
+            p().upload_compiled();
+        }
         
         step = "resetting CPU";
         p().reset();

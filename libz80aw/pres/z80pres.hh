@@ -25,6 +25,7 @@ public:
     
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();
+    void upload_compiled(void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
     void update();
     
     CodeView& codeview() { return codeview_; }

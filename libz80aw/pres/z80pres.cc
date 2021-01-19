@@ -28,6 +28,12 @@ void Z80Presentation::compile_project(CompilerType compiler_type, std::string co
     update();
 }
 
+void Z80Presentation::upload_compiled(void (* upload_callback)(void*, float), void* data)
+{
+    if (!debug_information.has_value())
+        throw std::runtime_error("There's no compiled project to upload.");
+    z80aw::upload_compiled(debug_information.value(), upload_callback);
+}
 
 void Z80Presentation::recompile_project()
 {
