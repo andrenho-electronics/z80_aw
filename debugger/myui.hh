@@ -22,6 +22,7 @@ private:
     std::optional<Z80Presentation> presentation {};
     
     bool show_demo_window;
+    bool show_advanced_window = false;
     
     // start window
     Config config;
@@ -41,6 +42,8 @@ private:
     
     // actions
     void start_execution();
+    
+    void draw_advanced();
 };
 
 #endif

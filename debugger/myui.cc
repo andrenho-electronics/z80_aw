@@ -28,6 +28,8 @@ void MyUI::draw()
         draw_code();
         draw_memory();
         draw_cpu();
+        if (show_advanced_window)
+            draw_advanced();
     }
     if (error_message.has_value())
         draw_error_modal();
@@ -35,7 +37,7 @@ void MyUI::draw()
 
 void MyUI::draw_start()
 {
-    ImGui::Begin("Welcome to Z80AW debugger", nullptr, ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Welcome to Z80AW debugger", nullptr);
 
     ImGui::Text("Execution type");
     ImGui::SameLine();
@@ -73,29 +75,36 @@ void MyUI::draw_code()
     
     if (p().mode() == Z80State::Stopped) {
         if (ImGui::Button("Step (F7)") || ImGui::IsKeyPressed(F7, false)) {
-            p().step();
+            try { p().step(); } catch (std::runtime_error& e) { error("Error during step", e.what()); }
         }
         ImGui::SameLine();
         if (ImGui::Button("Next (F8)") || ImGui::IsKeyPressed(F8, false)) {
-            p().next();
+            try { p().next(); } catch (std::runtime_error& e) { error("Error during next step", e.what()); }
         }
         ImGui::SameLine();
         if (ImGui::Button("Run (F9)") || ImGui::IsKeyPressed(F9, false)) {
-            p().continue_();
+            try { p().continue_(); } catch (std::runtime_error& e) { error("Error during continue", e.what()); }
         }
     } else {
         if (ImGui::Button("Stop (Ctrl+C)") || (io.KeyCtrl && ImGui::IsKeyPressed('c', false))) {
-            p().stop();
+            try { p().stop(); } catch (std::runtime_error& e) { error("Error stopping execution", e.what()); }
         }
     }
-    ImGui::SameLine();
-    ImGui::Button("Advanced...");
     
+    ImGui::Separator();
+    
+    ImGui::Separator();
+    
+    if (ImGui::Button("Reset CPU")) {
+        try { p().reset(); } catch (std::runtime_error& e) { error("Error resetting CPU", e.what()); }
+    }
     ImGui::Button("Go to file...");
     ImGui::SameLine();
     ImGui::Button("Go to symbol...");
     ImGui::SameLine();
-    ImGui::Button("Options...");
+    
+    if (ImGui::Button("Advanced..."))
+        show_advanced_window = true;
     
     ImGui::End();
 }
@@ -108,6 +117,45 @@ void MyUI::draw_memory()
 void MyUI::draw_cpu()
 {
 
+}
+
+void MyUI::draw_advanced()
+{
+    bool logging = p().logging_to_stdout();
+    bool empty = p().assert_empty_buffer();
+    RegisterFetchMode mode = p().register_fetch_mode();
+    
+    ImGui::Begin("Advanced", &show_advanced_window);
+    
+    try {
+        if (ImGui::Button("Power Z80 off"))
+            p().powerdown();
+    } catch (std::runtime_error& e) {
+        error("Error powering CPU down", e.what());
+    }
+    ImGui::SameLine();
+    try {
+        if (ImGui::Button("Send NMI"))
+            p().nmi();
+    } catch (std::runtime_error& e) {
+        error("Error sending NMI", e.what());
+    }
+    
+    ImGui::Separator();
+    
+    try {
+        if (ImGui::Checkbox("Data logging to stdout", &logging))
+            p().set_logging_to_stdout(logging);
+        if (ImGui::Checkbox("Assert empty buffer after finishing communication (makes execution slower)", &empty))
+            p().set_assert_empty_buffer(empty);
+        int item_current = static_cast<int>(p().register_fetch_mode());
+        if (ImGui::Combo("Register fetch mode", &item_current, "Disabled\0NMI (fires a NMI interrupt on Z80, needs to be implemented in the OS)\0Emulator (get data directly from the emulator, not available on the real Z80)\0\0"))
+            p().set_register_fetch_mode(static_cast<RegisterFetchMode>(item_current));
+    } catch (std::runtime_error& e) {
+        error("Error setting options", e.what());
+    }
+    
+    ImGui::End();
 }
 
 //
@@ -143,10 +191,12 @@ void MyUI::start_execution()
     std::string step;
     try {
         step = "connecting to emulator or serial port";
-        if (config.emulator_mode)
+        if (config.emulator_mode) {
             presentation.emplace(config.emulator_path, true);
-        else
+            p().set_register_fetch_mode(RegisterFetchMode::Emulator);
+        } else {
             presentation.emplace(config.serial_port, false);
+        }
         
         step = "compiling project";
         p().compile_project(z80aw::DebugInformation::Vasm, config.project_file);

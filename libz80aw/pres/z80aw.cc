@@ -23,6 +23,21 @@ void close()
     CHECKED(z80aw_close());
 }
 
+bool logging_to_stdout()
+{
+    return z80aw_get_logging_to_stdout();
+}
+
+bool assert_empty_buffer()
+{
+    return z80aw_get_assert_empty_buffer();
+}
+
+RegisterFetchMode register_fetch_mode()
+{
+    return static_cast<RegisterFetchMode>(z80aw_get_register_fetch_mode());
+}
+
 void set_logging_to_stdout(bool v)
 {
     CHECKED(z80aw_set_logging_to_stdout(v));

@@ -72,6 +72,21 @@ void Z80Presentation::remove_all_breakpoints()
     update();
 }
 
+bool Z80Presentation::logging_to_stdout()
+{
+    return z80aw::logging_to_stdout();
+}
+
+bool Z80Presentation::assert_empty_buffer()
+{
+    return z80aw::assert_empty_buffer();
+}
+
+RegisterFetchMode Z80Presentation::register_fetch_mode()
+{
+    return z80aw::register_fetch_mode();
+}
+
 void Z80Presentation::set_logging_to_stdout(bool v)
 {
     z80aw::set_logging_to_stdout(v);
@@ -133,5 +148,10 @@ void Z80Presentation::next()
 void Z80Presentation::keypress(uint8_t key)
 {
     z80aw::keypress(key);
+}
+
+void Z80Presentation::powerdown()
+{
+    z80aw::powerdown();
 }
 

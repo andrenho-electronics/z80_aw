@@ -31,10 +31,14 @@ public:
     MemoryView& memoryview() { return memoryview_; }
     TerminalView const& terminalview() const { return terminalview_; }
     
+    bool logging_to_stdout();
+    bool assert_empty_buffer();
+    RegisterFetchMode register_fetch_mode();
     void set_logging_to_stdout(bool v);
     void set_assert_empty_buffer(bool v);
     void set_register_fetch_mode(RegisterFetchMode mode);
     
+    void powerdown();
     void reset();
     void step();
     void continue_();

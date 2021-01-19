@@ -35,9 +35,12 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
 int z80aw_init(const char* serial_port);
 int z80aw_close();
 
-int z80aw_set_logging_to_stdout(bool v);
-int z80aw_set_assert_empty_buffer(bool v);
-int z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode);
+bool                    z80aw_get_logging_to_stdout();
+bool                    z80aw_get_assert_empty_buffer();
+Z80AW_RegisterFetchMode z80aw_get_register_fetch_mode();
+int                     z80aw_set_logging_to_stdout(bool v);
+int                     z80aw_set_assert_empty_buffer(bool v);
+int                     z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode);
 
 int z80aw_set_error_callback(void (*error_cb)(const char* description, void* data), void* data);
 

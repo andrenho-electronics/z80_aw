@@ -18,6 +18,7 @@ static bool z80_power = false;
 static void (*error_cb)(const char* description, void* data) = NULL;
 static void* error_data = NULL;
 static bool regfetch_enabled = false;
+static Z80AW_RegisterFetchMode register_fetch_mode = Z80AW_REGFETCH_DISABLED;
 
 int z80aw_init(const char* serial_port)
 {
@@ -30,6 +31,21 @@ int z80aw_close()
 {
     close_serial_port();
     return 0;
+}
+
+bool z80aw_get_logging_to_stdout()
+{
+    return log_to_stdout;
+}
+
+bool z80aw_get_assert_empty_buffer()
+{
+    return assert_empty_buffer;
+}
+
+Z80AW_RegisterFetchMode z80aw_get_register_fetch_mode()
+{
+    return register_fetch_mode;
 }
 
 int z80aw_set_logging_to_stdout(bool v)
@@ -56,6 +72,7 @@ int z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode)
     }
     
     regfetch_enabled = (mode != Z80AW_REGFETCH_DISABLED);
+    register_fetch_mode = mode;
     return 0;
 }
 
