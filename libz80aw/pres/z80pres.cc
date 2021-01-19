@@ -2,15 +2,15 @@
 
 #include <stdexcept>
 
-Z80Presentation Z80Presentation::initialize_with_emulator(std::string const& emulator_path)
-{
-    std::string serial_port = z80aw::initialize_emulator(emulator_path);
-    return Z80Presentation(serial_port);
-}
-
-Z80Presentation::Z80Presentation(std::string const& serial_port)
+Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator)
     : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80)
 {
+    std::string serial_port;
+    if (initialize_with_emulator) {
+        serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
+    } else {
+        serial_port = serial_port_or_emulator_path;
+    }
     z80aw::init(serial_port);
 }
 

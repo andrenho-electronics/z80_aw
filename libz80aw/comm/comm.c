@@ -83,7 +83,8 @@ int zsend_expect(uint8_t byte, uint8_t expect)
 int zrecv()
 {
     uint8_t c;
-    int r = read(fd, &c, 1);
+    int r;
+    while ((r = read(fd, &c, 1)) == 0);
     if (log_to_stdout) {
         printf("\e[0;33m%02X \e[0m", c);
         fflush(stdout);

@@ -15,15 +15,13 @@ using CompilerType = z80aw::DebugInformation::CompilerType;
 
 class Z80Presentation {
 public:
-    static Z80Presentation initialize_with_emulator(std::string const& emulator_path);
-    
-    explicit Z80Presentation(std::string const& serial_port);
+    Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator);
     ~Z80Presentation();
     
-    Z80Presentation(Z80Presentation const&) = default;
-    Z80Presentation& operator=(Z80Presentation const&) = default;
-    Z80Presentation(Z80Presentation&&) = default;
-    Z80Presentation& operator=(Z80Presentation&&) = default;
+    Z80Presentation(Z80Presentation const&) = delete;
+    Z80Presentation& operator=(Z80Presentation const&) = delete;
+    Z80Presentation(Z80Presentation&&) = delete;
+    Z80Presentation& operator=(Z80Presentation&&) = delete;
     
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();

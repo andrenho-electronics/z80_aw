@@ -1,6 +1,7 @@
 #ifndef DEBUGGER_UI_HH
 #define DEBUGGER_UI_HH
 
+#include "imgui/imgui.h"
 #include "window.hh"
 
 class UI {
@@ -15,8 +16,14 @@ public:
     
     void render();
     void render_draw();
-    
+
+protected:
     virtual void draw() = 0;
+    
+    ImGuiIO& io;
+
+private:
+    ImGuiIO& init();
 };
 
 #endif

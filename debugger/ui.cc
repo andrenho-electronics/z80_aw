@@ -4,10 +4,8 @@
 #include "imgui/imgui_impl_opengl3.h"
 
 UI::UI(Window const& window)
+    : io(init())
 {
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
     ImGui_ImplGlfw_InitForOpenGL(window.ptr(), true);
     ImGui_ImplOpenGL3_Init("#version 150");
 }
@@ -31,4 +29,11 @@ void UI::render()
 void UI::render_draw()
 {
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+}
+
+ImGuiIO& UI::init()
+{
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    return ImGui::GetIO();
 }

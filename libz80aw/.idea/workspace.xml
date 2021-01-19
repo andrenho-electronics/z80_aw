@@ -5,17 +5,17 @@
   </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="libz80aw" targetName="libz80aw.a" />
-      <config projectName="libz80aw" targetName="check-pres" />
-      <config projectName="libz80aw" targetName="all" />
-      <config projectName="libz80aw" targetName="check-comm" />
-      <config projectName="libz80aw" targetName="check-comm-real" />
-      <config projectName="libz80aw" targetName="check-comm-leaks" />
-      <config projectName="libz80aw" targetName="check-pres-leaks" />
-      <config projectName="libz80aw" targetName="check" />
-      <config projectName="libz80aw" targetName="tests-comm" />
       <config projectName="libz80aw" targetName="tests-pres" />
+      <config projectName="libz80aw" targetName="tests-comm" />
+      <config projectName="libz80aw" targetName="check" />
+      <config projectName="libz80aw" targetName="check-pres-leaks" />
+      <config projectName="libz80aw" targetName="all" />
+      <config projectName="libz80aw" targetName="libz80aw.a" />
+      <config projectName="libz80aw" targetName="check-comm-leaks" />
+      <config projectName="libz80aw" targetName="check-comm-real" />
       <config projectName="libz80aw" targetName="emulator" />
+      <config projectName="libz80aw" targetName="check-comm" />
+      <config projectName="libz80aw" targetName="check-pres" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -25,11 +25,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../debugger/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/Makefile" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/myui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/ui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/ui.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/ui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/ui.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/comm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -104,15 +107,10 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../debugger" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
   <component name="RunManager" selected="Makefile Application.all">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -123,7 +121,7 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="emulator" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="emulator" CONFIG_NAME="emulator" version="1" RUN_PATH="$PROJECT_DIR$/emulator">
+    <configuration name="emulator" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-l" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="emulator" CONFIG_NAME="emulator" version="1" RUN_PATH="$PROJECT_DIR$/emulator">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -169,6 +167,7 @@
       <workItem from="1610705469433" duration="61427000" />
       <workItem from="1611018468202" duration="29000" />
       <workItem from="1611018991427" duration="40000" />
+      <workItem from="1611059521078" duration="1398000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -382,6 +381,11 @@
           <url>file://$PROJECT_DIR$/pres/terminalview.cc</url>
           <line>10</line>
           <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/emu/emulator.c</url>
+          <line>475</line>
+          <option name="timeStamp" value="56" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
