@@ -282,10 +282,37 @@ void MyUI::draw_advanced()
     ImGui::End();
 }
 
-
 void MyUI::draw_choose_file()
 {
-
+    if (ImGui::Begin("Choose file", &show_choose_file)) {
+        ImGui::Text("Choose a file to go to:");
+    
+        static int tbl_flags = ImGuiTableFlags_BordersOuterH
+                               | ImGuiTableFlags_BordersOuterV
+                               | ImGuiTableFlags_BordersInnerV
+                               | ImGuiTableFlags_BordersOuter
+                               | ImGuiTableFlags_RowBg
+                               | ImGuiTableFlags_ScrollY
+                               | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+    
+        if (ImGui::BeginTable("##file", 1, tbl_flags)) {
+            ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+            ImGui::TableSetupColumn("FileName", ImGuiTableColumnFlags_WidthStretch);
+            
+            for (auto const& fname: file_list) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                if (ImGui::Selectable(fname.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick) && ImGui::IsMouseDoubleClicked(0)) {
+                    p().codeview().set_file(fname);
+                    ImGui::SetWindowFocus("Code debugger");
+                }
+            }
+            
+            ImGui::EndTable();
+        }
+        
+        ImGui::End();
+    }
 }
 
 void MyUI::draw_choose_symbol()
