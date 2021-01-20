@@ -130,21 +130,14 @@ void Z80Presentation::stop()
 void Z80Presentation::check_events()
 {
     auto le = z80aw::last_event();
-    switch (le.type) {
-        case Z80AW_PRINT_CHAR:
-            terminalview_.add_char(le.data);
-            break;
-        case Z80AW_BREAKPOINT:
-            z80_state_.mode = Z80State::Stopped;
-            try {
-                z80_state_.registers = z80aw::registers();
-            } catch(...) {}
-            update();
-            break;
-        case Z80AW_ERROR:
-            throw std::runtime_error("There was an error fetch last event.");
-        case Z80AW_NO_EVENT:
-            break;
+    if (le.char_printed)
+        terminalview_.add_char(le.char_printed);
+    if (le.bkp_reached) {
+        z80_state_.mode = Z80State::Stopped;
+        try {
+            z80_state_.registers = z80aw::registers();
+        } catch(...) {}
+        update();
     }
 }
 
