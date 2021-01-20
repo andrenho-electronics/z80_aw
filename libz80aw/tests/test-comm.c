@@ -534,6 +534,16 @@ int main(int argc, char* argv[])
         uint16_t new_pc = z80aw_cpu_pc();
         ASSERT("Returned to the next PC", new_pc == original_pc);
     }
+    
+    //
+    // test EI instruction
+    //
+    /* TODO - why EI instruction doesn't stop in the emulator?
+    COMPILE(" ei\n nop\n nop");
+    z80aw_cpu_reset();
+    z80aw_cpu_step(NULL, NULL);
+    ASSERT("EI only uses one instruction", z80aw_cpu_pc() == 0x1);
+    */
 
     //
     // let simple OS loaded into the memory
