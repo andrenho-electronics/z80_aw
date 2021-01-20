@@ -29,6 +29,7 @@ private:
     bool show_choose_symbol = false;
     std::vector<std::string> file_list;
     std::vector<Symbol> symbol_list;
+    bool scroll_to_pc = true;
     
     // start window
     Config config;

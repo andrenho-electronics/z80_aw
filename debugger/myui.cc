@@ -88,11 +88,21 @@ void MyUI::draw_code()
     
     if (p().mode() == Z80State::Stopped) {
         if (ImGui::Button("Step (F7)") || ImGui::IsKeyPressed(F7, false)) {
-            try { p().step(); } catch (std::runtime_error& e) { error("Error during step", e.what()); }
+            try {
+                p().step();
+                scroll_to_pc = true;
+            } catch (std::runtime_error& e) {
+                error("Error during step", e.what());
+            }
         }
         ImGui::SameLine();
         if (ImGui::Button("Next (F8)") || ImGui::IsKeyPressed(F8, false)) {
-            try { p().next(); } catch (std::runtime_error& e) { error("Error during next step", e.what()); }
+            try {
+                p().next();
+                scroll_to_pc = true;
+            } catch (std::runtime_error& e) {
+                error("Error during next step", e.what());
+            }
         }
         ImGui::SameLine();
         if (ImGui::Button("Run (F9)") || ImGui::IsKeyPressed(F9, false)) {
@@ -100,20 +110,35 @@ void MyUI::draw_code()
         }
     } else {
         if (ImGui::Button("Stop (Ctrl+C)") || (io.KeyCtrl && ImGui::IsKeyPressed('c', false))) {
-            try { p().stop(); } catch (std::runtime_error& e) { error("Error stopping execution", e.what()); }
+            try {
+                p().stop();
+                scroll_to_pc = true;
+            } catch (std::runtime_error& e) {
+                error("Error stopping execution", e.what());
+            }
+        }
+    }
+    
+    draw_code_view();
+    
+    ImGui::Text("Click on the address to set a breakpoint.");
+    
+    if (ImGui::Button("Reset CPU")) {
+        try {
+            p().reset();
+            scroll_to_pc = true;
+        } catch (std::runtime_error& e) {
+            error("Error resetting CPU", e.what());
         }
     }
     ImGui::SameLine();
-    if (ImGui::Button("Reset CPU")) {
-        try { p().reset(); } catch (std::runtime_error& e) { error("Error resetting CPU", e.what()); }
-    }
-    
     if (ImGui::Button("Recompile project (Ctrl+R)") || (io.KeyCtrl && ImGui::IsKeyPressed('r', false))) {
         try {
             p().recompile_project();
             if (config.emulator_mode)
                 p().upload_compiled();
             p().reset();
+            scroll_to_pc = true;
         } catch (std::runtime_error& e) {
             error("Error recompiling project", e.what());
         }
@@ -127,12 +152,6 @@ void MyUI::draw_code()
     ImGui::SameLine();
     if (ImGui::Button("Advanced..."))
         show_advanced_window = true;
-    
-    ImGui::Text("Click on the address to set a breakpoint.");
-    
-    ImGui::Separator();
-    
-    draw_code_view();
     
     ImGui::End();
 }
@@ -161,8 +180,10 @@ void MyUI::draw_code_view()
     static ImU32 pc_row_color = ImGui::GetColorU32(ImVec4(0.3f, 0.7f, 0.3f, 0.65f));
     static ImU32 bkp_cell_color = ImGui::GetColorU32(ImVec4(0.8f, 0.2f, 0.2f, 0.65f));
     
-    if (ImGui::BeginTable("##code", 3, tbl_flags)) {
+    ImVec2 size = ImVec2(-FLT_MIN, ImGui::GetContentRegionAvail().y - 42);
+    if (ImGui::BeginTable("##code", 3, tbl_flags, size)) {
     
+        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
         ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Bytes", ImGuiTableColumnFlags_WidthFixed);
         ImGui::TableSetupColumn("Code", ImGuiTableColumnFlags_WidthStretch);
@@ -175,7 +196,10 @@ void MyUI::draw_code_view()
             if (line.address.has_value()) {
                 if (*line.address == p().pc()) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, pc_row_color);
-                    ImGui::SetScrollHereY();
+                    if (scroll_to_pc) {
+                        ImGui::SetScrollHereY();
+                        scroll_to_pc = false;
+                    }
                 }
                 
                 if (line.is_breakpoint)
@@ -322,6 +346,8 @@ void MyUI::start_execution()
         
         step = "resetting CPU";
         p().reset();
+        
+        scroll_to_pc = true;
     } catch (std::runtime_error& e) {
         error("Error " + step, e.what());
         presentation.reset();

@@ -12,7 +12,6 @@ int main(int argc, char* argv[])
     Window window;
     MyUI ui(window, options);
     
-    bool skip_first = true;
     while (window.running()) {
         window.do_events(ui.stopped());
         

@@ -28,8 +28,6 @@
       <change beforePath="$PROJECT_DIR$/../debugger/main.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/main.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/myui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/window.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/window.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/window.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/window.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -165,7 +163,7 @@
       <workItem from="1611018468202" duration="29000" />
       <workItem from="1611018991427" duration="40000" />
       <workItem from="1611059521078" duration="1461000" />
-      <workItem from="1611061035328" duration="16238000" />
+      <workItem from="1611061035328" duration="17836000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
