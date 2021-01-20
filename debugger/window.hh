@@ -16,7 +16,7 @@ public:
     Window& operator=(Window&&) = delete;
     
     bool running() const;
-    void do_events();
+    void do_events(bool wait);
     void render();
     void swap_buffers();
     

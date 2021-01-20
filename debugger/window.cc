@@ -36,9 +36,12 @@ bool Window::running() const
     return !glfwWindowShouldClose(window);
 }
 
-void Window::do_events()
+void Window::do_events(bool wait)
 {
-    glfwPollEvents();
+    if (wait)
+        glfwWaitEventsTimeout(0.05);
+    else
+        glfwPollEvents();
 }
 
 void Window::render()

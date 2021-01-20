@@ -15,6 +15,15 @@ MyUI::MyUI(Window const& window, Options const& options)
 }
 
 //
+// INFORMATION
+//
+
+bool MyUI::stopped() const
+{
+    return !presentation.has_value() ||  p().mode() == Z80State::Stopped;
+}
+
+//
 // DRAW
 //
 
@@ -30,6 +39,10 @@ void MyUI::draw()
         draw_cpu();
         if (show_advanced_window)
             draw_advanced();
+        if (show_choose_file)
+            draw_choose_file();
+        if (show_choose_symbol)
+            draw_choose_symbol();
     }
     if (error_message.has_value())
         draw_error_modal();
@@ -106,13 +119,16 @@ void MyUI::draw_code()
         }
     }
     ImGui::SameLine();
-    ImGui::Button("Go to file... (F)");
+    if (ImGui::Button("Go to file... (F)") || ImGui::IsKeyPressed('f', false))
+        show_choose_file = true;
     ImGui::SameLine();
-    ImGui::Button("Go to symbol... (S)");
+    if (ImGui::Button("Go to symbol... (S)") || ImGui::IsKeyPressed('s', false))
+        show_choose_symbol = true;
     ImGui::SameLine();
-    
     if (ImGui::Button("Advanced..."))
         show_advanced_window = true;
+    
+    ImGui::Text("Click on the address to set a breakpoint.");
     
     ImGui::Separator();
     
@@ -157,8 +173,10 @@ void MyUI::draw_code_view()
             ImGui::TableNextRow();
             
             if (line.address.has_value()) {
-                if (*line.address == p().pc())
+                if (*line.address == p().pc()) {
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, pc_row_color);
+                    ImGui::SetScrollHereY();
+                }
                 
                 if (line.is_breakpoint)
                     ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, bkp_cell_color, 0);
@@ -240,6 +258,18 @@ void MyUI::draw_advanced()
     ImGui::End();
 }
 
+
+void MyUI::draw_choose_file()
+{
+
+}
+
+void MyUI::draw_choose_symbol()
+{
+
+}
+
+
 //
 // ERROR MANAGEMENT
 //
@@ -286,6 +316,10 @@ void MyUI::start_execution()
             p().upload_compiled();
         }
         
+        step = "getting file/symbol list";
+        file_list = p().codeview().files(Order::Source);
+        symbol_list = p().codeview().symbols(Order::Source);
+        
         step = "resetting CPU";
         p().reset();
     } catch (std::runtime_error& e) {
@@ -293,4 +327,3 @@ void MyUI::start_execution()
         presentation.reset();
     }
 }
-
