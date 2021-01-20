@@ -29,6 +29,9 @@ bool MyUI::stopped() const
 
 void MyUI::draw()
 {
+    if (presentation.has_value()) {
+        p().check_events();
+    }
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
     if (!presentation.has_value()) {
@@ -121,37 +124,40 @@ void MyUI::draw_code()
     
     draw_code_view();
     
-    ImGui::Text("Click on the address to set a breakpoint.");
+    if (stopped()) {
+        ImGui::Text("Click on the address to set a breakpoint.");
     
-    if (ImGui::Button("Reset CPU")) {
-        try {
-            p().reset();
-            scroll_to_pc = true;
-        } catch (std::runtime_error& e) {
-            error("Error resetting CPU", e.what());
+        if (ImGui::Button("Reset CPU")) {
+            try {
+                p().reset();
+                scroll_to_pc = true;
+            } catch (std::runtime_error& e) {
+                error("Error resetting CPU", e.what());
+            }
         }
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Recompile project (Ctrl+R)") || (io.KeyCtrl && ImGui::IsKeyPressed('r', false))) {
-        try {
-            p().recompile_project();
-            if (config.emulator_mode)
-                p().upload_compiled();
-            p().reset();
-            scroll_to_pc = true;
-        } catch (std::runtime_error& e) {
-            error("Error recompiling project", e.what());
+        ImGui::SameLine();
+        if (ImGui::Button("Recompile project (Ctrl+R)") || (io.KeyCtrl && ImGui::IsKeyPressed('r', false))) {
+            try {
+                p().recompile_project();
+                if (config.emulator_mode)
+                    p().upload_compiled();
+                update_symbol_list();
+                p().reset();
+                scroll_to_pc = true;
+            } catch (std::runtime_error& e) {
+                error("Error recompiling project", e.what());
+            }
         }
-    }
-    ImGui::SameLine();
-    if (ImGui::Button("Go to file... (F)") || ImGui::IsKeyPressed('f', false))
-        show_choose_file = true;
-    ImGui::SameLine();
-    if (ImGui::Button("Go to symbol... (S)") || ImGui::IsKeyPressed('s', false))
-        show_choose_symbol = true;
-    ImGui::SameLine();
+        ImGui::SameLine();
+        if (ImGui::Button("Go to file... (F)") || ImGui::IsKeyPressed('f', false))
+            show_choose_file = true;
+        ImGui::SameLine();
+        if (ImGui::Button("Go to symbol... (S)") || ImGui::IsKeyPressed('s', false))
+            show_choose_symbol = true;
+        ImGui::SameLine();
     if (ImGui::Button("Advanced..."))
         show_advanced_window = true;
+    }
     
     ImGui::End();
 }
@@ -165,7 +171,10 @@ void MyUI::draw_code_view()
     ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(0 / 7.0f, 0.6f, 0.6f));
     ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(0 / 7.0f, 0.7f, 0.7f));
     ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(0 / 7.0f, 0.8f, 0.8f));
-    ImGui::Button(c.file_selected().has_value() ? c.file_selected()->c_str() : "Code in execution...");
+    if (stopped())
+        ImGui::Button(c.file_selected().has_value() ? c.file_selected()->c_str() : "No file selected");
+    else
+        ImGui::Button("Code in execution...");
     ImGui::PopStyleColor(3);
     ImGui::PopID();
     
@@ -189,45 +198,52 @@ void MyUI::draw_code_view()
         ImGui::TableSetupColumn("Code", ImGuiTableColumnFlags_WidthStretch);
         ImGui::TableHeadersRow();
     
-        size_t nline = 1;
-        for (auto const& line: c.lines()) {
-            ImGui::TableNextRow();
-            
-            if (line.address.has_value()) {
-                if (*line.address == p().pc()) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, pc_row_color);
-                    if (scroll_to_pc) {
+        if (stopped()) {
+            size_t nline = 1;
+            for (auto const& line: c.lines()) {
+                ImGui::TableNextRow();
+                
+                if (line.address.has_value()) {
+                    if (*line.address == p().pc()) {
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_RowBg1, pc_row_color);
+                        if (scroll_to_pc) {
+                            ImGui::SetScrollHereY();
+                            scroll_to_pc = false;
+                        }
+                    }
+                    
+                    if (line.is_breakpoint)
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, bkp_cell_color, 0);
+                    
+                    if (nline == show_this_line_on_next_frame.value_or(-1)) {
                         ImGui::SetScrollHereY();
-                        scroll_to_pc = false;
+                        show_this_line_on_next_frame.reset();
+                    }
+        
+                    ImGui::TableSetColumnIndex(0);
+                    char buf[5];
+                    sprintf(buf, "%04X", *line.address);
+                    if (ImGui::Selectable(buf)) {
+                        if (line.is_breakpoint)
+                            c.remove_breakpoint(nline);
+                        else
+                            c.add_breakpoint(nline);
                     }
                 }
                 
-                if (line.is_breakpoint)
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, bkp_cell_color, 0);
+                ImGui::TableSetColumnIndex(1);
+                char buf[30] = { 0 };
+                int pos = 0;
+                for (auto b: line.bytes)
+                    pos += sprintf(&buf[pos], "%02X ", b);
+                if (!line.bytes.empty())
+                    ImGui::Text("%s", buf);
                 
-                ImGui::TableSetColumnIndex(0);
-                char buf[5];
-                sprintf(buf, "%04X", *line.address);
-                if (ImGui::Selectable(buf)) {
-                    if (line.is_breakpoint)
-                        c.remove_breakpoint(nline);
-                    else
-                        c.add_breakpoint(nline);
-                }
+                ImGui::TableSetColumnIndex(2);
+                ImGui::Text("%s", line.code.c_str());
+                
+                ++nline;
             }
-            
-            ImGui::TableSetColumnIndex(1);
-            char buf[30] = { 0 };
-            int pos = 0;
-            for (auto b: line.bytes)
-                pos += sprintf(&buf[pos], "%02X ", b);
-            if (!line.bytes.empty())
-                ImGui::Text("%s", buf);
-            
-            ImGui::TableSetColumnIndex(2);
-            ImGui::Text("%s", line.code.c_str());
-            
-            ++nline;
         }
         
         ImGui::EndTable();
@@ -251,18 +267,20 @@ void MyUI::draw_advanced()
     
     ImGui::Begin("Advanced", &show_advanced_window);
     
-    try {
-        if (ImGui::Button("Power Z80 off"))
-            p().powerdown();
-    } catch (std::runtime_error& e) {
-        error("Error powering CPU down", e.what());
-    }
-    ImGui::SameLine();
-    try {
-        if (ImGui::Button("Send NMI"))
-            p().nmi();
-    } catch (std::runtime_error& e) {
-        error("Error sending NMI", e.what());
+    if (stopped()) {
+        try {
+            if (ImGui::Button("Power Z80 off"))
+                p().powerdown();
+        } catch (std::runtime_error& e) {
+            error("Error powering CPU down", e.what());
+        }
+        ImGui::SameLine();
+        try {
+            if (ImGui::Button("Send NMI"))
+                p().nmi();
+        } catch (std::runtime_error& e) {
+            error("Error sending NMI", e.what());
+        }
     }
     
     ImGui::Separator();
@@ -293,18 +311,25 @@ void MyUI::draw_choose_file()
                                | ImGuiTableFlags_BordersOuter
                                | ImGuiTableFlags_RowBg
                                | ImGuiTableFlags_ScrollY
-                               | ImGuiTableFlags_Resizable | ImGuiTableFlags_Reorderable | ImGuiTableFlags_Hideable;
+                               | ImGuiTableFlags_Resizable
+                               | ImGuiTableFlags_Reorderable
+                               | ImGuiTableFlags_Hideable
+                               | ImGuiTableFlags_Sortable
+                               | ImGuiTableFlags_SortTristate;
     
         if (ImGui::BeginTable("##file", 1, tbl_flags)) {
-            ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
-            ImGui::TableSetupColumn("FileName", ImGuiTableColumnFlags_WidthStretch);
-            
-            for (auto const& fname: file_list) {
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                if (ImGui::Selectable(fname.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick) && ImGui::IsMouseDoubleClicked(0)) {
-                    p().codeview().set_file(fname);
-                    ImGui::SetWindowFocus("Code debugger");
+            if (stopped()) {
+                ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+                ImGui::TableSetupColumn("File Name", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableHeadersRow();
+                
+                for (auto const& fname: file_list) {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    if (ImGui::Selectable(fname.c_str(), false, ImGuiSelectableFlags_AllowDoubleClick) && ImGui::IsMouseDoubleClicked(0)) {
+                        p().codeview().set_file(fname);
+                        ImGui::SetWindowFocus("Code debugger");
+                    }
                 }
             }
             
@@ -317,7 +342,47 @@ void MyUI::draw_choose_file()
 
 void MyUI::draw_choose_symbol()
 {
-
+    if (ImGui::Begin("Choose symbol", &show_choose_file)) {
+        ImGui::Text("Choose a symbol to go to:");
+        
+        static int tbl_flags = ImGuiTableFlags_BordersOuterH
+                               | ImGuiTableFlags_BordersOuterV
+                               | ImGuiTableFlags_BordersInnerV
+                               | ImGuiTableFlags_BordersOuter
+                               | ImGuiTableFlags_RowBg
+                               | ImGuiTableFlags_ScrollY
+                               | ImGuiTableFlags_Resizable
+                               | ImGuiTableFlags_Reorderable
+                               | ImGuiTableFlags_Hideable
+                               | ImGuiTableFlags_Sortable
+                               | ImGuiTableFlags_SortTristate;
+        
+        if (ImGui::BeginTable("##file", 2, tbl_flags)) {
+            if (stopped()) {
+                ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+                ImGui::TableSetupColumn("Symbol", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableSetupColumn("Location", ImGuiTableColumnFlags_WidthStretch);
+                ImGui::TableHeadersRow();
+                
+                for (auto const& symbol: symbol_list) {
+                    ImGui::TableNextRow();
+                    ImGui::TableSetColumnIndex(0);
+                    int sel_flags = ImGuiSelectableFlags_AllowDoubleClick | ImGuiSelectableFlags_SpanAllColumns;
+                    if (ImGui::Selectable(symbol.symbol.c_str(), false, sel_flags) && ImGui::IsMouseDoubleClicked(0)) {
+                        auto oi = p().codeview().goto_symbol(symbol.symbol);
+                        if (oi.has_value())
+                            show_this_line_on_next_frame = *oi;
+                        ImGui::SetWindowFocus("Code debugger");
+                    }
+                    ImGui::TableSetColumnIndex(1);
+                    ImGui::Text("%s", symbol.file_line.c_str());
+                }
+            }
+            ImGui::EndTable();
+        }
+        
+        ImGui::End();
+    }
 }
 
 
@@ -368,9 +433,8 @@ void MyUI::start_execution()
         }
         
         step = "getting file/symbol list";
-        file_list = p().codeview().files(Order::Source);
-        symbol_list = p().codeview().symbols(Order::Source);
-        
+        update_symbol_list();
+    
         step = "resetting CPU";
         p().reset();
         
@@ -378,5 +442,14 @@ void MyUI::start_execution()
     } catch (std::runtime_error& e) {
         error("Error " + step, e.what());
         presentation.reset();
+    }
+}
+
+void MyUI::update_symbol_list()
+{
+    file_list = p().file_list();
+    symbol_list.clear();
+    for (auto const& s: p().symbol_list()) {
+        symbol_list.push_back({ s.symbol, s.file + ":" + std::to_string(s.line) });
     }
 }

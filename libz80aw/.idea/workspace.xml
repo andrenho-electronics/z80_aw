@@ -25,8 +25,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/pres/symbol.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/myui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/codeview.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/codeview.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/codeview.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/codeview.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -161,7 +167,7 @@
       <workItem from="1611018468202" duration="29000" />
       <workItem from="1611018991427" duration="40000" />
       <workItem from="1611059521078" duration="1461000" />
-      <workItem from="1611061035328" duration="17836000" />
+      <workItem from="1611061035328" duration="20561000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -375,6 +381,11 @@
           <url>file://$PROJECT_DIR$/pres/terminalview.cc</url>
           <line>10</line>
           <option name="timeStamp" value="55" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/pres/z80pres.cc</url>
+          <line>182</line>
+          <option name="timeStamp" value="60" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

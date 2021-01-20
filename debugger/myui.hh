@@ -21,6 +21,11 @@ public:
     bool stopped() const;
     
 private:
+    struct SymbolItem {
+        std::string symbol;
+        std::string file_line;
+    };
+    
     std::optional<Z80Presentation> presentation {};
     
     bool show_demo_window;
@@ -28,8 +33,9 @@ private:
     bool show_choose_file = false;
     bool show_choose_symbol = false;
     std::vector<std::string> file_list;
-    std::vector<Symbol> symbol_list;
+    std::vector<SymbolItem> symbol_list;
     bool scroll_to_pc = true;
+    std::optional<size_t> show_this_line_on_next_frame {};
     
     // start window
     Config config;
@@ -54,6 +60,8 @@ private:
     
     // actions
     void start_execution();
+    
+    void update_symbol_list();
 };
 
 #endif

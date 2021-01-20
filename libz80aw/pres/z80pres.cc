@@ -25,6 +25,7 @@ void Z80Presentation::compile_project(CompilerType compiler_type, std::string co
     debug_information.emplace(compiler_type, text);
     last_compilation_ = { compiler_type, text };
     codeview_.set_debug_information(*debug_information);
+    create_file_symbol_list();
     update();
 }
 
@@ -32,13 +33,15 @@ void Z80Presentation::upload_compiled(void (* upload_callback)(void*, float), vo
 {
     if (!debug_information.has_value())
         throw std::runtime_error("There's no compiled project to upload.");
-    z80aw::upload_compiled(debug_information.value(), upload_callback);
+    z80aw::upload_compiled(debug_information.value(), upload_callback, data);
 }
 
 void Z80Presentation::recompile_project()
 {
-    if (last_compilation_)
+    if (last_compilation_) {
         compile_project(last_compilation_.value().mode, last_compilation_.value().project_name);
+        create_file_symbol_list();
+    }
 }
 
 void Z80Presentation::update()
@@ -159,5 +162,23 @@ void Z80Presentation::keypress(uint8_t key)
 void Z80Presentation::powerdown()
 {
     z80aw::powerdown();
+}
+
+void Z80Presentation::create_file_symbol_list()
+{
+    file_list_ = debug_information->filenames();
+    
+    symbol_list_.clear();
+    for (auto const& s: debug_information->symbols()) {
+        auto osl = debug_information->location(s.addr);
+        if (osl.has_value()) {
+            symbol_list_.emplace_back(
+                s.symbol,
+                debug_information->filenames().at(osl->file),
+                osl->line,
+                s.addr
+            );
+        }
+    }
 }
 

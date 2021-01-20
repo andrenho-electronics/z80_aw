@@ -9,6 +9,7 @@
 #include "z80state.hh"
 #include "memoryview.hh"
 #include "terminalview.hh"
+#include "symbol.hh"
 
 using RegisterFetchMode = z80aw::RegisterFetchMode;
 using CompilerType = z80aw::DebugInformation::CompilerType;
@@ -56,6 +57,9 @@ public:
     std::optional<Registers> registers() const { return z80_state_.registers; }
     Z80State::Mode           mode() const { return z80_state_.mode; }
     
+    std::vector<std::string> const& file_list() const { return file_list_; }
+    std::vector<Symbol> const& symbol_list() const { return symbol_list_; }
+
 private:
     std::optional<z80aw::DebugInformation> debug_information {};
     
@@ -69,6 +73,10 @@ private:
     CodeView codeview_;
     MemoryView memoryview_;
     TerminalView terminalview_;
+    std::vector<std::string> file_list_;
+    std::vector<Symbol> symbol_list_;
+    
+    void create_file_symbol_list();
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH

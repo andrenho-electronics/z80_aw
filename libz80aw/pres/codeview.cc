@@ -59,29 +59,11 @@ void CodeView::set_file(std::string const& filename)
     update(false);
 }
 
-std::vector<std::string> CodeView::files(Order order) const
-{
-    std::vector<std::string> f = di_->filenames();
-    if (order == Order::Alphabetical)
-        std::sort(f.begin(), f.end());
-    return f;
-}
-
-std::vector<Symbol> CodeView::symbols(Order order) const
-{
-    std::vector<Symbol> ss;
-    auto syms = di_->symbols();
-    std::transform(syms.begin(), syms.end(), std::back_inserter(ss), [](auto const& s) -> Symbol { return { s.symbol, s.addr }; });
-    if (order == Order::Alphabetical)
-        std::sort(ss.begin(), ss.end(), [](Symbol const& a, Symbol const& b) { return a.symbol < b.symbol; });
-    return ss;
-}
-
 std::optional<size_t> CodeView::goto_symbol(std::string const& symbol)
 {
     // find symbol
-    auto syms = symbols(Order::Source);
-    auto it = std::find_if(syms.begin(), syms.end(), [&symbol](Symbol const& s) { return s.symbol == symbol; });
+    auto syms = di_->symbols();
+    auto it = std::find_if(syms.begin(), syms.end(), [&symbol](auto const& s) { return s.symbol == symbol; });
     if (it == syms.end())
         return {};
     
@@ -91,7 +73,7 @@ std::optional<size_t> CodeView::goto_symbol(std::string const& symbol)
         return {};
     
     set_file(di_->filenames().at(osl.value().file));
-    return osl.value().file;
+    return osl.value().line;
 }
 
 void CodeView::add_breakpoint(size_t line)

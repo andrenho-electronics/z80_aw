@@ -23,14 +23,6 @@ struct CodeViewLine {
     std::vector<uint8_t>    bytes;
 };
 
-struct Symbol {
-    std::string symbol;
-    uint16_t    addr;
-    
-    bool operator==(Symbol const& rhs) const { return std::tie(symbol, addr) == std::tie(rhs.symbol, rhs.addr); }
-    bool operator!=(Symbol const& rhs) const { return !(rhs == *this); }
-};
-
 class CodeView : public View {
 public:
     explicit CodeView(Z80State const& z80_state) : View(z80_state) {}
@@ -43,9 +35,6 @@ public:
 
     void                  set_file(std::string const& filename);
     std::optional<size_t> goto_symbol(std::string const& symbol);   // returns line of the symbol
-    
-    std::vector<std::string> files(Order order) const;
-    std::vector<Symbol>      symbols(Order order) const;
     
     void add_breakpoint(size_t line);
     void remove_breakpoint(size_t line);
