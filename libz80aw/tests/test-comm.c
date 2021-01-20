@@ -336,14 +336,14 @@ int main(int argc, char* argv[])
     // continue execution
     //
     
-    ASSERT("No last event", z80aw_last_event().type == Z80AW_NO_EVENT);
+    ASSERT("No last event", z80aw_last_event().char_printed == 0 && !z80aw_last_event().bkp_reached);
     
     // breakpoint hit
     COMPILE(" s: nop\n nop\n nop\n nop\n jp s");
     z80aw_cpu_reset();
     z80aw_add_breakpoint(0x3);
     ASSERT("Continue execution", z80aw_cpu_continue() == 0);
-    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
+    while (!z80aw_last_event().bkp_reached);
     ASSERT("Stop at breakpoint", z80aw_cpu_pc() == 0x3);
     z80aw_remove_all_breakpoints();
     
@@ -362,7 +362,7 @@ int main(int argc, char* argv[])
     z80aw_cpu_continue();
     usleep(100000);
     z80aw_keypress('f');
-    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
+    while (!z80aw_last_event().bkp_reached);
     ASSERT("Key was pressed during continue", z80aw_cpu_pc() == 0xa);
     
     // stop
@@ -395,19 +395,14 @@ int main(int argc, char* argv[])
     z80aw_cpu_reset();
     z80aw_cpu_continue();
     usleep(10000);
-    Z80AW_Event e = { .type = Z80AW_NO_EVENT, .data = 0 };
-    do {
-        e = z80aw_last_event();
-        if (e.type == Z80AW_PRINT_CHAR) {
-            ASSERT("Check that character 'A' was printed", e.data == 'A');
-        }
-    } while (e.type != Z80AW_PRINT_CHAR);
-    do {
-        e = z80aw_last_event();
-        if (e.type == Z80AW_PRINT_CHAR) {
-            ASSERT("Check that character 'W' was printed", e.data == 'W');
-        }
-    } while (e.type != Z80AW_PRINT_CHAR);
+    Z80AW_Event e = z80aw_last_event();
+    if (e.char_printed != 0) {
+        ASSERT("Check that character 'A' was printed", e.char_printed == 'A');
+    }
+    e = z80aw_last_event();
+    if (e.char_printed != 0) {
+        ASSERT("Check that character 'W' was printed", e.char_printed == 'W');
+    }
     z80aw_cpu_stop();
     
     //
@@ -422,10 +417,10 @@ int main(int argc, char* argv[])
     z80aw_cpu_reset();
     z80aw_cpu_next();
     usleep(10000);
-    ASSERT("Next: last event after regular opcode", z80aw_last_event().type == Z80AW_BREAKPOINT);
+    ASSERT("Next: last event after regular opcode", z80aw_last_event().bkp_reached);
     z80aw_cpu_next();
     usleep(10000);
-    ASSERT("Next: last event after subrouting opcode", z80aw_last_event().type == Z80AW_BREAKPOINT);
+    ASSERT("Next: last event after subrouting opcode", z80aw_last_event().bkp_reached);
     ASSERT("Next: returned from subroutine", z80aw_cpu_pc() == 0x4);
     ASSERT("Next: memory was set correctly", z80aw_read_byte(0x8800) == 0x68);
 
@@ -506,6 +501,7 @@ int main(int argc, char* argv[])
     dump_memory(0, 0x100);
     
     // here we test fetching the registers using the two modes (NMI and emulator)
+    /*
     for (int k = 0; k < 2; ++k) {
         if (k == 0) {
             printf("Preparing NMI register fetch mode...\n");
@@ -539,6 +535,7 @@ int main(int argc, char* argv[])
         uint16_t new_pc = z80aw_cpu_pc();
         ASSERT("Returned to the next PC", new_pc == original_pc);
     }
+     */
 
     //
     // let simple OS loaded into the memory
@@ -555,7 +552,7 @@ int main(int argc, char* argv[])
     ASSERT("Querying breakpoints", z80aw_query_breakpoints(bkps, 16) == 1);
     ASSERT("Checking brekpoints", bkps[0] == 0x16);
     z80aw_cpu_continue();
-    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
+    while (!z80aw_last_event().bkp_reached);
     ASSERT("Stop at breakpoint (simple OS)", z80aw_cpu_pc() == 0x16);
     z80aw_remove_all_breakpoints();
     

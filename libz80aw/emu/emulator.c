@@ -30,12 +30,13 @@ uint8_t  last_printed_char = 0;
 uint8_t  last_keypress = 0;
 bool     keyboard_interrupt = false;
 uint16_t breakpoints[MAX_BREAKPOINTS] = { 0 };
-uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
 bool     nmi = false;
-static bool continue_mode = false;
+bool     continue_mode = false;
+bool     bkp_reached = false;
+bool     last_was_out_during_continue = false;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -380,7 +381,7 @@ static void next()
             continue_mode = true;
             break;
         default:
-            last_event = Z_BKP_REACHED;
+            bkp_reached = true;
     }
     RunZ80(&z80);   // TODO - use step debug?
 }
@@ -404,8 +405,8 @@ void OutZ80(word Port,byte Value)
     if ((Port & 0xff) == 0x0) {  // video
         last_printed_char = Value;
         if (continue_mode) {
-            last_event = Z_PRINT_CHAR;
             continue_mode = false;
+            last_was_out_during_continue = true;
         }
     } else if ((Port & 0xff) == 0xfe) {  // load registers from stack - lower nibble
         register_stack_location = (register_stack_location & 0xff00) | Value;
@@ -441,11 +442,12 @@ word LoopZ80(Z80 *R)
         return 0xcf;  // rst 0x8, returned by the keyboard controller
     }
     
-    if (continue_mode || last_event == Z_PRINT_CHAR) {
+    if (continue_mode || last_was_out_during_continue) {
+        last_was_out_during_continue = false;
         command_loop();
         for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
             if (breakpoints[i] != 0 && breakpoints[i] == R->PC.W) {
-                last_event = Z_BKP_REACHED;
+                bkp_reached = true;
                 continue_mode = false;
                 return INT_QUIT;
             }
@@ -566,12 +568,11 @@ void command_loop()
             }
             break;
         case Z_LAST_EVENT:
-            send(last_event);
-            if (last_event == Z_OK)
-                send16(z80.PC.W);
-            if (last_event == Z_PRINT_CHAR)
-                send(last_printed_char);
-            last_event = Z_OK;
+            send(Z_OK);
+            send(last_printed_char);
+            send(bkp_reached);
+            last_printed_char = 0;
+            bkp_reached = false;
             break;
         case Z_STOP:
             continue_mode = false;

@@ -547,22 +547,13 @@ int z80aw_cpu_stop()
 
 Z80AW_Event z80aw_last_event()
 {
-    zsend_noreply(Z_LAST_EVENT);
-    uint8_t c = zrecv();
-    switch (c) {
-        case Z_OK:
-            return (Z80AW_Event) { .type = Z80AW_NO_EVENT, .data = zrecv16() };
-        case Z_PRINT_CHAR: {
-                uint8_t data = zrecv();
-                z80aw_cpu_continue();
-                return (Z80AW_Event) { .type = Z80AW_PRINT_CHAR, .data = data };
-            }
-        case Z_BKP_REACHED:
-            return (Z80AW_Event) { .type = Z80AW_BREAKPOINT };
-        default:
-            z80aw_set_error("Unexpected return 0x%02X from Z_LAST_EVENT.", c);
-            return (Z80AW_Event) { .type = Z80AW_ERROR };
-    }
+    zsend_expect(Z_LAST_EVENT, Z_OK);
+    
+    Z80AW_Event event;
+    event.char_printed  = zrecv();
+    event.bkp_reached = zrecv();
+    z_assert_empty_buffer();
+    return event;
 }
 
 int z80aw_finalize_emulator()

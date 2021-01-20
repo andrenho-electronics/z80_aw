@@ -23,8 +23,8 @@ typedef enum { Z80AW_NO_EVENT, Z80AW_PRINT_CHAR, Z80AW_BREAKPOINT, Z80AW_ERROR }
 typedef enum { Z80AW_REGFETCH_DISABLED = 0, Z80AW_REGFETCH_NMI = 1, Z80AW_REGFETCH_EMULATOR = 2 } Z80AW_RegisterFetchMode;
 
 typedef struct {
-    Z80AW_EventType type;
-    uint8_t         data;
+    uint8_t char_printed;
+    bool    bkp_reached;
 } Z80AW_Event;
 
 #define MAX_BLOCK_SIZE 512
