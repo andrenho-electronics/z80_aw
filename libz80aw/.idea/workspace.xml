@@ -24,15 +24,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../common/protocol.h" beforeDir="false" afterPath="$PROJECT_DIR$/../common/protocol.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/tests_comm.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/tests_comm.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
-    </list>
+    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment="." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -163,7 +155,7 @@
       <workItem from="1611059521078" duration="1461000" />
       <workItem from="1611061035328" duration="22476000" />
       <workItem from="1611162569144" duration="67000" />
-      <workItem from="1611162643623" duration="5791000" />
+      <workItem from="1611162643623" duration="6398000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -354,7 +346,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611169449025</updated>
     </task>
-    <option name="localTasksCounter" value="28" />
+    <task id="LOCAL-00028" summary=".">
+      <created>1611170842847</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1611170842847</updated>
+    </task>
+    <option name="localTasksCounter" value="29" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
