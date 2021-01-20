@@ -1,9 +1,13 @@
 #ifndef Z80_H_
 #define Z80_H_
 
+#include <stdbool.h>
 #include <stdint.h>
 
-typedef enum { E_NO_EVENT, E_BREAKPOINT_HIT, E_PRINT_CHAR } Z80_Event;
+typedef struct {
+    uint8_t last_printed_char;
+    bool    bkp_hit;
+} Z80_Event;
 typedef enum { M_DEBUG, M_CONTINUE } Z80_Mode;
 
 typedef struct {

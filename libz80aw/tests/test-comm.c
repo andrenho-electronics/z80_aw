@@ -501,7 +501,6 @@ int main(int argc, char* argv[])
     dump_memory(0, 0x100);
     
     // here we test fetching the registers using the two modes (NMI and emulator)
-    /*
     for (int k = 0; k < 2; ++k) {
         if (k == 0) {
             printf("Preparing NMI register fetch mode...\n");
@@ -535,7 +534,6 @@ int main(int argc, char* argv[])
         uint16_t new_pc = z80aw_cpu_pc();
         ASSERT("Returned to the next PC", new_pc == original_pc);
     }
-     */
 
     //
     // let simple OS loaded into the memory

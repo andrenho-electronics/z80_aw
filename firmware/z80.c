@@ -10,11 +10,11 @@ static uint16_t      pc = 0;
 static uint8_t       last_printed_char = 0;
 static uint8_t       last_keypress = 0;
 static int           last_interrupt = -1;
-static Z80_Event     last_event = E_NO_EVENT;
 static Z80_Mode      mode = M_DEBUG;
 static uint32_t      cycle_number = 0;
 static uint16_t      register_stack_location = 0;
 static Z80_Registers registers = { 0 };
+static bool          bkp_hit = false;
 
 static inline void z80_clock();
 static inline void z80_busreq();
@@ -25,8 +25,12 @@ static inline void z80_busreq();
 
 Z80_Event z80_last_event()
 {
-    Z80_Event e = last_event;
-    last_event = E_NO_EVENT;
+    Z80_Event e = {
+        last_printed_char,
+        bkp_hit,
+    };
+    last_printed_char = 0;
+    bkp_hit = false;
     return e;
 }
 
@@ -108,8 +112,6 @@ static void z80_out(uint16_t addr, uint8_t data)
 {
     if ((addr & 0xff) == 0x0) {     // video OUT (print char)
         last_printed_char = data;
-        if (mode == M_CONTINUE)
-            last_event = E_PRINT_CHAR;
     } else if ((addr & 0xff) == 0xfe) {  // load registers from stack - lower nibble
         register_stack_location = (register_stack_location & 0xff00) | data;
     } else if ((addr & 0xff) == 0xff) {  // load registers from stack - higher nibble
@@ -215,7 +217,7 @@ inline static void z80_busreq()
 
 uint8_t z80_step()
 {
-    if (mode == M_CONTINUE && last_event != E_NO_EVENT)
+    if (mode == M_CONTINUE && (last_printed_char != 0 || bkp_hit))
         return 0;  // we wait until the last event is consumed by the client
 
     bool m1 = 1;
@@ -238,7 +240,7 @@ uint8_t z80_step()
         case M_CONTINUE:
             // find out if breakpoint was hit
             if (bkp_in_list(pc)) {
-                last_event = E_BREAKPOINT_HIT;
+                bkp_hit = true;
                 mode = M_DEBUG;
                 z80_busreq();
             }
@@ -293,7 +295,7 @@ void z80_next()
             break;
         default:
             z80_step();
-            last_event = E_BREAKPOINT_HIT;
+            bkp_hit = true;
             break;
     }
 }

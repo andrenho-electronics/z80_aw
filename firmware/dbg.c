@@ -158,21 +158,11 @@ void debugger_cycle()
         // continue
         //
 
-        case Z_LAST_EVENT:
-            switch (z80_last_event()) {
-                case E_NO_EVENT:
-                    serial_send(Z_OK);
-                    serial_send16(z80_pc());
-                    break;
-                case E_BREAKPOINT_HIT:
-                    serial_send(Z_BKP_REACHED);
-                    break;
-                case E_PRINT_CHAR:
-                    serial_send(Z_PRINT_CHAR);
-                    serial_send(z80_last_printed_char());
-                    break;
-                default:
-                    serial_send(Z_INVALID_CMD);
+        case Z_LAST_EVENT: {
+                Z80_Event e = z80_last_event();
+                serial_send(Z_OK);
+                serial_send(e.last_printed_char);
+                serial_send(e.bkp_hit);
             }
             break;
 
