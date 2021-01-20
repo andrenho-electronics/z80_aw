@@ -30,12 +30,12 @@ uint8_t  last_printed_char = 0;
 uint8_t  last_keypress = 0;
 bool     keyboard_interrupt = false;
 uint16_t breakpoints[MAX_BREAKPOINTS] = { 0 };
-bool     continue_mode = false;
 uint8_t  last_event = Z_OK;
 uint32_t cycle_number = 0;
 uint64_t cpu_random_pins = 0;
 bool     log_to_stdout = false;
 bool     nmi = false;
+static bool continue_mode = false;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -440,7 +440,8 @@ word LoopZ80(Z80 *R)
         keyboard_interrupt = false;
         return 0xcf;  // rst 0x8, returned by the keyboard controller
     }
-    if (continue_mode) {
+    
+    if (continue_mode || last_event == Z_PRINT_CHAR) {
         command_loop();
         for (size_t i = 0; i < MAX_BREAKPOINTS; ++i)
             if (breakpoints[i] != 0 && breakpoints[i] == R->PC.W) {

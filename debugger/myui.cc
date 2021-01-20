@@ -29,7 +29,7 @@ bool MyUI::stopped() const
 
 void MyUI::draw()
 {
-    if (presentation.has_value()) {
+    if (presentation.has_value() && !stopped()) {
         p().check_events();
     }
     if (show_demo_window)

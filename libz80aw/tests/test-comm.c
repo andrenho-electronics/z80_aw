@@ -548,11 +548,21 @@ int main(int argc, char* argv[])
     debug_free(dd);
     
     //
+    // breakpoint at even point
+    //
+    z80aw_cpu_reset();
+    z80aw_add_breakpoint(0x16);
+    ASSERT("Querying breakpoints", z80aw_query_breakpoints(bkps, 16) == 1);
+    ASSERT("Checking brekpoints", bkps[0] == 0x16);
+    z80aw_cpu_continue();
+    while (z80aw_last_event().type != Z80AW_BREAKPOINT);
+    ASSERT("Stop at breakpoint (simple OS)", z80aw_cpu_pc() == 0x16);
+    z80aw_remove_all_breakpoints();
+    
+    //
     // finalize
     //
-    if (config.hardware_type == EMULATOR) {
-        ASSERT("Finalizing emulator", z80aw_finalize_emulator() == 0);
-    }
+    z80aw_finalize_emulator();
     
     z80aw_close();
 }
