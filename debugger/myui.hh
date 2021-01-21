@@ -48,6 +48,8 @@ private:
     void draw_start();
     void draw_code();
     void draw_memory();
+    void draw_memory_page_selector(MemoryView& m) const;
+    void draw_memory_table(MemoryView& m) const;
     void draw_cpu();
     void draw_advanced();
     void draw_code_view();

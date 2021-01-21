@@ -252,7 +252,44 @@ void MyUI::draw_code_view()
 
 void MyUI::draw_memory()
 {
+    MemoryView& m = p().memoryview();
+    
+    if (ImGui::Begin("Memory", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+        draw_memory_page_selector(m);
+        draw_memory_table(m);
+        ImGui::End();
+    }
+}
 
+void MyUI::draw_memory_page_selector(MemoryView& m) const
+{
+    uint8_t page = m.page_number();
+    
+    ImGui::Text("Page: ");
+    ImGui::SameLine();
+    if (ImGui::Button("<"))
+        m.go_to_page(page - 1);
+    ImGui::SameLine();
+    
+    char buf[3];
+    snprintf(buf, 3, "%02X", page);
+    ImGui::PushItemWidth(24.0);
+    ImGui::InputText("##page", buf, sizeof buf, ImGuiInputTextFlags_CallbackEdit,
+                     [](ImGuiInputTextCallbackData* data) {
+                         auto* m = reinterpret_cast<MemoryView*>(data->UserData);
+                         unsigned long new_page = strtoul(data->Buf, nullptr, 16);
+                         if (new_page != ULONG_MAX)
+                             m->go_to_page(new_page);
+                         return 0;
+                     }, &m);
+    ImGui::PopItemWidth();
+    ImGui::SameLine();
+    if (ImGui::Button(">"))
+        m.go_to_page(page + 1);
+}
+
+void MyUI::draw_memory_table(MemoryView& m) const
+{
 }
 
 void MyUI::draw_cpu()
