@@ -1,6 +1,7 @@
 #include "myui.hh"
 
 #include <iostream>
+#include <optional>
 using namespace std::chrono_literals;
 
 #include "imgui/imgui.h"
@@ -39,16 +40,16 @@ void MyUI::draw()
     if (!presentation.has_value()) {
         draw_start();
     } else {
-        draw_code();
-        draw_memory();
-        draw_cpu();
-        draw_terminal();
         if (show_advanced_window)
             draw_advanced();
         if (show_choose_file)
             draw_choose_file();
         if (show_choose_symbol)
             draw_choose_symbol();
+        draw_memory();
+        draw_cpu();
+        draw_terminal();
+        draw_code();
     }
     if (error_message.has_value())
         draw_error_modal();
@@ -458,16 +459,44 @@ void MyUI::draw_terminal()
 {
     TerminalView const& t = p().terminalview();
     
+    float cursor_x = 0.0;
+    std::optional<float> cursor_y;
     ImGui::SetNextWindowSize({ 580, 480 });
     if (ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoResize)) {
     
-        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(60, 255, 60)));
-        for (size_t i = 0; i < t.lines(); ++i)
+        // terminal
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(100, 255, 100)));
+        for (size_t i = 0; i < t.lines(); ++i) {
+            if (i == t.cursor_y()) {
+                cursor_x = ImGui::GetCursorPosX();
+                cursor_y = ImGui::GetCursorPosY();
+            }
             ImGui::Text("%s", t.text().at(i).c_str());
+        }
         ImGui::PopStyleColor();
         
-        if (ImGui::Button("Keypress..."))
-            ;
+        // buttons
+        if (stopped()) {
+            if (ImGui::Button("Keypress..."))
+                ;
+        }
+        
+        // cursor
+        if (cursor_y.has_value()) {
+            // draw cursor
+            ImGui::SetCursorPos({ cursor_x + (t.cursor_x() * 7), cursor_y.value() + 2 });
+            ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(ImColor(230, 60, 60)));
+            ImGui::Button(" ", { 7, 11 });
+            ImGui::PopStyleColor();
+    
+            // redraw charcter in black
+            ImGui::SetCursorPos({ cursor_x + (t.cursor_x() * 7), cursor_y.value() });
+            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(0, 255-60, 255-60)));
+            // ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(0, 0, 0)));
+            ImGui::Text("%c", t.text().at(t.cursor_y()).at(t.cursor_x()));
+            ImGui::PopStyleColor();
+        }
+        
         ImGui::End();
     }
 }

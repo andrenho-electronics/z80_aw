@@ -34,8 +34,12 @@ void TerminalView::pull_screen_up()
 void TerminalView::reset()
 {
     text_.clear();
-    for (size_t i = 0; i < lines_; ++i)
+    for (size_t i = 0; i < lines_; ++i) {
         text_.emplace_back(columns_, ' ');
+        /*
+        for (size_t j = 0; j < columns_; ++j)
+            text_.at(i).replace(j, 1, std::string(1, 'A' + ((j + i) % 26)));
+        */
+    }
     cursor_x_ = cursor_y_ = 0;
-    text_.at(lines_ - 1).replace(columns_ - 1, 1, "X");
 }
