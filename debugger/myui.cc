@@ -1,5 +1,7 @@
-#include <iostream>
 #include "myui.hh"
+
+#include <iostream>
+using namespace std::chrono_literals;
 
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
@@ -49,6 +51,11 @@ void MyUI::draw()
     }
     if (error_message.has_value())
         draw_error_modal();
+    
+    if (std::chrono::system_clock::now() > last_blink + 500ms) {
+        blink = !blink;
+        last_blink = std::chrono::system_clock::now();
+    }
 }
 
 void MyUI::draw_start()
@@ -254,42 +261,110 @@ void MyUI::draw_memory()
 {
     MemoryView& m = p().memoryview();
     
-    if (ImGui::Begin("Memory", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
-        draw_memory_page_selector(m);
+    float h = 355;
+    if (!p().is_uploaded() && stopped())
+        h += 24;
+    ImGui::SetNextWindowSize(ImVec2(560, h));
+    if (ImGui::Begin("Memory", nullptr, ImGuiWindowFlags_NoResize)) {
+        uint8_t page = m.page_number();
+    
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Page: ");
+        ImGui::SameLine();
+        if (ImGui::Button("<"))
+            m.go_to_page(page - 1);
+        ImGui::SameLine();
+    
+        char buf[3];
+        snprintf(buf, 3, "%02X", page);
+        ImGui::PushItemWidth(24.0);
+        ImGui::InputText("##page", buf, sizeof buf, ImGuiInputTextFlags_CallbackEdit,
+                         [](ImGuiInputTextCallbackData* data) {
+                             auto* m = reinterpret_cast<MemoryView*>(data->UserData);
+                             unsigned long new_page = strtoul(data->Buf, nullptr, 16);
+                             if (new_page != ULONG_MAX)
+                                 m->go_to_page(new_page);
+                             return 0;
+                         }, &m);
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::Button(">"))
+            m.go_to_page(page + 1);
+    
         draw_memory_table(m);
+    
+        if (!p().is_uploaded() && stopped()) {
+            ImGui::AlignTextToFramePadding();
+            if (blink)
+                ImGui::Text("The compiled binary does not match with the memory!");
+            else
+                ImGui::Text("                                                   ");
+            ImGui::SameLine();
+            if (ImGui::Button("Upload to memory"))
+                upload_binary();
+        }
         ImGui::End();
     }
 }
 
-void MyUI::draw_memory_page_selector(MemoryView& m) const
-{
-    uint8_t page = m.page_number();
-    
-    ImGui::Text("Page: ");
-    ImGui::SameLine();
-    if (ImGui::Button("<"))
-        m.go_to_page(page - 1);
-    ImGui::SameLine();
-    
-    char buf[3];
-    snprintf(buf, 3, "%02X", page);
-    ImGui::PushItemWidth(24.0);
-    ImGui::InputText("##page", buf, sizeof buf, ImGuiInputTextFlags_CallbackEdit,
-                     [](ImGuiInputTextCallbackData* data) {
-                         auto* m = reinterpret_cast<MemoryView*>(data->UserData);
-                         unsigned long new_page = strtoul(data->Buf, nullptr, 16);
-                         if (new_page != ULONG_MAX)
-                             m->go_to_page(new_page);
-                         return 0;
-                     }, &m);
-    ImGui::PopItemWidth();
-    ImGui::SameLine();
-    if (ImGui::Button(">"))
-        m.go_to_page(page + 1);
-}
-
 void MyUI::draw_memory_table(MemoryView& m) const
 {
+    static int tbl_flags = ImGuiTableFlags_BordersOuter
+                         | ImGuiTableFlags_NoBordersInBody
+                         | ImGuiTableFlags_RowBg
+                         | ImGuiTableFlags_ScrollY;
+    static ImU32 pc_bg_color = ImGui::GetColorU32(ImVec4(0.2f, 0.6f, 0.2f, 0.65f));
+    uint16_t page = ((uint16_t) m.page_number()) << 8;
+    
+    ImVec2 size = ImVec2(-FLT_MIN, 293);
+    if (ImGui::BeginTable("##ram", 18, tbl_flags, size)) {
+        
+        // headers
+        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+        ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed);
+        for (int i = 0; i < 0x10; ++i) {
+            char buf[3];
+            sprintf(buf, "_%X", i);
+            ImGui::TableSetupColumn(buf, ImGuiTableColumnFlags_WidthFixed);
+        }
+        ImGui::TableSetupColumn("ASCII", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableHeadersRow();
+        
+        if (stopped()) {
+            for (int line = 0; line < 0x10; ++line) {
+                ImGui::TableNextRow();
+                
+                // address
+                uint16_t addr = page + (line * 0x10);
+                ImGui::TableSetColumnIndex(0);
+                ImGui::Text("%04X : ", addr);
+                
+                // data
+                std::string ascii;
+                for (int i = 0; i < 0x10; ++i) {
+                    ImGui::TableSetColumnIndex(i + 1);
+                    uint8_t byte =  m.data().at((line * 0x10) + i);
+                    bool needs_pop = false;
+                    if (addr + i == p().pc()) {
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pc_bg_color);
+                    } else if (byte == 0) {
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(128, 128, 128)));
+                        needs_pop = true;
+                    }
+                    ImGui::Text("%02X", byte);
+                    if (needs_pop)
+                        ImGui::PopStyleColor();
+                    ascii += (byte >= 32 && byte < 127) ? (char) byte : '.';
+                }
+                
+                // ascii
+                ImGui::TableSetColumnIndex(17);
+                ImGui::Text("%s", ascii.c_str());
+            }
+        }
+        
+        ImGui::EndTable();
+    }
 }
 
 void MyUI::draw_cpu()
@@ -489,4 +564,15 @@ void MyUI::update_symbol_list()
     for (auto const& s: p().symbol_list()) {
         symbol_list.push_back({ s.symbol, s.file + ":" + std::to_string(s.line) });
     }
+}
+
+void MyUI::upload_binary()
+{
+    p().upload_compiled([](void*, float perc) {
+        if (ImGui::BeginPopupModal("Uploading binary", nullptr, ImGuiWindowFlags_AlwaysAutoResize)) {
+            ImGui::Text("Uploading binary to memory: %d%%", static_cast<int>(perc * 100));
+            ImGui::EndPopup();
+        }
+        ImGui::OpenPopup("Uploading binary");
+    });
 }

@@ -27,6 +27,7 @@ public:
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();
     void upload_compiled(void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
+    bool is_uploaded() const { return is_uploaded_; }
     void update();
     
     CodeView& codeview() { return codeview_; }
@@ -75,6 +76,7 @@ private:
     TerminalView terminalview_;
     std::vector<std::string> file_list_;
     std::vector<Symbol> symbol_list_;
+    bool is_uploaded_ = false;
     
     void create_file_symbol_list();
 };

@@ -85,6 +85,7 @@ std::vector<uint8_t> read_block(uint16_t addr, uint16_t sz)
 void upload_compiled(z80aw::DebugInformation const& di, void (*upload_callback)(void* data, float perc), void* data)
 {
     CHECKED(z80aw_upload_compiled(di.raw_ptr(), upload_callback, data));
+    CHECKED(z80aw_cpu_reset());
 }
 
 void simple_compilation(std::string const& code)

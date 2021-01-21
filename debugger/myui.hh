@@ -1,6 +1,7 @@
 #ifndef DEBUGGER_MYUI_HH
 #define DEBUGGER_MYUI_HH
 
+#include <chrono>
 #include <optional>
 
 #include "ui.hh"
@@ -35,6 +36,8 @@ private:
     std::vector<std::string> file_list;
     std::vector<SymbolItem> symbol_list;
     bool scroll_to_pc = true;
+    bool blink = true;
+    std::chrono::time_point<std::chrono::system_clock> last_blink = std::chrono::system_clock::now();
     std::optional<size_t> show_this_line_on_next_frame {};
     
     // start window
@@ -48,7 +51,6 @@ private:
     void draw_start();
     void draw_code();
     void draw_memory();
-    void draw_memory_page_selector(MemoryView& m) const;
     void draw_memory_table(MemoryView& m) const;
     void draw_cpu();
     void draw_advanced();
@@ -62,8 +64,9 @@ private:
     
     // actions
     void start_execution();
-    
     void update_symbol_list();
+    
+    void upload_binary();
 };
 
 #endif
