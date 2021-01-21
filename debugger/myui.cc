@@ -42,6 +42,7 @@ void MyUI::draw()
         draw_code();
         draw_memory();
         draw_cpu();
+        draw_terminal();
         if (show_advanced_window)
             draw_advanced();
         if (show_choose_file)
@@ -368,6 +369,92 @@ void MyUI::draw_memory_table(MemoryView& m) const
 }
 
 void MyUI::draw_cpu()
+{
+    ImGui::SetNextWindowSize({ 265, 375 });
+    if (ImGui::Begin("CPU", nullptr, ImGuiWindowFlags_NoResize)) {
+        if (stopped()) {
+            ImGui::Text("Registers:");
+    
+            auto pair = [](size_t& i, size_t sz, std::string const& name, int value) {
+                ImGui::TableSetColumnIndex(i++);
+                ImGui::Text("%s:", name.c_str());
+                ImGui::TableSetColumnIndex(i++);
+                char buf[5];
+                if (value == -1)
+                    sprintf(buf, "%s", sz == 2 ? "??" : "????");
+                else if (sz == 2)
+                    sprintf(buf, "%02X", (uint8_t) value);
+                else if (sz == 4)
+                    sprintf(buf, "%04X", (uint16_t) value);
+                ImGui::Button(buf);
+            };
+    
+            static int tbl_flags = ImGuiTableFlags_NoBordersInBody;
+            if (ImGui::BeginTable("##cpu", 8, tbl_flags)) {
+                for (int i = 0; i < 8; ++i)
+                    ImGui::TableSetupColumn("", ImGuiTableColumnFlags_WidthFixed);
+                
+                ImGui::TableNextRow();
+                size_t i = 0;
+                pair(i, 4, "AF", p().registers().has_value() ? p().registers().value().AF : -1);
+                pair(i, 2, "A", p().registers().has_value() ? p().registers().value().AF >> 8: -1);
+                pair(i, 2, "F", p().registers().has_value() ? p().registers().value().AF & 0xff: -1);
+                pair(i, 4, "AF'", p().registers().has_value() ? p().registers().value().AFx : -1);
+                ImGui::TableNextRow();
+                i = 0;
+                pair(i, 4, "BC", p().registers().has_value() ? p().registers().value().BC : -1);
+                pair(i, 2, "B", p().registers().has_value() ? p().registers().value().BC >> 8: -1);
+                pair(i, 2, "C", p().registers().has_value() ? p().registers().value().BC & 0xff: -1);
+                pair(i, 4, "BC'", p().registers().has_value() ? p().registers().value().BCx : -1);
+                ImGui::TableNextRow();
+                i = 0;
+                pair(i, 4, "DE", p().registers().has_value() ? p().registers().value().DE : -1);
+                pair(i, 2, "D", p().registers().has_value() ? p().registers().value().DE >> 8: -1);
+                pair(i, 2, "E", p().registers().has_value() ? p().registers().value().DE & 0xff: -1);
+                pair(i, 4, "DE'", p().registers().has_value() ? p().registers().value().DEx : -1);
+                ImGui::TableNextRow();
+                i = 0;
+                pair(i, 4, "HL", p().registers().has_value() ? p().registers().value().HL : -1);
+                pair(i, 2, "H", p().registers().has_value() ? p().registers().value().HL >> 8: -1);
+                pair(i, 2, "L", p().registers().has_value() ? p().registers().value().HL & 0xff: -1);
+                pair(i, 4, "HL'", p().registers().has_value() ? p().registers().value().HLx : -1);
+                ImGui::TableNextRow();
+                i = 0;
+                pair(i, 4, "IX", p().registers().has_value() ? p().registers().value().IX : -1);
+                pair(i, 2, "I", p().registers().has_value() ? p().registers().value().I : -1);
+                pair(i, 2, "R", p().registers().has_value() ? p().registers().value().R : -1);
+                pair(i, 4, "IY", p().registers().has_value() ? p().registers().value().IY : -1);
+                ImGui::TableNextRow();
+                i = 0;
+                pair(i, 4, "PC", p().pc());
+                i = 6;
+                pair(i, 4, "SP", p().registers().has_value() ? p().registers().value().SP : -1);
+                ImGui::EndTable();
+            }
+            bool v = p().registers().has_value() && p().registers().value().HALT;
+            ImGui::Checkbox("HALT", &v);
+            
+            if (p().registers().has_value()) {
+                uint8_t f = p().registers().value().AF & 0xff;
+                ImGui::Separator();
+                ImGui::Text("Flags:");
+                bool s = (f >> 7) & 1; ImGui::Checkbox("Sign", &s);
+                bool z = (f >> 6) & 1; ImGui::Checkbox("Zero", &z);
+                bool h = (f >> 4) & 1; ImGui::Checkbox("Half carry", &h);
+                bool pv = (f >> 2) & 1; ImGui::Checkbox("Parity / Overflow (V)", &pv);
+                bool n = (f >> 1) & 1; ImGui::Checkbox("Subtract (N)", &n);
+                bool c = (f >> 0) & 1; ImGui::Checkbox("Carry", &c);
+            }
+    
+        } else {
+            ImGui::Text("CPU in execution...");
+        }
+        
+        ImGui::End();
+    }
+}
+
+void MyUI::draw_terminal()
 {
 
 }

@@ -53,6 +53,7 @@ private:
     void draw_memory();
     void draw_memory_table(MemoryView& m) const;
     void draw_cpu();
+    void draw_terminal();
     void draw_advanced();
     void draw_code_view();
     void draw_choose_file();
@@ -65,7 +66,6 @@ private:
     // actions
     void start_execution();
     void update_symbol_list();
-    
     void upload_binary();
 };
 
