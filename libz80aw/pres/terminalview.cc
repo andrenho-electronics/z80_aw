@@ -37,4 +37,5 @@ void TerminalView::reset()
     for (size_t i = 0; i < lines_; ++i)
         text_.emplace_back(columns_, ' ');
     cursor_x_ = cursor_y_ = 0;
+    text_.at(lines_ - 1).replace(columns_ - 1, 1, "X");
 }

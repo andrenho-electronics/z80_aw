@@ -13,6 +13,9 @@ public:
     size_t cursor_y() const { return cursor_y_; }
     std::vector<std::string> const& text() const { return text_; }
     
+    size_t lines() const { return lines_; }
+    size_t columns() const { return columns_; }
+    
     void reset();
 
 private:

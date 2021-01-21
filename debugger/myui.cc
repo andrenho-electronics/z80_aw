@@ -456,7 +456,20 @@ void MyUI::draw_cpu()
 
 void MyUI::draw_terminal()
 {
-
+    TerminalView const& t = p().terminalview();
+    
+    ImGui::SetNextWindowSize({ 580, 480 });
+    if (ImGui::Begin("Terminal", nullptr, ImGuiWindowFlags_NoResize)) {
+    
+        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(60, 255, 60)));
+        for (size_t i = 0; i < t.lines(); ++i)
+            ImGui::Text("%s", t.text().at(i).c_str());
+        ImGui::PopStyleColor();
+        
+        if (ImGui::Button("Keypress..."))
+            ;
+        ImGui::End();
+    }
 }
 
 void MyUI::draw_advanced()
