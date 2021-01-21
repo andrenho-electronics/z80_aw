@@ -1,3 +1,4 @@
+#include <iostream>
 #include "terminalview.hh"
 
 TerminalView::TerminalView(size_t lines, size_t columns)
