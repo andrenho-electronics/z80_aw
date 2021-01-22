@@ -33,6 +33,7 @@ private:
     bool show_advanced_window = false;
     bool show_choose_file = false;
     bool show_choose_symbol = false;
+    bool show_keypress_modal = false;
     std::vector<std::string> file_list;
     std::vector<SymbolItem> symbol_list;
     bool scroll_to_pc = true;
@@ -54,6 +55,7 @@ private:
     void draw_memory_table(MemoryView& m) const;
     void draw_cpu();
     void draw_terminal();
+    void draw_keypress_modal();
     void draw_advanced();
     void draw_code_view();
     void draw_choose_file();
@@ -67,6 +69,10 @@ private:
     void start_execution();
     void update_symbol_list();
     void upload_binary();
+    bool do_keypress();
+   
+    // translations
+    std::vector<uint8_t> translate_keypress(int key, bool ctrl, bool shift, bool alt, bool super) const;
 };
 
 #endif

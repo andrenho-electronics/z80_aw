@@ -7,6 +7,9 @@ using namespace std::chrono_literals;
 #include "imgui/imgui.h"
 #include "imgui/imgui_internal.h"
 
+static const int PageUp = 0x10a;
+static const int PageDown = 0x10b;
+static const int F2 = 0x123;
 static const int F7 = 0x128;
 static const int F8 = 0x129;
 static const int F9 = 0x12a;
@@ -34,7 +37,9 @@ void MyUI::draw()
 {
     if (presentation.has_value() && !stopped()) {
         p().check_events();
+        do_keypress();
     }
+    
     if (show_demo_window)
         ImGui::ShowDemoWindow(&show_demo_window);
     if (!presentation.has_value()) {
@@ -50,6 +55,8 @@ void MyUI::draw()
         draw_cpu();
         draw_terminal();
         draw_code();
+        if (show_keypress_modal)
+            draw_keypress_modal();
     }
     if (error_message.has_value())
         draw_error_modal();
@@ -271,9 +278,10 @@ void MyUI::draw_memory()
         uint8_t page = m.page_number();
     
         ImGui::AlignTextToFramePadding();
-        ImGui::Text("Page: ");
+        ImGui::Text("Page: (PgUp)");
         ImGui::SameLine();
-        if (ImGui::Button("<"))
+        
+        if (ImGui::Button("<") || ImGui::IsKeyPressed(PageUp))
             m.go_to_page(page - 1);
         ImGui::SameLine();
     
@@ -290,8 +298,10 @@ void MyUI::draw_memory()
                          }, &m);
         ImGui::PopItemWidth();
         ImGui::SameLine();
-        if (ImGui::Button(">"))
+        if (ImGui::Button(">") || ImGui::IsKeyPressed(PageDown))
             m.go_to_page(page + 1);
+        ImGui::SameLine();
+        ImGui::Text("(PgDown)");
     
         draw_memory_table(m);
     
@@ -477,8 +487,8 @@ void MyUI::draw_terminal()
         
         // buttons
         if (stopped()) {
-            if (ImGui::Button("Keypress..."))
-                ;
+            if (ImGui::Button("Keypress... (F2)") || ImGui::IsKeyPressed(F2))
+                show_keypress_modal = true;
         }
         
         // cursor
@@ -499,6 +509,21 @@ void MyUI::draw_terminal()
         
         ImGui::End();
     }
+}
+
+void MyUI::draw_keypress_modal()
+{
+    if (ImGui::BeginPopupModal("Keypress", &show_keypress_modal, ImGuiWindowFlags_AlwaysAutoResize)) {
+        ImGui::Text("Press a key to send to the Z80 computer.");
+        ImGui::Separator();
+        if (ImGui::Button("Cancel"))
+            show_keypress_modal = false;
+        ImGui::EndPopup();
+    
+        if (do_keypress())
+            show_keypress_modal = false;
+    }
+    ImGui::OpenPopup("Keypress");
 }
 
 void MyUI::draw_advanced()
@@ -705,3 +730,39 @@ void MyUI::upload_binary()
         ImGui::OpenPopup("Uploading binary");
     });
 }
+
+bool MyUI::do_keypress()
+{
+    bool press = false;
+    for (int i = 0; i < IM_ARRAYSIZE(io.KeysDown); i++) {
+        if (ImGui::IsKeyPressed(i)) {
+            for (uint8_t k: translate_keypress(i, io.KeyCtrl, io.KeyShift, io.KeyAlt, io.KeySuper))
+                p().keypress(k);
+            press = true;
+        }
+    }
+    return press;
+}
+
+
+//
+// translations
+//
+
+std::vector<uint8_t> MyUI::translate_keypress(int key, bool ctrl, bool shift, bool alt, bool super) const
+{
+    // std::cout << "Keypress: " << key << std::endl;
+    
+    if (ctrl || alt || super)   // not supported yet
+        return {};
+    if (key >= 'A' && key <= 'Z') {
+        return { shift ? (uint8_t) key : (uint8_t) (key + 32) };
+    } else if (key < 127) {
+        return { (uint8_t) key };
+    } else switch(key) {
+        case GLFW_KEY_ENTER: return { '\r', '\n' };
+        case GLFW_KEY_BACKSPACE: return { '\b' };
+        default: return {};
+    }
+}
+
