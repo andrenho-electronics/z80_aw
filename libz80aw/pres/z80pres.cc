@@ -133,15 +133,19 @@ void Z80Presentation::stop()
 
 void Z80Presentation::check_events()
 {
+    bool cont = z80_state_.mode == Z80State::Running;
     auto le = z80aw::last_event();
-    if (le.char_printed)
-        terminalview_.add_char(le.char_printed);
     if (le.bkp_reached) {
         z80_state_.mode = Z80State::Stopped;
         try {
             z80_state_.registers = z80aw::registers();
         } catch(...) {}
         update();
+    }
+    if (le.char_printed) {
+        terminalview_.add_char(le.char_printed);
+        if (cont)
+            z80aw_cpu_continue();
     }
 }
 

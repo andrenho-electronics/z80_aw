@@ -550,8 +550,9 @@ Z80AW_Event z80aw_last_event()
     zsend_expect(Z_LAST_EVENT, Z_OK);
     
     Z80AW_Event event;
-    event.char_printed  = zrecv();
+    event.char_printed = zrecv();
     event.bkp_reached = zrecv();
+    event.pc = zrecv16();
     z_assert_empty_buffer();
     return event;
 }

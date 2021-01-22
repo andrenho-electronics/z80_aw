@@ -6,12 +6,12 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="libz80aw" targetName="libz80aw.a" />
-      <config projectName="libz80aw" targetName="check-comm" />
       <config projectName="libz80aw" targetName="check" />
+      <config projectName="libz80aw" targetName="tests-comm" />
       <config projectName="libz80aw" targetName="all" />
       <config projectName="libz80aw" targetName="emulator" />
       <config projectName="libz80aw" targetName="check-pres-leaks" />
-      <config projectName="libz80aw" targetName="tests-comm" />
+      <config projectName="libz80aw" targetName="check-comm" />
       <config projectName="libz80aw" targetName="tests-pres" />
       <config projectName="libz80aw" targetName="check-comm-leaks" />
       <config projectName="libz80aw" targetName="check-comm-real" />
@@ -25,8 +25,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change beforePath="$PROJECT_DIR$/../firmware/.idea/firmware.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/.idea/firmware.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../firmware/dbg.c" beforeDir="false" afterPath="$PROJECT_DIR$/../firmware/dbg.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/terminalview.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/terminalview.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -103,7 +109,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../common/protocol.h" />
     <property name="nodejs_package_manager_path" value="npm" />
   </component>
-  <component name="RunManager" selected="Makefile Application.all">
+  <component name="RunManager" selected="Makefile Application.emulator">
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -160,7 +166,8 @@
       <workItem from="1611162569144" duration="67000" />
       <workItem from="1611162643623" duration="13124000" />
       <workItem from="1611228761633" duration="1829000" />
-      <workItem from="1611239285062" duration="4717000" />
+      <workItem from="1611239285062" duration="8728000" />
+      <workItem from="1611259482176" duration="2626000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -379,7 +386,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611240071748</updated>
     </task>
-    <option name="localTasksCounter" value="32" />
+    <task id="LOCAL-00032" summary=".">
+      <created>1611249891347</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1611249891347</updated>
+    </task>
+    <option name="localTasksCounter" value="33" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -406,11 +420,31 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/emu/z80/Z80.c</url>
-          <line>637</line>
-          <option name="timeStamp" value="107" />
+          <url>file://$PROJECT_DIR$/tests/test-comm.c</url>
+          <line>395</line>
+          <option name="timeStamp" value="118" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/tests/test-comm.c</url>
+          <line>397</line>
+          <option name="timeStamp" value="130" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/tests/test-comm.c</url>
+          <line>401</line>
+          <option name="timeStamp" value="131" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/emu/emulator.c</url>
+          <line>404</line>
+          <option name="timeStamp" value="132" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="CLionNativeAppRunConfigurationType">
+        <watch expression="R.PC.W" language="ObjectiveC" />
+      </configuration>
+    </watches-manager>
   </component>
 </project>

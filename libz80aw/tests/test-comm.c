@@ -396,13 +396,11 @@ int main(int argc, char* argv[])
     z80aw_cpu_continue();
     usleep(10000);
     Z80AW_Event e = z80aw_last_event();
-    if (e.char_printed != 0) {
-        ASSERT("Check that character 'A' was printed", e.char_printed == 'A');
-    }
+    ASSERT("Check that character 'A' was printed", e.char_printed == 'A');
+    z80aw_cpu_continue();
+    usleep(10000);
     e = z80aw_last_event();
-    if (e.char_printed != 0) {
-        ASSERT("Check that character 'W' was printed", e.char_printed == 'W');
-    }
+    ASSERT("Check that character 'W' was printed", e.char_printed == 'W');
     z80aw_cpu_stop();
     
     //

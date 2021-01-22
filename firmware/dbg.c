@@ -163,6 +163,7 @@ void debugger_cycle()
                 serial_send(Z_OK);
                 serial_send(e.last_printed_char);
                 serial_send(e.bkp_hit);
+                serial_send16(z80_pc());
             }
             break;
 

@@ -571,6 +571,7 @@ void command_loop()
             send(Z_OK);
             send(last_printed_char);
             send(bkp_reached);
+            send16(z80.PC.W);
             last_printed_char = 0;
             bkp_reached = false;
             break;
