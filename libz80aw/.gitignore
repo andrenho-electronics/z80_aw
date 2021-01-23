@@ -1,4 +1,4 @@
-tests
+test
 *.so
 *.dll
 *.a
