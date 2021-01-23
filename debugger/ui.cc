@@ -7,7 +7,7 @@ UI::UI(Window const& window)
     : io(init())
 {
     ImGui_ImplGlfw_InitForOpenGL(window.ptr(), true);
-    ImGui_ImplOpenGL3_Init("#version 150");
+    ImGui_ImplOpenGL3_Init("#version 130");
 }
 
 UI::~UI()
