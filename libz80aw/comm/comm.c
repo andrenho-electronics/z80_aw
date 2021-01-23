@@ -1,5 +1,4 @@
 #include "comm.h"
-#include "z80aw_priv.h"
 
 #include <fcntl.h>
 #include <termios.h>
@@ -9,8 +8,10 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include "logging.h"
+#include "z80aw_priv.h"
+
 static int fd = -1;
-bool log_to_stdout = false;
 bool assert_empty_buffer = false;
 
 int open_serial_port(char const* port)
@@ -49,19 +50,17 @@ void close_serial_port()
     close(fd);
 }
 
-int zsend_noreply(uint8_t byte)
+int zsend_noreply(uint16_t byte)
 {
-    if (log_to_stdout) {
-        printf("\e[0;34m%02X \e[0m", byte);
-        fflush(stdout);
-    }
+    logd(byte, SEND);
+    byte &= 0xff;
     if (write(fd, &byte, 1) != 1) {
         ERROR("Cannot write byte 0x%02X to controller", byte);
     }
     return 0;
 }
 
-int zsend_expect(uint8_t byte, uint8_t expect)
+int zsend_expect(uint16_t byte, uint8_t expect)
 {
     // send byte
     int r = zsend_noreply(byte);
@@ -69,10 +68,10 @@ int zsend_expect(uint8_t byte, uint8_t expect)
         return r;
     
     // receive response
-    int c = zrecv();
+    int c = zrecv_response();
     if (c < 0)
         return r;
-        
+
     // check response
     if (c != expect) {
         ERROR("Response does not match: expected 0x%02X, found 0x%02X", expect, c);
@@ -85,10 +84,7 @@ int zrecv()
     uint8_t c;
     int r;
     while ((r = read(fd, &c, 1)) == 0);
-    if (log_to_stdout) {
-        printf("\e[0;33m%02X \e[0m", c);
-        fflush(stdout);
-    }
+    logd(c, RECV);
     if (r == -1) {
         ERROR("Cannot read byte from controller");
     }
@@ -101,6 +97,22 @@ int zrecv16() {
     if (a < 0) return a;
     if (b < 0) return b;
     return a | (b << 8);
+}
+
+int zrecv_response()
+{
+    uint8_t c = zrecv();
+    if (log_to_stdout)
+        log_command(c, RECV);
+    return c;
+}
+
+int zrecv16_response()
+{
+    uint16_t cc = zrecv16();
+    if (log_to_stdout)
+        log_command(cc, RECV);
+    return cc;
 }
 
 bool z_empty_buffer()

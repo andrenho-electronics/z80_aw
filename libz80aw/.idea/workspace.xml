@@ -6,16 +6,16 @@
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="libz80aw" targetName="libz80aw.a" />
+      <config projectName="libz80aw" targetName="check-pres" />
+      <config projectName="libz80aw" targetName="all" />
+      <config projectName="libz80aw" targetName="check-comm" />
+      <config projectName="libz80aw" targetName="check-comm-real" />
+      <config projectName="libz80aw" targetName="check-pres-leaks" />
+      <config projectName="libz80aw" targetName="check-comm-leaks" />
       <config projectName="libz80aw" targetName="check" />
       <config projectName="libz80aw" targetName="tests-comm" />
-      <config projectName="libz80aw" targetName="all" />
-      <config projectName="libz80aw" targetName="emulator" />
-      <config projectName="libz80aw" targetName="check-pres-leaks" />
-      <config projectName="libz80aw" targetName="check-comm" />
       <config projectName="libz80aw" targetName="tests-pres" />
-      <config projectName="libz80aw" targetName="check-comm-leaks" />
-      <config projectName="libz80aw" targetName="check-comm-real" />
-      <config projectName="libz80aw" targetName="check-pres" />
+      <config projectName="libz80aw" targetName="emulator" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -25,7 +25,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/comm/logging.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/comm/logging.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/ui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/ui.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/tests_pres.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/tests_pres.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/comm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/comm.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/comm.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-pres.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -101,8 +112,14 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../common/protocol.h" />
     <property name="nodejs_package_manager_path" value="npm" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.emulator">
+  <component name="RunManager" selected="Makefile Application.tests-pres">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -121,6 +138,11 @@
     <configuration name="tests-comm-headless" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-lr /dev/pts/6" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-comm" CONFIG_NAME="tests-comm" version="1" RUN_PATH="$PROJECT_DIR$/tests-comm">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration default="true" type="lua.app" factoryName="Lua Application">
@@ -160,7 +182,7 @@
       <workItem from="1611162643623" duration="13124000" />
       <workItem from="1611228761633" duration="1829000" />
       <workItem from="1611239285062" duration="8728000" />
-      <workItem from="1611259482176" duration="6152000" />
+      <workItem from="1611259482176" duration="10153000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>

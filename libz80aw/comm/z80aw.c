@@ -11,6 +11,7 @@
 #include "protocol.h"
 #include "comm.h"
 #include "z80aw_priv.h"
+#include "logging.h"
 
 static char last_error[256] = "No error.";
 static bool wait_for_emulator = true;
@@ -62,9 +63,9 @@ int z80aw_set_assert_empty_buffer(bool v)
 
 int z80aw_set_register_fetch_mode(Z80AW_RegisterFetchMode mode)
 {
-    zsend_noreply(Z_REGFETCH_MODE);
+    zsend_noreply(Z_REGFETCH_MODE | Z_COMMAND);
     zsend_noreply(mode);
-    int r = zrecv();
+    int r = zrecv_response();
     if (r == Z_EMULATOR_ONLY) {
         ERROR("The register emulator mode can only be set when using the emulator.");
     } else if (r != Z_OK) {
@@ -166,8 +167,8 @@ const char* z80aw_last_error()
 Z80AW_ControllerInfo z80aw_controller_info()
 {
     Z80AW_ControllerInfo c;
-    zsend_noreply(Z_CTRL_INFO);
-    c.free_memory = zrecv16();
+    zsend_noreply(Z_CTRL_INFO | Z_COMMAND);
+    c.free_memory = zrecv16_response();
     z_assert_empty_buffer();
     return c;
 }
@@ -192,14 +193,14 @@ int z80aw_read_byte(uint16_t addr)
 int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
 {
     uint16_t checksum = z80aw_checksum(sz, data);
-    zsend_noreply(Z_WRITE_BLOCK);
+    zsend_noreply(Z_WRITE_BLOCK | Z_COMMAND);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
     zsend_noreply(sz & 0xff);
     zsend_noreply(sz >> 8);
     for (uint16_t i = 0; i < sz; ++i)
         zsend_noreply(data[i]);
-    uint8_t status = zrecv();
+    uint8_t status = zrecv_response();
     uint16_t rchecksum = zrecv16();
     if (status == Z_INCORRECT_BUS) {
         ERROR("Bus is in an incorrect state when writing to memory.");
@@ -213,12 +214,12 @@ int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
 
 int z80aw_read_block(uint16_t addr, uint16_t sz, uint8_t* data)
 {
-    zsend_noreply(Z_READ_BLOCK);
+    zsend_noreply(Z_READ_BLOCK | Z_COMMAND);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
     zsend_noreply(sz & 0xff);
     zsend_noreply(sz >> 8);
-    uint8_t status = zrecv();
+    uint8_t status = zrecv_response();
     for (uint16_t i = 0; i < sz; ++i)
         data[i] = zrecv();
     if (status == Z_INCORRECT_BUS)
@@ -344,7 +345,7 @@ DebugInformation* z80aw_simple_compilation_debug(const char* code, char* err_buf
 
 int z80aw_cpu_reset()
 {
-    int r = zsend_expect(Z_RESET, Z_OK);
+    int r = zsend_expect(Z_RESET | Z_COMMAND, Z_OK);
     if (r == 0)
         z80_power = true;
     z_assert_empty_buffer();
@@ -353,7 +354,7 @@ int z80aw_cpu_reset()
 
 int z80aw_cpu_powerdown()
 {
-    int r = zsend_expect(Z_POWERDOWN, Z_OK);
+    int r = zsend_expect(Z_POWERDOWN | Z_COMMAND, Z_OK);
     if (r == 0)
         z80_power = false;
     z_assert_empty_buffer();
@@ -362,7 +363,7 @@ int z80aw_cpu_powerdown()
 
 int z80aw_cpu_pc()
 {
-    int r = zsend_noreply(Z_PC);
+    int r = zsend_noreply(Z_PC | Z_COMMAND);
     uint16_t pc = zrecv16();
     return r < 0 ? 0 : pc;
 }
@@ -396,8 +397,8 @@ static void recv_registers(Z80AW_Registers* reg)
 
 int z80aw_cpu_registers(Z80AW_Registers* reg)
 {
-    zsend_noreply(Z_REGISTERS);
-    int r = zrecv();
+    zsend_noreply(Z_REGISTERS | Z_COMMAND);
+    int r = zrecv_response();
     if (r == Z_OK) {
         recv_registers(reg);
     } else if (r == Z_EMULATOR_ONLY) {
@@ -410,7 +411,7 @@ int z80aw_cpu_registers(Z80AW_Registers* reg)
 
 int z80aw_cpu_nmi()
 {
-    int r = zsend_expect(Z_NMI, Z_OK);
+    int r = zsend_expect(Z_NMI | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }
@@ -421,7 +422,7 @@ static int z80aw_cpu_step_debug(Z80AW_Registers* reg, uint8_t* printed_char)
         ERROR("CPU is not powered up.");
     }
     
-    int resp = zsend_noreply(Z_STEP);
+    int resp = zsend_noreply(Z_STEP | Z_COMMAND);
     if (resp != 0)
         return resp;
     
@@ -441,7 +442,7 @@ static int z80aw_cpu_step_disabled(uint8_t* printed_char)
         ERROR("CPU is not powered up.");
     }
     
-    int r = zsend_noreply(Z_STEP);
+    int r = zsend_noreply(Z_STEP | Z_COMMAND);
     if (r != 0)
         return r;
     
@@ -466,7 +467,7 @@ int z80aw_cpu_step(Z80AW_Registers* reg, uint8_t* printed_char)
 
 int z80aw_keypress(uint8_t key)
 {
-    zsend_noreply(Z_KEYPRESS);
+    zsend_noreply(Z_KEYPRESS | Z_COMMAND);
     int r = zsend_expect(key, Z_OK);
     z_assert_empty_buffer();
     return r;
@@ -474,10 +475,10 @@ int z80aw_keypress(uint8_t key)
 
 int z80aw_add_breakpoint(uint16_t addr)
 {
-    zsend_noreply(Z_ADD_BKP);
+    zsend_noreply(Z_ADD_BKP | Z_COMMAND);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
-    int r = zrecv();
+    int r = zrecv_response();
     if (r == Z_TOO_MANY_BKPS) {
         ERROR("Too many breakpoints.");
     }
@@ -487,7 +488,7 @@ int z80aw_add_breakpoint(uint16_t addr)
 
 int z80aw_remove_breakpoint(uint16_t addr)
 {
-    zsend_noreply(Z_REMOVE_BKP);
+    zsend_noreply(Z_REMOVE_BKP | Z_COMMAND);
     zsend_noreply(addr & 0xff);
     int r = zsend_expect(addr >> 8, Z_OK);
     z_assert_empty_buffer();
@@ -496,14 +497,14 @@ int z80aw_remove_breakpoint(uint16_t addr)
 
 int z80aw_remove_all_breakpoints()
 {
-    int r = zsend_expect(Z_REMOVE_ALL_BKPS, Z_OK);
+    int r = zsend_expect(Z_REMOVE_ALL_BKPS | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }
 
 int z80aw_query_breakpoints(uint16_t* addr, size_t addr_sz)
 {
-    zsend_noreply(Z_QUERY_BKPS);
+    zsend_noreply(Z_QUERY_BKPS | Z_COMMAND);
     int count = zrecv();
     if (count < 0)
         return -1;
@@ -522,7 +523,7 @@ int z80aw_cpu_next()
         ERROR("CPU is not powered up.");
     }
     
-    int r = zsend_expect(Z_NEXT, Z_OK);
+    int r = zsend_expect(Z_NEXT | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }
@@ -533,21 +534,21 @@ int z80aw_cpu_continue()
         ERROR("CPU is not powered up.");
     }
     
-    int r = zsend_expect(Z_CONTINUE, Z_OK);
+    int r = zsend_expect(Z_CONTINUE | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }
 
 int z80aw_cpu_stop()
 {
-    int r = zsend_expect(Z_STOP, Z_OK);
+    int r = zsend_expect(Z_STOP | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }
 
 Z80AW_Event z80aw_last_event()
 {
-    zsend_expect(Z_LAST_EVENT, Z_OK);
+    zsend_expect(Z_LAST_EVENT | Z_COMMAND, Z_OK);
     
     Z80AW_Event event;
     event.char_printed = zrecv();
@@ -559,7 +560,7 @@ Z80AW_Event z80aw_last_event()
 
 int z80aw_finalize_emulator()
 {
-    int r = zsend_expect(Z_EXIT_EMULATOR, Z_OK);
+    int r = zsend_expect(Z_EXIT_EMULATOR | Z_COMMAND, Z_OK);
     z_assert_empty_buffer();
     return r;
 }

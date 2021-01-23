@@ -1,3 +1,6 @@
+static bool log_to_stdout = true;
+static bool wait_after_each_assert = false;
+
 #include <cstdio>
 #include <cstdlib>
 
@@ -10,12 +13,13 @@ using namespace std::chrono_literals;
 
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
-    if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31mX\e[0m\n"); exit(1); }
+    if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31mX\e[0m\n"); exit(1); } \
+    if (wait_after_each_assert) getc(stdin);
 
 int main()
 {
     Z80Presentation p(".", true);
-    // p.set_logging_to_stdout(true);
+    p.set_logging_to_stdout(log_to_stdout);
     
     //
     // COMPILATION
