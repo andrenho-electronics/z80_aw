@@ -19,6 +19,7 @@ Config::Config(ImGuiContext* context)
         if (sscanf(line, "emulator_path=%1024s", str) == 1) strcpy(config->emulator_path, str);
         if (sscanf(line, "project_file=%2048s", str) == 1)  strcpy(config->project_file, str);
         if (sscanf(line, "serial_port=%256s", str) == 1)    strcpy(config->serial_port, str);
+        if (sscanf(line, "log_to_stdout=%16s", str) == 1)   config->log_to_stdout = (strcmp(str, "true") == 0);
     };
     ini_handler.WriteAllFn = [](ImGuiContext*, ImGuiSettingsHandler* h, ImGuiTextBuffer* buf) {
         auto* config = reinterpret_cast<Config*>(h->UserData);
@@ -27,6 +28,7 @@ Config::Config(ImGuiContext* context)
         buf->appendf("emulator_path=%s\n", config->emulator_path);
         buf->appendf("project_file=%s\n", config->project_file);
         buf->appendf("serial_port=%s\n", config->serial_port);
+        buf->appendf("log_to_stdout=%s\n", config->log_to_stdout ? "true" : "false");
     };
     ini_handler.UserData = this;
     context->SettingsHandlers.push_back(ini_handler);

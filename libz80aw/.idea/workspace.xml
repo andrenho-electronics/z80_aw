@@ -25,18 +25,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change afterPath="$PROJECT_DIR$/comm/logging.c" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/comm/logging.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/config.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/config.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/config.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/config.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../debugger/ui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/ui.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/tests_pres.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/tests_pres.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/comm.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/comm.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/comm.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-pres.cc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/logging.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/logging.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -114,7 +108,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.tests-pres">
+  <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -182,7 +176,7 @@
       <workItem from="1611162643623" duration="13124000" />
       <workItem from="1611228761633" duration="1829000" />
       <workItem from="1611239285062" duration="8728000" />
-      <workItem from="1611259482176" duration="10153000" />
+      <workItem from="1611259482176" duration="11055000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>

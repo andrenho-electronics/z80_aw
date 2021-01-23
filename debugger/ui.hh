@@ -21,7 +21,7 @@ protected:
     virtual void draw() = 0;
     
     ImGuiIO& io;
-    ImGuiContext* context = nullptr;
+    ImGuiContext* context;
     
 private:
     ImGuiIO& init();

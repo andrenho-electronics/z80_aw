@@ -552,8 +552,10 @@ void MyUI::draw_advanced()
     ImGui::Separator();
     
     try {
-        if (ImGui::Checkbox("Data logging to stdout", &logging))
+        if (ImGui::Checkbox("Data logging to stdout", &logging)) {
             p().set_logging_to_stdout(logging);
+            config.log_to_stdout = logging;
+        }
         if (ImGui::Checkbox("Assert empty buffer after finishing communication (makes execution slower)", &empty))
             p().set_assert_empty_buffer(empty);
         int item_current = static_cast<int>(p().register_fetch_mode());
@@ -690,6 +692,7 @@ void MyUI::start_execution()
         } else {
             presentation.emplace(config.serial_port, false);
         }
+        p().set_logging_to_stdout(config.log_to_stdout);
         
         step = "compiling project";
         p().compile_project(z80aw::DebugInformation::Vasm, config.project_file);

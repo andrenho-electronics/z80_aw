@@ -11,6 +11,7 @@ struct Config {
     char project_file[2048] { 0 };
     char serial_port[256] = "/dev/ttyUSB0";
     bool emulator_mode = true;
+    bool log_to_stdout = false;
 
 private:
     ImGuiContext* context;

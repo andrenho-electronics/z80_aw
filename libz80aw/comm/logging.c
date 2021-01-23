@@ -46,6 +46,7 @@ void log_command(uint8_t byte, Direction dir)
         CASE(Z_EMULATOR_ONLY)
     }
     printf("\e[0m");
+    fflush(stdout);
 #undef CASE
 }
 
