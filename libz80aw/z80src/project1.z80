@@ -1,6 +1,6 @@
 TEST = 0x1234
 
-	nop
+	nop ; PC = 0, 00
 main:
 	include project_include.z80
 

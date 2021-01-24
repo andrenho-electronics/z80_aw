@@ -74,6 +74,7 @@ int main(int argc, char* argv[])
     
     // compile valid code
     p.compile_project(CompilerType::Vasm, "z80src/project.toml");
+    p.upload_compiled();
     ASSERT("Valid source code.", true);
     
     //
@@ -82,6 +83,7 @@ int main(int argc, char* argv[])
     
     // check code view
     auto lines = p.codeview().lines();
+    std::cout << "File currently selected: " << p.codeview().file_selected().value_or("no file selected") << "\n";
     ASSERT("Opens at the first file", p.codeview().file_selected().value_or("") == "project1.z80");
     ASSERT("8 lines in the first file", p.codeview().lines().size() == 8);
     
@@ -89,7 +91,7 @@ int main(int argc, char* argv[])
     ASSERT("First line address", !p.codeview().lines().at(0).address.has_value());
     ASSERT("First line bytes", p.codeview().lines().at(0).bytes.empty());
     
-    ASSERT("Third line", p.codeview().lines().at(2).code == "        nop");
+    ASSERT("Third line", p.codeview().lines().at(2).code == "        nop ; PC = 0, 00");
     ASSERT("Third line address", p.codeview().lines().at(2).address.value_or(0xff) == 0);
     ASSERT("Third line PC", p.codeview().lines().at(2).is_pc);
     ASSERT("Third line bytes", p.codeview().lines().at(2).bytes == std::vector<uint8_t> { 0 });
@@ -119,6 +121,7 @@ int main(int argc, char* argv[])
     // step
     p.reset();
     p.step();
+    std::cout << "File currently selected: " << p.codeview().file_selected().value_or("no file selected") << "\n";
     ASSERT("Check open file", p.codeview().file_selected().value_or("") == "project_include.z80");
     ASSERT("PC = first line", p.codeview().lines().at(0).is_pc);
     ASSERT("First line address", p.codeview().lines().at(0).address.value_or(-1) == 0x1);
@@ -148,10 +151,12 @@ int main(int argc, char* argv[])
     ASSERT("Register fetch disabled", !p.registers().has_value());
     
     // get register information (register fetch enabled)
-    p.set_register_fetch_mode(RegisterFetchMode::Emulator);
-    p.step();
-    ASSERT("Register fetch enabled", (p.registers().value().AF >> 8) == 0x45);
-    p.set_register_fetch_mode(RegisterFetchMode::Disabled);
+    if (opt.serial_port == NULL) {  // only test this with emulator
+        p.set_register_fetch_mode(RegisterFetchMode::Emulator);
+        p.step();
+        ASSERT("Register fetch enabled", (p.registers().value().AF >> 8) == 0x45);
+        p.set_register_fetch_mode(RegisterFetchMode::Disabled);
+    }
     
     // test breakpoints
     p.codeview().add_breakpoint(5);
@@ -164,7 +169,9 @@ int main(int argc, char* argv[])
     p.remove_all_breakpoints();
     
     // check registers
-    ASSERT("Check registers set after stop at breakpoint", (p.registers().value().AF >> 8) == 0x45);
+    if (opt.serial_port == NULL) {  // only test this with emulator
+        ASSERT("Check registers set after stop at breakpoint", (p.registers().value().AF >> 8) == 0x45);
+    }
     
     // next
     p.compile_project(CompilerType::VasmCode, R"(
@@ -195,18 +202,24 @@ int main(int argc, char* argv[])
         push hl
     )");
     p.reset();
-    p.set_register_fetch_mode(RegisterFetchMode::Emulator);
+    if (opt.serial_port == NULL) {  // only test this with emulator
+        p.set_register_fetch_mode(RegisterFetchMode::Emulator);
+    }
     p.step(); p.step(); p.step(); p.step(); p.step();
     ASSERT("Data is set correctly (1)", p.memoryview().data().at(0) == 0x31);  // ld sp, **
     ASSERT("Data is set correctly (2)", p.memoryview().data().at(3) == 0x3e);  // ld a, *
-    ASSERT("Check stack (1)", p.memoryview().stack().at(0) == 0x34);
-    ASSERT("Check stack (2)", p.memoryview().stack().at(1) == 0x12);
+    if (opt.serial_port == NULL) {  // only test this with emulator
+        ASSERT("Check stack (1)", p.memoryview().stack().at(0) == 0x34);
+        ASSERT("Check stack (2)", p.memoryview().stack().at(1) == 0x12);
+    }
     
     // go to page
     p.memoryview().go_to_page(0x93);
-    ASSERT("Data is set correctly (1)", p.memoryview().data().at(1) == 0xbd);
-    ASSERT("Check stack (1) - no change", p.memoryview().stack().at(0) == 0x34);
-    ASSERT("Check stack (2) - no change", p.memoryview().stack().at(1) == 0x12);
+    ASSERT("Data is set correctly", p.memoryview().data().at(1) == 0xbd);
+    if (opt.serial_port == NULL) {  // only test this with emulator
+        ASSERT("Check stack (1) - no change", p.memoryview().stack().at(0) == 0x34);
+        ASSERT("Check stack (2) - no change", p.memoryview().stack().at(1) == 0x12);
+    }
     
     //
     // TERMINAL

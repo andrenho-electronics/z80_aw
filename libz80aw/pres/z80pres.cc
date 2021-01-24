@@ -6,12 +6,14 @@ Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path
     : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80)
 {
     std::string serial_port;
-    if (initialize_with_emulator) {
+    if (initialize_with_emulator)
         serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
-    } else {
+    else
         serial_port = serial_port_or_emulator_path;
-    }
+
     z80aw::init(serial_port);
+    z80aw::reset();
+    set_register_fetch_mode(RegisterFetchMode::Disabled);
 }
 
 Z80Presentation::~Z80Presentation()

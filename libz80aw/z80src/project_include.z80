@@ -1,5 +1,5 @@
-	nop
-	ld a, 0x60
-	jp main
+	nop		; PC = 1, 00
+	ld a, 0x60	; PC = 2, 3E 60
+	jp main         ; PC = 5, C3 01 00
 
 ; vim:ts=8:sts=8:sw=8:noexpandtab
