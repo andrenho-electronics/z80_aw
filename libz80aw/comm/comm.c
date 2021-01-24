@@ -26,8 +26,8 @@ int open_serial_port(char const* port)
     if (tcgetattr(fd, &tty) != 0) {
         ERROR("Could not get terminal attributes: %s", strerror(errno));
     }
-    cfsetospeed(&tty, 114583);
-    cfsetispeed(&tty, 114583);
+    cfsetospeed(&tty, B115200);
+    cfsetispeed(&tty, B115200);
     cfmakeraw(&tty);
     tty.c_iflag &= ~IGNBRK;
     tty.c_lflag = 0;
