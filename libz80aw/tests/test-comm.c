@@ -500,38 +500,40 @@ int main(int argc, char* argv[])
     dump_memory(0, 0x100);
     
     // here we test fetching the registers using the two modes (NMI and emulator)
-    for (int k = 0; k < 2; ++k) {
-        if (k == 0) {
-            printf("Preparing NMI register fetch mode...\n");
-            z80aw_set_register_fetch_mode(Z80AW_REGFETCH_NMI);
-        } else {
-            if (config.hardware_type != EMULATOR)
-                break;
-            printf("Preparing emulator register fetch mode...\n");
-            z80aw_set_register_fetch_mode(Z80AW_REGFETCH_EMULATOR);
+    if (strcmp(serial_port, "/dev/ttyUSB0") != 0) {
+        for (int k = 0; k < 2; ++k) {
+            if (k == 0) {
+                printf("Preparing NMI register fetch mode...\n");
+                z80aw_set_register_fetch_mode(Z80AW_REGFETCH_NMI);
+            } else {
+                if (config.hardware_type != EMULATOR)
+                    break;
+                printf("Preparing emulator register fetch mode...\n");
+                z80aw_set_register_fetch_mode(Z80AW_REGFETCH_EMULATOR);
+            }
+            printf("Done.\n");
+            
+            Z80AW_Registers r;
+            z80aw_cpu_reset();
+            for (int i = 0; i < 32; ++i) {
+                if (log_to_stdout)
+                    printf(" [PC = 0x%x] ", z80aw_cpu_pc());
+                z80aw_cpu_step(NULL, NULL);
+            }
+            uint16_t original_pc = z80aw_cpu_pc();
+            ASSERT("Execute step debug", z80aw_cpu_step(&r, NULL) == 0);
+            dump_memory(0xffe0, 0x20);
+            ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
+            ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
+            ASSERT("BC' == 0xBC", r.BCx == 0xbc);
+            ASSERT("HL == 0xHL", r.HL == 0x41);
+            ASSERT("A == 0x1", (r.AF >> 8) == 0x1);
+            ASSERT("I == 0x1", r.I == 0x1);
+            ASSERT("DE == 0xDE", r.DE == 0xde);
+            ASSERT("IY == 0x9F", r.IY == 0x9f);
+            uint16_t new_pc = z80aw_cpu_pc();
+            ASSERT("Returned to the next PC", new_pc == original_pc);
         }
-        printf("Done.\n");
-        
-        Z80AW_Registers r;
-        z80aw_cpu_reset();
-        for (int i = 0; i < 32; ++i) {
-            if (log_to_stdout)
-                printf(" [PC = 0x%x] ", z80aw_cpu_pc());
-            z80aw_cpu_step(NULL, NULL);
-        }
-        uint16_t original_pc = z80aw_cpu_pc();
-        ASSERT("Execute step debug", z80aw_cpu_step(&r, NULL) == 0);
-        dump_memory(0xffe0, 0x20);
-        ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
-        ASSERT("A' == 0xA", (r.AFx >> 8) == 0xa);
-        ASSERT("BC' == 0xBC", r.BCx == 0xbc);
-        ASSERT("HL == 0xHL", r.HL == 0x41);
-        ASSERT("A == 0x1", (r.AF >> 8) == 0x1);
-        ASSERT("I == 0x1", r.I == 0x1);
-        ASSERT("DE == 0xDE", r.DE == 0xde);
-        ASSERT("IY == 0x9F", r.IY == 0x9f);
-        uint16_t new_pc = z80aw_cpu_pc();
-        ASSERT("Returned to the next PC", new_pc == original_pc);
     }
     
     //
