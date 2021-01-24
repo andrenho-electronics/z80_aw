@@ -17,7 +17,7 @@ static void send_registers(Z80_Registers const* r);
 
 void debugger_cycle()
 {
-    uint8_t data[512] = { 0 };
+    uint8_t data[513] = { 0 };
     uint8_t c = serial_recv_noblock();
 
     switch (c) {

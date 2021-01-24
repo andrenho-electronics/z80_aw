@@ -76,6 +76,7 @@ memory_read_page(uint16_t addr, uint8_t* data, int count)
         set_MREQ(0);
         set_RD(0);
         wait();
+        wait();
 
         data[a] = memory_read_data();
         wait();
@@ -83,6 +84,19 @@ memory_read_page(uint16_t addr, uint8_t* data, int count)
         set_RD(1);
         wait();
     }
+
+    // for some odd reason, when reading a memory block, the last byte is sometimes incorret.
+    // Here we read the last byte again.
+    memory_set_addr(addr + count - 1);
+    wait();
+    set_MREQ(0);
+    set_RD(0);
+    wait();
+    wait();
+    data[count - 1] = memory_read_data();
+    wait();
+    set_MREQ(1);
+    set_RD(1);
 
     memory_bus_release();
     return true;
@@ -107,10 +121,10 @@ static void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
                 set_RD(0);
                 set_MREQ(0);
                 uint8_t new_data = memory_read_data();
-                if (new_data == data)
-                    return;
                 set_MREQ(1);
                 set_RD(1);
+                if (new_data == data)
+                    return;
             }
             _delay_ms(50);  // if still no match, wait a coniderable time
         }
@@ -122,17 +136,13 @@ bool memory_write_page(uint16_t addr, uint8_t* data, size_t count, uint16_t* che
     if (memory_bus_takeover() == false)
         return false;
 
+    // write bytes
     for (uint16_t i = 0; i < count; ++i) {
         memory_write(addr + i, data[i], true);
-        // _delay_ms(10);
     }
-
-    // destroy data[]
-    for (size_t i = 0; i < count; ++i)
-        data[i] = 0;
-
-    // re-read data from memory
     memory_bus_release();
+    
+    // re-read data from memory
     memory_read_page(addr, data, count);
 
     // calculate checksum
@@ -142,7 +152,6 @@ bool memory_write_page(uint16_t addr, uint8_t* data, size_t count, uint16_t* che
         checksum2 = (checksum2 + checksum1) % 255;
     }
 
-    // bus_mc_release();  // this also put the ADDR & DATA pins in high impedance
     *checksum = checksum1 | (checksum2 << 8);
 
     memory_bus_release();

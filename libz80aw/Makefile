@@ -25,6 +25,11 @@ $(TEST_COMM_EXE): $(TEST_COMM_OBJ) $(OBJ_COMM) $(TOML_LIB)
 $(TEST_PRES_EXE): $(TEST_PRES_OBJ) $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(CXX) $^ -o $@
 
+tools: dump_mem_page
+	
+dump_mem_page: tools/dump_mem_page.o $(LIB)
+	$(CC) $^ -o $@
+
 check: $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$(TEST_COMM_EXE) && ./$(TEST_PRES_EXE)
 
@@ -45,6 +50,6 @@ check-pres-leaks: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 
 .PHONY: clean
 clean:
-	rm -f *.o **/*.o $(LIB) $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
+	rm -f *.o **/*.o $(LIB) $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE) dump_mem_page
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:
