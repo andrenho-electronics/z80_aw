@@ -1,8 +1,6 @@
-static bool log_to_stdout = true;
-static bool wait_after_each_assert = false;
-
 #include <cstdio>
 #include <cstdlib>
+#include <getopt.h>
 
 #include <chrono>
 #include <iostream>
@@ -14,12 +12,52 @@ using namespace std::chrono_literals;
 #define ASSERT(msg, expr)  \
     printf("%s... ", msg); \
     if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31mX\e[0m\n"); exit(1); } \
-    if (wait_after_each_assert) getc(stdin);
+    if (opt.wait_after_each_assert) getc(stdin);
 
-int main()
+struct Options {
+    bool  log_to_stdout = false;
+    bool  wait_after_each_assert = false;
+    char* serial_port = nullptr;
+
+    Options(int argc, char* argv[]) {
+        int opt;
+        while ((opt = getopt(argc, argv, "lwp:h")) != -1) {
+            switch (opt) {
+                case 'l':
+                    log_to_stdout = true;
+                    break;
+                case 'w':
+                    wait_after_each_assert = true;
+                    break;
+                case 'h':
+                    print_help(argv[0]);
+                    exit(EXIT_SUCCESS);
+                case 'p':
+                    serial_port = optarg;
+                    break;
+                default:
+                    print_help(argv[0]);
+                    exit(EXIT_FAILURE);
+            }
+        }
+    }
+
+private:
+    void print_help(const char* program) {
+        std::cout << "Usage: " << program << " [-lw] [-p SERIAL_PORT]\n";
+        std::cout << "  -l    Log bytes to stdout\n";
+        std::cout << "  -w    Wait after each assert\n";
+        std::cout << "  -p    Connect to serial port instead of starting the emulator\n";
+    }
+};
+
+
+int main(int argc, char* argv[])
 {
-    Z80Presentation p(".", true);
-    p.set_logging_to_stdout(log_to_stdout);
+    Options opt(argc, argv);
+
+    Z80Presentation p(opt.serial_port ? opt.serial_port : ".", !opt.serial_port);
+    p.set_logging_to_stdout(opt.log_to_stdout);
     
     //
     // COMPILATION
