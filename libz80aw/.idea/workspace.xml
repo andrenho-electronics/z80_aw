@@ -24,7 +24,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment="." />
+    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../terminal" beforeDir="false" afterPath="$PROJECT_DIR$/../terminal" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -101,7 +106,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.all">
+  <component name="RunManager" selected="Makefile Application.tests-comm-real">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -123,6 +128,11 @@
       </method>
     </configuration>
     <configuration name="tests-comm-headless" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-lr /dev/pts/6" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-comm" CONFIG_NAME="tests-comm" version="1" RUN_PATH="$PROJECT_DIR$/tests-comm">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="tests-comm-real" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-lr /dev/ttyUSB0" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-comm" CONFIG_NAME="tests-comm" version="1" RUN_PATH="$PROJECT_DIR$/tests-comm">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -149,6 +159,7 @@
       <item itemvalue="Makefile Application.emulator" />
       <item itemvalue="Makefile Application.tests-comm" />
       <item itemvalue="Makefile Application.tests-comm-headless" />
+      <item itemvalue="Makefile Application.tests-comm-real" />
       <item itemvalue="Makefile Application.tests-pres" />
     </list>
   </component>
@@ -169,7 +180,7 @@
       <workItem from="1611162643623" duration="13124000" />
       <workItem from="1611228761633" duration="1829000" />
       <workItem from="1611239285062" duration="8728000" />
-      <workItem from="1611259482176" duration="11651000" />
+      <workItem from="1611259482176" duration="13716000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>

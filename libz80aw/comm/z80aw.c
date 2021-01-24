@@ -192,7 +192,9 @@ int z80aw_read_byte(uint16_t addr)
 
 int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
 {
+    int times = 0;
     uint16_t checksum = z80aw_checksum(sz, data);
+try_again:
     zsend_noreply(Z_WRITE_BLOCK | Z_COMMAND);
     zsend_noreply(addr & 0xff);
     zsend_noreply(addr >> 8);
@@ -206,6 +208,10 @@ int z80aw_write_block(uint16_t addr, uint16_t sz, uint8_t const* data)
         ERROR("Bus is in an incorrect state when writing to memory.");
     }
     if (checksum != rchecksum) {
+        if (times++ < 3) {
+            fprintf(stderr, "Could not write to memory, trying %d/3...\n", times-1);
+            goto try_again;
+        }
         ERROR("When writing to memory, received checksum (0x%x) does not match with calculated checksum (0x%x).", rchecksum, checksum);
     }
     z_assert_empty_buffer();

@@ -10,6 +10,7 @@
 #include "../comm/z80aw.h"
 #include "../comm/compiler.h"
 #include "../comm/comm.h"
+#include "../comm/logging.h"
 #include "protocol.h"
 
 #define ASSERT(msg, expr)  \
