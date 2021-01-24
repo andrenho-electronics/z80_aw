@@ -24,14 +24,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../debugger/config.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/config.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/config.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/config.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/ui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/ui.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/logging.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/logging.c" afterDir="false" />
-    </list>
+    <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment="." />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -176,7 +169,7 @@
       <workItem from="1611162643623" duration="13124000" />
       <workItem from="1611228761633" duration="1829000" />
       <workItem from="1611239285062" duration="8728000" />
-      <workItem from="1611259482176" duration="11055000" />
+      <workItem from="1611259482176" duration="11651000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
