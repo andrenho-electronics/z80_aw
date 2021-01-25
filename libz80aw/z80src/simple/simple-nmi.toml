@@ -1,0 +1,3 @@
+sources = [
+    { source = "simple-nmi.z80", address = 0x0 },
+]

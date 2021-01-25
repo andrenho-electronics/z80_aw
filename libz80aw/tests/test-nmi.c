@@ -77,16 +77,17 @@ int main(int argc, char* argv[])
              "%s", reg_buf);
     COMPILE(code_buf);
 
-    printf("Preparing NMI register fetch mode...\n");
-    z80aw_set_register_fetch_mode(Z80AW_REGFETCH_NMI);
-    printf("Done.\n");
-    
     Z80AW_Registers r;
     z80aw_cpu_reset();
     for (int i = 0; i < 32; ++i) {
         printf(" [PC = 0x%x] ", z80aw_cpu_pc());
         z80aw_cpu_step(NULL, NULL);
     }
+
+    printf("Preparing NMI register fetch mode...\n");
+    z80aw_set_register_fetch_mode(Z80AW_REGFETCH_NMI);
+    printf("Done.\n");
+    
     uint16_t original_pc = z80aw_cpu_pc();
     ASSERT("Execute step debug", z80aw_cpu_step(&r, NULL) == 0);
     ASSERT("SP == 0xFFFE", r.SP == 0xfffe);
