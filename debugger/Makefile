@@ -8,9 +8,14 @@ LDFLAGS = `pkg-config --libs glfw3` -ldl
 
 all: $(EXE)
 
+$(LIBS):
+	$(MAKE) -C ../libz80aw
+
 $(EXE): $(OBJ) $(OBJ_CONTRIB) $(LIBS)
 	$(CXX) -o $@ $^ $(LDFLAGS)
 
 .PHONY: clean
 clean:
 	rm -f *.o **/*.o $(EXE)
+
+# vim: set ts=8 sts=8 sw=8 noexpandtab:

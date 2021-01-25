@@ -73,6 +73,8 @@ private:
    
     // translations
     std::vector<uint8_t> translate_keypress(int key, bool ctrl, bool shift, bool alt, bool super) const;
+    
+    void reset_project();
 };
 
 #endif

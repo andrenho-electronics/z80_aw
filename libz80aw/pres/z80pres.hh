@@ -60,6 +60,8 @@ public:
     
     std::vector<std::string> const& file_list() const { return file_list_; }
     std::vector<Symbol> const& symbol_list() const { return symbol_list_; }
+    
+    void update_upload_status();
 
 private:
     std::optional<z80aw::DebugInformation> debug_information {};

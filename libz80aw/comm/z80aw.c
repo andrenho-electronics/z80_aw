@@ -130,6 +130,7 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
     } else {
         // parent code
         while (wait_for_emulator);   // this variable is swapped when signal SIGUSR1 is received from emulator
+        wait_for_emulator = true;   // reset state
     
         // read port from file created by the emulator
         FILE* f = fopen("./.port", "r");

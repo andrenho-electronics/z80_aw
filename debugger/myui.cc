@@ -18,6 +18,7 @@ static const int F12 = 0x12d;
 MyUI::MyUI(Window const& window, Options const& options)
     : UI(window), show_demo_window(options.show_demo_window()), config(this->context)
 {
+    // execution will not start until "MyUI::start_exectution" is run
 }
 
 //
@@ -103,7 +104,13 @@ void MyUI::draw_start()
 
 void MyUI::draw_code()
 {
-    ImGui::Begin("Code debugger");
+    bool window_open = true;
+    ImGui::Begin("Code debugger", &window_open);
+    if (!window_open) {
+        reset_project();
+        ImGui::End();
+        return;
+    }
     
     if (p().mode() == Z80State::Stopped) {
         if (ImGui::Button("Step (F7)") || ImGui::IsKeyPressed(F7, false)) {
@@ -176,6 +183,15 @@ void MyUI::draw_code()
     }
     
     ImGui::End();
+}
+
+void MyUI::reset_project()
+{
+    presentation.reset();
+    show_advanced_window = false;
+    show_choose_file = false;
+    show_choose_symbol = false;
+    show_keypress_modal = false;
 }
 
 void MyUI::draw_code_view()
@@ -705,6 +721,8 @@ void MyUI::start_execution()
         if (config.emulator_mode) {
             p().set_register_fetch_mode(RegisterFetchMode::Emulator);
             p().upload_compiled();
+        } else {
+            p().update_upload_status();
         }
         
         step = "getting file/symbol list";
@@ -712,7 +730,7 @@ void MyUI::start_execution()
     
         step = "resetting CPU";
         p().reset();
-        
+        p().update();
         scroll_to_pc = true;
     } catch (std::runtime_error& e) {
         error("Error " + step, e.what());

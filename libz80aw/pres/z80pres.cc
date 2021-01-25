@@ -73,6 +73,9 @@ void Z80Presentation::reset()
 {
     z80aw::reset();
     terminalview_.reset();
+    try {
+        z80_state_.registers = z80aw::registers();
+    } catch(...) {}
     update();
 }
 
@@ -183,4 +186,12 @@ void Z80Presentation::create_file_symbol_list()
             );
         }
     }
+}
+
+void Z80Presentation::update_upload_status()
+{
+    if (debug_information.has_value())
+        is_uploaded_ = z80aw::is_uploaded(debug_information.value());
+    else
+        is_uploaded_ = false;
 }
