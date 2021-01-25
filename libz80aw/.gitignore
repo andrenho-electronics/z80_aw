@@ -4,4 +4,6 @@ test
 *.a
 tests-comm
 tests-pres
+tests-nmi
+dump_mem_page
 emulator

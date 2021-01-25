@@ -1,15 +1,16 @@
 OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o
 OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o pres/terminalview.o
-TEST_COMM_OBJ = tests/test-comm.o
 TEST_COMM_EXE = tests-comm
-TEST_PRES_OBJ = tests/test-pres.o
 TEST_PRES_EXE = tests-pres
+TEST_NMI_EXE  = tests-nmi
 EMULATOR_EXE  = emulator
 LIB           = libz80aw.a
 TOML_LIB      = ../contrib/tomlc99/libtoml.a
 CPPFLAGS      = -Wall -Wextra -g -O0 -I../common -DTEST_CPU
 CFLAGS        = -std=c11 -D_DEFAULT_SOURCE
 CXXFLAGS      = -std=c++17
+CC            = gcc
+CXX           = g++
 
 all: $(LIB) $(EMULATOR_EXE)
 
@@ -19,10 +20,13 @@ $(EMULATOR_EXE): emu/emulator.c emu/z80/Z80.c
 $(LIB): $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(AR) rcsT $@ $^
 
-$(TEST_COMM_EXE): $(TEST_COMM_OBJ) $(OBJ_COMM) $(TOML_LIB)
+$(TEST_COMM_EXE): tests/test-comm.o $(OBJ_COMM) $(TOML_LIB)
 	$(CC) $^ -o $@
 
-$(TEST_PRES_EXE): $(TEST_PRES_OBJ) $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
+$(TEST_NMI_EXE): tests/test-nmi.o $(OBJ_COMM) $(TOML_LIB)
+	$(CC) $^ -o $@
+
+$(TEST_PRES_EXE): tests/test-pres.o $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(CXX) $^ -o $@
 
 tools: dump_mem_page
@@ -32,6 +36,12 @@ dump_mem_page: tools/dump_mem_page.o $(LIB)
 
 check: $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$(TEST_COMM_EXE) && ./$(TEST_PRES_EXE)
+
+check-nmi: $(TEST_NMI_EXE) $(EMULATOR_EXE)
+	./$<
+
+check-nmi-real: $(TEST_NMI_EXE)
+	./$< /dev/ttyUSB0
 
 check-comm: $(TEST_COMM_EXE) $(EMULATOR_EXE)
 	./$< -l
