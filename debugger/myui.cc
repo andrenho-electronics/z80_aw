@@ -332,6 +332,7 @@ void MyUI::draw_memory_table(MemoryView& m) const
                          | ImGuiTableFlags_RowBg
                          | ImGuiTableFlags_ScrollY;
     static ImU32 pc_bg_color = ImGui::GetColorU32(ImVec4(0.2f, 0.6f, 0.2f, 0.65f));
+    static ImU32 sp_bg_color = ImGui::GetColorU32(ImVec4(0.6f, 0.2f, 0.2f, 0.65f));
     uint16_t page = ((uint16_t) m.page_number()) << 8;
     
     ImVec2 size = ImVec2(-FLT_MIN, 293);
@@ -365,7 +366,10 @@ void MyUI::draw_memory_table(MemoryView& m) const
                     bool needs_pop = false;
                     if (addr + i == p().pc()) {
                         ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pc_bg_color);
-                    } else if (byte == 0) {
+                    } else if (p().registers().has_value() && addr + i == p().registers().value().SP) {
+                        ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, sp_bg_color);
+                    }
+                    if (byte == 0) {
                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(128, 128, 128)));
                         needs_pop = true;
                     }
