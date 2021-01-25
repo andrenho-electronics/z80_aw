@@ -222,12 +222,21 @@ uint8_t z80_step()
 
     bool m1 = 1;
 
+    uint8_t next_instruction;
+    memory_read_page(pc, &next_instruction, 1);
+    bool is_extended = (next_instruction == 0xcb || next_instruction == 0xdd || next_instruction == 0xed || next_instruction == 0xfd);
+
     // run cycle until M1
     set_BUSREQ(1);
-    while (m1 == 1) {
-        z80_clock();
-        z80_check_iorq();
-        m1 = get_M1();
+    for (int i = 0; i < (is_extended ? 2 : 1); ++i) {
+        m1 = 1;
+        while (m1 == 1) {
+            z80_clock();
+            z80_check_iorq();
+            m1 = get_M1();
+        }
+        if (is_extended)
+            z80_clock();
     }
     pc = memory_read_addr();
 
