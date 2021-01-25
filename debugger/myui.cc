@@ -270,7 +270,7 @@ void MyUI::draw_memory()
 {
     MemoryView& m = p().memoryview();
     
-    float h = 355;
+    float h = 370;
     if (!p().is_uploaded() && stopped())
         h += 24;
     ImGui::SetNextWindowSize(ImVec2(560, h));
@@ -304,6 +304,12 @@ void MyUI::draw_memory()
         ImGui::Text("(PgDown)");
     
         draw_memory_table(m);
+        
+        char stack[512] = "Stack: ";
+        int n = strlen(stack);
+        for (uint8_t byte: m.stack())
+            n += sprintf(&stack[n], "%02X ", byte);
+        ImGui::Text("%s", stack);
     
         if (!p().is_uploaded() && stopped()) {
             ImGui::AlignTextToFramePadding();
@@ -315,8 +321,8 @@ void MyUI::draw_memory()
             if (ImGui::Button("Upload to memory"))
                 upload_binary();
         }
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void MyUI::draw_memory_table(MemoryView& m) const
@@ -460,9 +466,8 @@ void MyUI::draw_cpu()
         } else {
             ImGui::Text("CPU in execution...");
         }
-        
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void MyUI::draw_terminal()
@@ -506,9 +511,8 @@ void MyUI::draw_terminal()
             ImGui::Text("%c", t.text().at(t.cursor_y()).at(t.cursor_x()));
             ImGui::PopStyleColor();
         }
-        
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void MyUI::draw_keypress_modal()
@@ -603,9 +607,8 @@ void MyUI::draw_choose_file()
             
             ImGui::EndTable();
         }
-        
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void MyUI::draw_choose_symbol()
@@ -648,9 +651,8 @@ void MyUI::draw_choose_symbol()
             }
             ImGui::EndTable();
         }
-        
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 
