@@ -1,0 +1,12 @@
+Read command:
+
+out to Z80:
+
+SDCARD_HIGH = 0x4
+SDCARD_LOW  = 0x5  (this will activate the read)
+
+The address put in the OUT device will have the following format:
+
+[00] [01] [02] [03] - block in SD card
+[04] [05]           - destination address in RAM
+[06] [07]           - number of 512 byte blocks

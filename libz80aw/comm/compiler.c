@@ -13,26 +13,36 @@
 
 #include "../contrib/map.h"
 #include "z80aw_priv.h"
+#include "../../../../../../usr/local/include/toml.h"
 
 typedef struct {
     uint8_t* data;
     size_t   sz;
 } Bytes;
 
+typedef struct {
+    char*     name;
+    size_t    size_mb;
+    uint8_t   fat_type;
+    map_str_t filenames;
+} DiskInfo;
+
 typedef struct DebugInformation {
-    char**       filenames;
-    size_t       n_filenames;
-    map_str_t    source_map;
-    map_int_t    location_map;     // key: address, value: source location
-    map_int_t    rlocation_map;    // key: source location, value: address
-    map_void_t   bytes_map;        // key: source location, value: Bytes
-    DebugSymbol* symbols;
-    size_t       n_symbols;
-    bool         success;
-    char*        output;
-    Binary*      binary;
-    size_t       n_binary;
-    uint16_t     checksum1, checksum2;
+    DebugProjectType project_type;
+    char**           filenames;
+    size_t           n_filenames;
+    map_str_t        source_map;
+    map_int_t        location_map;     // key: address, value: source location
+    map_int_t        rlocation_map;    // key: source location, value: address
+    map_void_t       bytes_map;        // key: source location, value: Bytes
+    DebugSymbol*     symbols;
+    size_t           n_symbols;
+    bool             success;
+    char*            output;
+    Binary*          binary;
+    size_t           n_binary;
+    uint16_t         checksum1, checksum2;
+    DiskInfo         disk_info;
 } DebugInformation;
 
 char* debug_filename(DebugInformation const* di, size_t i)
@@ -119,6 +129,11 @@ uint16_t debug_binary_checksum(DebugInformation const* di)
     return di->checksum1 | (di->checksum2 << 8);
 }
 
+DebugProjectType debug_project_type(DebugInformation const* di)
+{
+    return di->project_type;
+}
+
 //
 // VASM compilation
 //
@@ -144,7 +159,74 @@ static void cleanup(const char* path)
     unlink(filename);
 }
 
-static SourceFile* load_project_file(char const* project_file)
+static SourceFile* read_config_file_vasm(toml_table_t* conf)
+{
+    toml_array_t* sources = toml_array_in(conf, "sources");
+    if (!sources)
+        ERROR_N("Invalid file format: key 'sources' not found.");
+    
+    int nelem = toml_array_nelem(sources);
+    SourceFile* sf = calloc(nelem + 1, sizeof(SourceFile));
+    for (int i = 0; i < nelem; ++i) {
+        toml_table_t* tbl = toml_table_at(sources, i);
+        sf[i] = (SourceFile) {
+                .source_file = toml_string_in(tbl, "source").u.s,
+                .address = toml_int_in(tbl, "address").u.i,
+        };
+    }
+    sf[nelem] = (SourceFile) { .source_file = NULL, .address = -1 };
+    return sf;
+}
+
+static SourceFile* read_config_file_vasm_disk(toml_table_t* conf, DiskInfo* disk_info)
+{
+    toml_table_t* disk = toml_table_in(conf, "disk");
+    if (!disk)
+        ERROR_N("Invalid file format: key 'disk' not found.");
+    
+    toml_datum_t name = toml_string_in(disk, "name");
+    if (name.ok)
+        disk_info->name = name.u.s;
+    
+    toml_datum_t size_mb = toml_int_in(disk, "size_MB");
+    if (!size_mb.ok)
+        ERROR_N("Invalid file format: key 'disk.size_MB' not found.");
+    disk_info->size_mb = size_mb.u.i;
+    
+    toml_datum_t fat = toml_int_in(disk, "FAT");
+    if (!fat.ok)
+        ERROR_N("Invalid file format: key 'disk.FAT' not found.");
+    disk_info->fat_type = fat.u.i;
+    
+    struct toml_datum_t bootloader = toml_string_in(disk, "bootloader");
+    if (!bootloader.ok)
+        ERROR_N("Invalid file format: key 'disk.bootloader' not found.");
+    
+    toml_array_t* files = toml_array_in(disk, "files");
+    if (!files)
+        ERROR_N("Invalid file format: key 'files' not found.");
+    
+    int nelem = toml_array_nelem(files);
+    SourceFile* sf = calloc(nelem + 2, sizeof(SourceFile));
+    
+    sf[0] = (SourceFile) {
+        .source_file = bootloader.u.s,
+        .address = 0,
+    };
+    
+    for (int i = 0; i < nelem; ++i) {
+        toml_table_t* tbl = toml_table_at(files, i);
+        sf[i+1] = (SourceFile) {
+                .source_file = toml_string_in(tbl, "source").u.s,
+                .address = toml_int_in(tbl, "address").u.i,
+        };
+        map_set(&disk_info->filenames, sf[i+1].source_file, toml_string_in(tbl, "output").u.s);
+    }
+    sf[nelem+1] = (SourceFile) { .source_file = NULL, .address = -1 };
+    return sf;
+}
+
+static SourceFile* load_project_file(char const* project_file, DebugProjectType project_type, DebugInformation* di)
 {
     FILE* fp = fopen(project_file, "r");
     if (!fp)
@@ -157,20 +239,16 @@ static SourceFile* load_project_file(char const* project_file)
     if (!conf)
         ERROR_N("Error loading project file '%s': %s", project_file, errbuf);
     
-    toml_array_t* sources = toml_array_in(conf, "sources");
-    if (!sources)
-        ERROR_N("Invalid file format: key 'sources' not found.");
-    
-    int nelem = toml_array_nelem(sources);
-    SourceFile* sf = calloc(nelem + 1, sizeof(SourceFile));
-    for (int i = 0; i < nelem; ++i) {
-        toml_table_t* tbl = toml_table_at(sources, i);
-        sf[i] = (SourceFile) {
-            .source_file = toml_string_in(tbl, "source").u.s,
-            .address = toml_int_in(tbl, "address").u.i,
-        };
+    SourceFile* sf;
+    switch (project_type) {
+        case PT_VASM:
+            sf = read_config_file_vasm(conf);
+            break;
+        case PT_VASM_DISK:
+            sf = read_config_file_vasm_disk(conf, &di->disk_info);
+            break;
     }
-    sf[nelem] = (SourceFile) { .source_file = NULL, .address = -1 };
+    
     toml_free(conf);
     
     return sf;
@@ -398,13 +476,14 @@ static int load_binary(DebugInformation* di, char* path, uint16_t address)
     return 0;
 }
 
-DebugInformation* compile_vasm(const char* project_file)
+static DebugInformation* compile(DebugProjectType project_type, const char* project_file)
 {
     DebugInformation* di = calloc(1, sizeof(DebugInformation));
     map_init(&di->source_map);
     map_init(&di->location_map);
     map_init(&di->rlocation_map);
     map_init(&di->bytes_map);
+    map_init(&di->disk_info.filenames);
     di->output = strdup("");
     di->success = true;
     
@@ -414,7 +493,7 @@ DebugInformation* compile_vasm(const char* project_file)
     
     int file_offset = 0;
     
-    SourceFile* source_files = load_project_file(project_file);
+    SourceFile* source_files = load_project_file(project_file, project_type, di);
     if (!source_files) {
         debug_free(di);
         return NULL;
@@ -443,6 +522,22 @@ DebugInformation* compile_vasm(const char* project_file)
     return di;
 }
 
+DebugInformation* compile_vasm(const char* project_file)
+{
+    return compile(PT_VASM, project_file);
+}
+
+DebugInformation* compile_vasm_disk(const char* project_file)
+{
+    return compile(PT_VASM_DISK, project_file);
+}
+
+int debug_generate_image(const char* file)
+{
+    // TODO
+    return 0;
+}
+
 void debug_free(DebugInformation* di)
 {
     // filenames
@@ -466,6 +561,12 @@ void debug_free(DebugInformation* di)
     }
     map_deinit(&di->bytes_map);
     
+    // filenames
+    iter = map_iter(&di->disk_info.filenames);
+    while ((key = map_next(&di->disk_info.filenames, &iter)))
+        free(*map_get(&di->disk_info.filenames, key));
+    map_deinit(&di->disk_info.filenames);
+    
     // maps
     map_deinit(&di->location_map);
     map_deinit(&di->rlocation_map);
@@ -482,6 +583,7 @@ void debug_free(DebugInformation* di)
     free(di->symbols);
     free(di->output);
     free(di->binary);
+    free(di->disk_info.name);
     free(di);
 }
 

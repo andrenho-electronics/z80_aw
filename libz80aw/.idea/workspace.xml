@@ -30,7 +30,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/z80src/sdcard/bootloader.z80" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/z80src/sdcard/kernel.z80" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/z80src/sdcard/sdcard.toml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../z80os/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../z80os/kernel.bin" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../z80os/make_sd_image.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../z80os/mnt/.empty" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/compiler.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/compiler.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -104,16 +115,11 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../common/protocol.h" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../contrib/tomlc99/toml.h" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.TOML" />
   </component>
-  <component name="RunManager" selected="Makefile Application.all">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
+  <component name="RunManager" selected="Makefile Application.tests-comm">
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -164,9 +170,9 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration default="true" type="lua.app" factoryName="Lua Application">
@@ -182,17 +188,17 @@
     <list>
       <item itemvalue="Makefile.clean" />
       <item itemvalue="Makefile Application.all" />
-      <item itemvalue="Makefile Application.check" />
-      <item itemvalue="Makefile Application.check-nmi" />
       <item itemvalue="Makefile Application.check-nmi-real" />
+      <item itemvalue="Makefile Application.check-nmi" />
+      <item itemvalue="Makefile Application.check" />
       <item itemvalue="Makefile Application.dump_mem_page" />
       <item itemvalue="Makefile Application.emulator" />
-      <item itemvalue="Makefile Application.tests-comm" />
-      <item itemvalue="Makefile Application.tests-nmi" />
       <item itemvalue="Makefile Application.tests-comm-headless" />
       <item itemvalue="Makefile Application.tests-comm-real" />
-      <item itemvalue="Makefile Application.tests-pres" />
+      <item itemvalue="Makefile Application.tests-nmi" />
       <item itemvalue="Makefile Application.tools" />
+      <item itemvalue="Makefile Application.tests-pres" />
+      <item itemvalue="Makefile Application.tests-comm" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -213,6 +219,8 @@
       <workItem from="1611228761633" duration="1829000" />
       <workItem from="1611239285062" duration="8728000" />
       <workItem from="1611259482176" duration="23085000" />
+      <workItem from="1611604318470" duration="8912000" />
+      <workItem from="1611687266713" duration="4806000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -504,5 +512,9 @@
         <watch expression="R.PC.W" language="ObjectiveC" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

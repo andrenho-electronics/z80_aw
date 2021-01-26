@@ -1,0 +1,2 @@
+The protocol for communication between debugger and microcontroller / emulator
+is described in `common/protocol.h`.

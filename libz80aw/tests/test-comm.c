@@ -494,6 +494,19 @@ int main(int argc, char* argv[])
     z80aw_remove_all_breakpoints();
     
     //
+    // compile SDCARD disk
+    //
+    di = compile_vasm_disk("z80src/sdcard/sdcard.toml");
+    ASSERT("DebugInformation is not null", di);
+    ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
+    if (config.log_to_stdout) {
+        printf("Compiler output:\n\e[0;33m");
+        debug_print(di);
+        printf("\e[0m\n");
+    }
+    debug_free(di);
+    
+    //
     // finalize
     //
     z80aw_finalize_emulator();

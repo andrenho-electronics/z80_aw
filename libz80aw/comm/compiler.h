@@ -25,7 +25,10 @@ typedef struct {
     size_t line;
 } SourceLocation;
 
+typedef enum { PT_VASM, PT_VASM_DISK } DebugProjectType;
+
 DebugInformation* compile_vasm(const char* project_file);
+DebugInformation* compile_vasm_disk(const char* project_file);
 void              debug_free(DebugInformation* di);
 
 // all queries below are null terminated
@@ -39,10 +42,11 @@ DebugSymbol const*  debug_symbol(DebugInformation const* di, size_t i);
 Binary const*       debug_binary(DebugInformation const* di, size_t i);
 size_t              debug_binary_count(DebugInformation const* di);
 uint16_t            debug_binary_checksum(DebugInformation const* di);
+DebugProjectType    debug_project_type(DebugInformation const* di);
 
 bool           debug_output(DebugInformation const* di, char* buf, size_t bufsz);
+int            debug_generate_image(const char* file);
 
 void           debug_print(DebugInformation const* di);
-
 
 #endif //LIBZ80AW_COMPILER_H
