@@ -11,13 +11,14 @@
       <config projectName="libz80aw" targetName="check-pres" />
       <config projectName="libz80aw" targetName="all" />
       <config projectName="libz80aw" targetName="check-comm" />
-      <config projectName="libz80aw" targetName="tests-comm" />
+      <config projectName="libz80aw" targetName="tests-disk" />
       <config projectName="libz80aw" targetName="check-nmi" />
+      <config projectName="libz80aw" targetName="tests-comm" />
       <config projectName="libz80aw" targetName="emulator" />
       <config projectName="libz80aw" targetName="check-comm-real" />
       <config projectName="libz80aw" targetName="tools" />
-      <config projectName="libz80aw" targetName="check-pres-leaks" />
       <config projectName="libz80aw" targetName="check-comm-leaks" />
+      <config projectName="libz80aw" targetName="check-pres-leaks" />
       <config projectName="libz80aw" targetName="check" />
       <config projectName="libz80aw" targetName="tests-pres" />
       <config projectName="libz80aw" targetName="check-nmi-real" />
@@ -30,10 +31,14 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
+      <change afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/compiler.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/z80src/sdcard/sdcard.toml" beforeDir="false" afterPath="$PROJECT_DIR$/z80src/sdcard/sdcard.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../z80os/make_sd_image.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../z80os/make_sd_image.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +116,12 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.TOML" />
   </component>
-  <component name="RunManager" selected="Makefile Application.tests-comm">
+  <component name="RunManager" selected="Makefile Application.tests-disk">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -152,6 +162,11 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration name="tests-disk" type="CLionNativeAppRunConfigurationType" PROGRAM_PARAMS="-l" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-disk" CONFIG_NAME="tests-disk" version="1" RUN_PATH="$PROJECT_DIR$/tests-disk">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="tests-nmi" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-nmi" CONFIG_NAME="tests-nmi" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -162,9 +177,9 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration default="true" type="lua.app" factoryName="Lua Application">
@@ -191,6 +206,7 @@
       <item itemvalue="Makefile Application.tools" />
       <item itemvalue="Makefile Application.tests-pres" />
       <item itemvalue="Makefile Application.tests-comm" />
+      <item itemvalue="Makefile Application.tests-disk" />
     </list>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
@@ -213,7 +229,8 @@
       <workItem from="1611259482176" duration="23085000" />
       <workItem from="1611604318470" duration="8912000" />
       <workItem from="1611687266713" duration="7620000" />
-      <workItem from="1611706053793" duration="4344000" />
+      <workItem from="1611706053793" duration="5011000" />
+      <workItem from="1611751416589" duration="1003000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -481,7 +498,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611706942572</updated>
     </task>
-    <option name="localTasksCounter" value="39" />
+    <task id="LOCAL-00039" summary=".">
+      <created>1611748489674</created>
+      <option name="number" value="00039" />
+      <option name="presentableId" value="LOCAL-00039" />
+      <option name="project" value="LOCAL" />
+      <updated>1611748489674</updated>
+    </task>
+    <option name="localTasksCounter" value="40" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -511,11 +535,6 @@
           <url>file://$PROJECT_DIR$/emu/emulator.c</url>
           <line>404</line>
           <option name="timeStamp" value="132" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/tests/test-comm.c</url>
-          <line>515</line>
-          <option name="timeStamp" value="136" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

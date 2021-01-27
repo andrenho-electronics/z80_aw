@@ -1,8 +1,9 @@
-OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o
+OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o tests/test-disk.o # TODO remove
 OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o pres/terminalview.o
 TEST_COMM_EXE = tests-comm
 TEST_PRES_EXE = tests-pres
 TEST_NMI_EXE  = tests-nmi
+TEST_DISK_EXE = tests-disk
 EMULATOR_EXE  = emulator
 LIB           = libz80aw.a
 TOML_LIB      = ../contrib/tomlc99/libtoml.a
@@ -28,6 +29,9 @@ $(TEST_NMI_EXE): tests/test-nmi.o $(OBJ_COMM) $(TOML_LIB)
 
 $(TEST_PRES_EXE): tests/test-pres.o $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(CXX) $^ -o $@
+
+$(TEST_DISK_EXE): tests/test-disk.o $(OBJ_COMM) $(TOML_LIB)
+	$(CC) $^ -o $@
 
 tools: dump_mem_page
 	

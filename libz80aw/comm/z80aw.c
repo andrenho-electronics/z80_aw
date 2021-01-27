@@ -91,7 +91,7 @@ static void continue_execution(int sig)  // called when signal SIGUSR1 is receiv
     printf("Signal received from emulator.\n");
 }
 
-int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz)
+int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, size_t serial_port_buf_sz, const char* disk_image_path)
 {
     char serial_port[256] = "";
     
@@ -123,7 +123,10 @@ int z80aw_initialize_emulator(const char* emulator_path, char* serial_port_buf, 
         char pid_s[16];
         snprintf(pid_s, sizeof pid_s, "%d", parent_pid);
         printf("Starting emulator with '%s -p %s'\n", cmdbuf, pid_s);
-        r = execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
+        if (disk_image_path)
+            r = execl(cmdbuf, cmdbuf, "-p", pid_s, "-d", disk_image_path, NULL);
+        else
+            r = execl(cmdbuf, cmdbuf, "-p", pid_s, NULL);
         if (r < 0) {
             ERROR("Could not initialize emulator: %s", strerror(errno));
         }

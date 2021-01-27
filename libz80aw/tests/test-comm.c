@@ -57,7 +57,7 @@ Config initialize(int argc, char* argv[])
     };
     
     int opt;
-    while ((opt = getopt(argc, argv, "hzr:l")) != -1) {
+    while ((opt = getopt(argc, argv, "hr:l")) != -1) {
         switch (opt) {
             case 'l':
                 config.log_to_stdout = true;
@@ -91,7 +91,7 @@ int main(int argc, char* argv[])
     Config config = initialize(argc, argv);
     
     if (config.hardware_type == EMULATOR) {
-        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port) != 0) {
+        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, NULL) != 0) {
             fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
             exit(1);
         }
@@ -492,30 +492,6 @@ int main(int argc, char* argv[])
     while (!z80aw_last_event().bkp_reached);
     ASSERT("Stop at breakpoint (simple OS)", z80aw_cpu_pc() == 0x16);
     z80aw_remove_all_breakpoints();
-    
-    //
-    // compile SDCARD disk
-    //
-    di = compile_vasm_disk("z80src/sdcard/sdcard.toml");
-    ASSERT("DebugInformation is not null", di);
-    ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
-    if (config.log_to_stdout) {
-        printf("Compiler output:\n\e[0;33m");
-        debug_print(di);
-        printf("\e[0m\n");
-    }
-    
-    // generate image
-    unlink("/tmp/sdcard.img");
-    ASSERT("Generate image", debug_generate_image(di, "/tmp/sdcard.img") == 0);
-    if (config.log_to_stdout) {
-        printf("Image files:\n\e[0;33m");
-        system("mdir -i /tmp/sdcard.img ::");
-        printf("\e[0m\n");
-    }
-    unlink("/tmp/sdcard.img");
-    
-    debug_free(di);
     
     //
     // finalize
