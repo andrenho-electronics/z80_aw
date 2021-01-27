@@ -37,6 +37,7 @@ bool     nmi = false;
 bool     continue_mode = false;
 bool     bkp_reached = false;
 bool     last_was_out_during_continue = false;
+char*    disk_image_path = NULL;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -52,11 +53,14 @@ RegisterFetchMode register_fetch_mode = REGFETCH_DISABLED;
 void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hlp:")) != -1) {
+    while ((opt = getopt(argc, argv, "hlp:d:")) != -1) {
         switch (opt) {
             case 'p':
                 test_pid = strtol(optarg, NULL, 10);
                 printf("emulator: Being run from test process on pid %d.\n", test_pid);
+                break;
+            case 'd':
+                disk_image_path = optarg;
                 break;
             case 'l':
                 log_to_stdout = true;
@@ -65,6 +69,7 @@ void get_options(int argc, char* argv[])
                 printf("Usage: %s [-p PID] [-l]\n", argv[0]);
                 printf("     -p      Parent pid. Use this when started by another process.\n");
                 printf("     -l      Log bytes to stdout\n");
+                printf("     -d      Disk image path (SD Card)\n");
                 exit(EXIT_FAILURE);
             default:
                 fprintf(stderr, "emulator: Invalid option.\n");

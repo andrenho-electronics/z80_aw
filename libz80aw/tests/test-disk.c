@@ -56,6 +56,8 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
+    // TODO - read SD data through protocol
+    
     // check memory
     ASSERT("Bootloader was added to the memory", z80aw_read_byte(0x0) == 0xc3);  // JP
     
