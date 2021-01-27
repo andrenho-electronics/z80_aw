@@ -18,7 +18,7 @@ static void error_cb(const char* error, void* data)
 
 int main(int argc, char* argv[])
 {
-    if (argc == 2 && strcmp(argv[1], "-l"))
+    if (argc == 2 && strcmp(argv[1], "-l") == 0)
         mlog_to_stdout = true;
     
     //
@@ -60,7 +60,18 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     
-    // TODO - read SD data through protocol
+    // read first 1k
+    uint8_t data[1024];
+    FILE* f = fopen("/tmp/sdcard.img", "r");
+    fread(data, 1024, 1, f);
+    fclose(f);
+    
+    // read SD data through protocol
+    uint8_t block[512];
+    ASSERT("Read first block", z80aw_read_disk_block(0, block) == 0);
+    ASSERT("Check that first block is correct", memcmp(block, data, 512) == 0);
+    ASSERT("Read second block", z80aw_read_disk_block(1, block) == 0);
+    ASSERT("Check that second block is correct", memcmp(block, &data[512], 512) == 0);
     
     // check memory
     ASSERT("Bootloader was added to the memory", z80aw_read_byte(0x0) == 0xc3);  // JP
@@ -72,6 +83,14 @@ int main(int argc, char* argv[])
     z80aw_cpu_step(&r, NULL);
     z80aw_cpu_step(&r, NULL);
     ASSERT("Check that bootloader run correctly", (r.AF >> 8) == 0x64);
+    
+    // write a block into the emulator
+    for (int i = 0; i < 512; ++i)
+        block[i] = i & 0xff;
+    ASSERT("Write block", z80aw_write_disk_block(5, block) == 0);
+    uint8_t rblock[512];
+    z80aw_read_disk_block(5, rblock);
+    ASSERT("Read written block", memcmp(block, rblock, 512) == 0);
     
     // finalize
     z80aw_close();

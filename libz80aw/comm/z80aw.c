@@ -574,3 +574,38 @@ int z80aw_finalize_emulator()
     z_assert_empty_buffer();
     return r;
 }
+
+bool z80aw_has_disk()
+{
+    zsend_noreply(Z_HAS_DISK | Z_COMMAND);
+    int r = zrecv_response();
+    z_assert_empty_buffer();
+    return !(r == Z_OK);
+}
+
+int
+z80aw_write_disk_block(uint32_t block, uint8_t const* data)
+{
+    zsend_noreply(Z_WRITE_DISK | Z_COMMAND);
+    zsend_noreply(block & 0xff);
+    zsend_noreply(block >> 8);
+    zsend_noreply(block >> 16);
+    for (int i = 0; i < 512; ++i)
+        zsend_noreply(data[i]);
+    int c = zrecv_response();
+    z_assert_empty_buffer();
+    return !(c == Z_OK);
+}
+
+int
+z80aw_read_disk_block(uint32_t block, uint8_t* data)
+{
+    zsend_noreply(Z_READ_DISK | Z_COMMAND);
+    zsend_noreply(block & 0xff);
+    zsend_noreply(block >> 8);
+    if (zsend_expect(block >> 16, Z_OK) != 0)
+        return -1;
+    for (int i = 0; i < 512; ++i)
+        data[i] = zrecv();
+    return 0;
+}

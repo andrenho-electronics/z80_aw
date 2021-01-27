@@ -32,6 +32,10 @@
 #define Z_NMI               0xf7   // Z_OK
 #define Z_RUN               'R'    // no response
 
+#define Z_READ_DISK         0xf8   // [b0] [b1] [b2] -> [Status] [bytes...]  (b = block number)
+#define Z_WRITE_DISK        0xf9   // [b0] [b1] [b2] [bytes..] -> [Status]   (b = block number)
+#define Z_HAS_DISK          0xfa   // -> [Z_OK / Z_NO_DISK]
+
 // responses
 
 #define Z_OK                0xd0
@@ -42,5 +46,7 @@
 #define Z_BKP_REACHED       0xd5
 #define Z_INCORRECT_BUS     0xd6
 #define Z_EMULATOR_ONLY     0xd7
+#define Z_NO_DISK           0xd8
+#define Z_OUT_OF_BOUNDS     0xd9
 
 #endif //LIBZ80AW_PROTOCOL_H

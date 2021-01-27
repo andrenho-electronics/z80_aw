@@ -36,6 +36,9 @@ void log_command(uint8_t byte, Direction dir)
         CASE(Z_REGISTERS)
         CASE(Z_NMI)
         CASE(Z_RUN)
+        CASE(Z_HAS_DISK)
+        CASE(Z_WRITE_DISK)
+        CASE(Z_READ_DISK)
         CASE(Z_OK)
         CASE(Z_INVALID_CMD)
         CASE(Z_ACK_RESPONSE)
@@ -44,6 +47,8 @@ void log_command(uint8_t byte, Direction dir)
         CASE(Z_BKP_REACHED)
         CASE(Z_INCORRECT_BUS)
         CASE(Z_EMULATOR_ONLY)
+        CASE(Z_NO_DISK)
+        CASE(Z_OUT_OF_BOUNDS)
     }
     printf("\e[0m");
     fflush(stdout);

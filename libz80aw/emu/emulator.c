@@ -12,7 +12,6 @@
 
 #include "protocol.h"
 #include "z80/Z80.h"
-#include "../comm/z80aw.h"
 
 static int     master;
 static char    serial_port_name[256];
@@ -39,6 +38,7 @@ bool     bkp_reached = false;
 bool     last_was_out_during_continue = false;
 char*    disk_image_path = NULL;
 FILE*    disk_image_file = NULL;
+size_t   disk_image_size = 0;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -148,6 +148,13 @@ static uint16_t recv16() {
     int a = recv();
     int b = recv();
     return a | (b << 8);
+}
+
+static uint32_t recv24() {
+    int a = recv();
+    int b = recv();
+    int c = recv();
+    return a | (b << 8) | (c << 16);
 }
 
 static void send(uint8_t c) {
@@ -609,6 +616,46 @@ bool command_loop()
             nmi = true;
             send(Z_OK);
             break;
+        case Z_HAS_DISK:
+            if (disk_image_file)
+                send(Z_OK);
+            else
+                send(Z_NO_DISK);
+            break;
+        case Z_READ_DISK:
+            if (disk_image_file) {
+                uint32_t addr = recv24() * 512;
+                if (addr >= disk_image_size + 512) {
+                    send(Z_OUT_OF_BOUNDS);
+                    return true;
+                }
+                fseek(disk_image_file, addr, SEEK_SET);
+                uint8_t buf[512];
+                fread(buf, 512, 1, disk_image_file);
+                send(Z_OK);
+                for (int i = 0; i < 512; ++i)
+                    send(buf[i]);
+            } else {
+                send(Z_NO_DISK);
+            }
+            break;
+        case Z_WRITE_DISK:
+            if (disk_image_file) {
+                uint32_t addr = recv24() * 512;
+                if (addr >= disk_image_size + 512) {
+                    send(Z_OUT_OF_BOUNDS);
+                    return true;
+                }
+                uint8_t buf[512];
+                for (int i = 0; i < 512; ++i)
+                    buf[i] = recv();
+                fseek(disk_image_file, addr, SEEK_SET);
+                fwrite(buf, 512, 1, disk_image_file);
+                send(Z_OK);
+            } else {
+                send(Z_NO_DISK);
+            }
+            break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
             send(Z_INVALID_CMD);
@@ -629,6 +676,8 @@ int main(int argc, char* argv[])
             exit(EXIT_FAILURE);
         }
         fread(memory, 512, 1, disk_image_file);
+        fseek(disk_image_file, 0L, SEEK_END);
+        disk_image_size = ftell(disk_image_file);
     }
     
     open_serial();
