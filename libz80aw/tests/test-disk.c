@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <unistd.h>
 
 #include "../comm/z80aw.h"
@@ -17,6 +18,9 @@ static void error_cb(const char* error, void* data)
 
 int main(int argc, char* argv[])
 {
+    if (argc == 2 && strcmp(argv[1], "-l"))
+        mlog_to_stdout = true;
+    
     //
     // compile SDCARD disk
     //
@@ -64,6 +68,7 @@ int main(int argc, char* argv[])
     // run bootloader
     z80aw_set_register_fetch_mode(Z80AW_REGFETCH_EMULATOR);
     Z80AW_Registers r;
+    z80aw_cpu_reset();
     z80aw_cpu_step(&r, NULL);
     z80aw_cpu_step(&r, NULL);
     ASSERT("Check that bootloader run correctly", (r.AF >> 8) == 0x64);

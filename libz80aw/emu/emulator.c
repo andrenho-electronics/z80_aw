@@ -38,6 +38,7 @@ bool     continue_mode = false;
 bool     bkp_reached = false;
 bool     last_was_out_during_continue = false;
 char*    disk_image_path = NULL;
+FILE*    disk_image_file = NULL;
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -430,7 +431,7 @@ byte InZ80(word Port)
 
 word LoopZ80(Z80 *R)
 {
-    void command_loop();
+    bool command_loop();
     
     if (nmi) {
         nmi = false;
@@ -472,11 +473,11 @@ void PatchZ80(Z80 *R)
 // main loop
 //
 
-void command_loop()
+bool command_loop()
 {
     uint8_t c = continue_mode ? recv_nowait() : recv();
     if (c == 0)
-        return;
+        return true;
     
     //
     // commands acceptable only in step mode
@@ -485,7 +486,7 @@ void command_loop()
         switch (c) {
             case 'A':
                 send('a');
-                return;
+                return true;
             case Z_READ_BLOCK: {
                     uint16_t addr = recv16();
                     uint16_t sz = recv16();
@@ -493,7 +494,7 @@ void command_loop()
                     for (size_t i = 0; i < sz; ++i)
                         send(memory[i + addr]);
                 }
-                return;
+                return true;
             case Z_WRITE_BLOCK: {
                     uint16_t addr = recv16();
                     uint16_t sz = recv16();
@@ -503,27 +504,27 @@ void command_loop()
                     uint16_t chk = checksum(sz, &memory[addr]);
                     send16(chk);
                 }
-                return;
+                return true;
             case Z_STEP:
                 step();
-                return;
+                return true;
             case Z_CONTINUE:
                 send(Z_OK);
                 continue_mode = true;
                 RunZ80(&z80);
-                return;
+                return true;
             case Z_NEXT:
                 send(Z_OK);
                 next();
-                return;
+                return true;
             case Z_PIN_STATUS:
                 send_pins();
-                return;
+                return true;
             case Z_CYCLE:
                 ++cycle_number;
                 cpu_random_pins = ((uint64_t) rand() << 48) | ((uint64_t) rand() << 32) | ((uint64_t) rand() << 16) | (uint16_t) rand();
                 send(Z_OK);
-                return;
+                return true;
         }
     }
     
@@ -540,7 +541,7 @@ void command_loop()
         case Z_EXIT_EMULATOR:
             send(Z_OK);
             usleep(200000);
-            exit(EXIT_SUCCESS);
+            return false;
         case Z_RESET:
             ResetZ80(&z80);
             send(Z_OK);
@@ -613,11 +614,23 @@ void command_loop()
             send(Z_INVALID_CMD);
             exit(EXIT_FAILURE);
     }
+    
+    return true;
 }
 
 int main(int argc, char* argv[])
 {
     get_options(argc, argv);
+    
+    if (disk_image_path) {
+        disk_image_file = fopen(disk_image_path, "r+b");
+        if (!disk_image_path) {
+            perror("fopen");
+            exit(EXIT_FAILURE);
+        }
+        fread(memory, 512, 1, disk_image_file);
+    }
+    
     open_serial();
     if (test_pid)
         send_port_to_test();
@@ -625,6 +638,8 @@ int main(int argc, char* argv[])
     z80.Trace = 1;
     ResetZ80(&z80);
     
-    while (1)
-        command_loop();
+    while (command_loop());
+    
+    if (disk_image_file)
+        fclose(disk_image_file);
 }
