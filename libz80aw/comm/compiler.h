@@ -45,7 +45,7 @@ uint16_t            debug_binary_checksum(DebugInformation const* di);
 DebugProjectType    debug_project_type(DebugInformation const* di);
 
 bool           debug_output(DebugInformation const* di, char* buf, size_t bufsz);
-int            debug_generate_image(const char* file);
+int            debug_generate_image(DebugInformation* di, const char* file);
 
 void           debug_print(DebugInformation const* di);
 

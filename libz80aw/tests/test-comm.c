@@ -504,6 +504,17 @@ int main(int argc, char* argv[])
         debug_print(di);
         printf("\e[0m\n");
     }
+    
+    // generate image
+    unlink("/tmp/sdcard.img");
+    ASSERT("Generate image", debug_generate_image(di, "/tmp/sdcard.img") == 0);
+    if (config.log_to_stdout) {
+        printf("Image files:\n\e[0;33m");
+        system("mdir -i /tmp/sdcard.img ::");
+        printf("\e[0m\n");
+    }
+    unlink("/tmp/sdcard.img");
+    
     debug_free(di);
     
     //

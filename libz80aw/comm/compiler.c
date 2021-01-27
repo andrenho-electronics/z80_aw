@@ -532,9 +532,35 @@ DebugInformation* compile_vasm_disk(const char* project_file)
     return compile(PT_VASM_DISK, project_file);
 }
 
-int debug_generate_image(const char* file)
+int debug_generate_image(DebugInformation* di, const char* file)
 {
-    // TODO
+    char call[4096];
+    
+    // create image
+    snprintf(call, sizeof call, "mkfs.vfat -F %d -n %s -C %s %zu",
+            di->disk_info.fat_type, di->disk_info.name ? di->disk_info.name : "UNNAMED", file,
+            di->disk_info.size_mb * 1024);
+    system(call);
+    
+    // create files
+    const char* origin;
+    map_iter_t iter = map_iter(&di->disk_info.filenames);
+    while ((origin = map_next(&di->disk_info.filenames, &iter))) {
+        char* dest = *map_get(&di->disk_info.filenames, origin);
+        char* filename = tmpnam(NULL);
+        FILE* f = fopen(filename, "w");
+        // TODO - write to file
+        fclose(f);
+        
+        char buf[1024];
+        snprintf(buf, sizeof buf, "mcopy -i %s %s ::%s", file, filename, dest);
+        system(buf);
+        unlink(filename);
+    }
+    
+    // TODO - copy bootstrap
+    
+    
     return 0;
 }
 
