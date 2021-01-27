@@ -25,6 +25,7 @@ typedef struct {
     size_t    size_mb;
     uint8_t   fat_type;
     map_str_t filenames;
+    char*     bootloader;
 } DiskInfo;
 
 typedef struct DebugInformation {
@@ -196,6 +197,8 @@ static SourceFile* read_config_file_vasm_disk(toml_table_t* conf, DiskInfo* disk
     toml_datum_t fat = toml_int_in(disk, "FAT");
     if (!fat.ok)
         ERROR_N("Invalid file format: key 'disk.FAT' not found.");
+    if (fat.u.i != 16 && fat.u.i != 32)
+        ERROR_N("Only FAT16 and FAT32 are supported.");
     disk_info->fat_type = fat.u.i;
     
     struct toml_datum_t bootloader = toml_string_in(disk, "bootloader");
@@ -213,6 +216,7 @@ static SourceFile* read_config_file_vasm_disk(toml_table_t* conf, DiskInfo* disk
         .source_file = bootloader.u.s,
         .address = 0,
     };
+    disk_info->bootloader = strdup(bootloader.u.s);
     
     for (int i = 0; i < nelem; ++i) {
         toml_table_t* tbl = toml_table_at(files, i);
@@ -532,13 +536,13 @@ DebugInformation* compile_vasm_disk(const char* project_file)
     return compile(PT_VASM_DISK, project_file);
 }
 
-int debug_generate_image(DebugInformation* di, const char* file)
+int debug_generate_image(DebugInformation* di, const char* image_file)
 {
     char call[4096];
     
     // create image
     snprintf(call, sizeof call, "mkfs.vfat -F %d -n %s -C %s %zu",
-            di->disk_info.fat_type, di->disk_info.name ? di->disk_info.name : "UNNAMED", file,
+            di->disk_info.fat_type, di->disk_info.name ? di->disk_info.name : "UNNAMED", image_file,
             di->disk_info.size_mb * 1024);
     system(call);
     
@@ -546,20 +550,76 @@ int debug_generate_image(DebugInformation* di, const char* file)
     const char* origin;
     map_iter_t iter = map_iter(&di->disk_info.filenames);
     while ((origin = map_next(&di->disk_info.filenames, &iter))) {
+        // find binary
+        size_t file_number = 0;
+        char* fn;
+        while ((fn = debug_filename(di, file_number))) {
+            if (strcmp(fn, origin) == 0)
+                goto file_found;
+            ++file_number;
+        }
+        ERROR("Could not find origin file '%s' when generating image.");
+file_found:;
+        Binary const* bin = debug_binary(di, file_number);
+        
+        // create file
         char* dest = *map_get(&di->disk_info.filenames, origin);
         char* filename = tmpnam(NULL);
-        FILE* f = fopen(filename, "w");
-        // TODO - write to file
+        FILE* f = fopen(filename, "wb");
+        if (!f)
+            ERROR("When generating files to add to image, could not create file '%s' from '%s'.", filename, debug_filename(di, file_number));
+        if (fwrite(bin->data, bin->sz, 1, f) != 1)
+            ERROR("When generating files to add to image, could not add data to file '%s' from '%s'.", filename, debug_filename(di, file_number));
         fclose(f);
         
+        // copy file to partition
         char buf[1024];
-        snprintf(buf, sizeof buf, "mcopy -i %s %s ::%s", file, filename, dest);
+        snprintf(buf, sizeof buf, "mcopy -i %s %s ::%s", image_file, filename, dest);
         system(buf);
         unlink(filename);
     }
     
-    // TODO - copy bootstrap
+    // find bootstrap
+    size_t file_number = 0;
+    char* fn;
+    while ((fn = debug_filename(di, file_number))) {
+        if (strcmp(fn, di->disk_info.bootloader) == 0)
+            goto file_found2;
+        ++file_number;
+    }
+    ERROR("Could not find bootloader when generating image file.");
+file_found2:;
+    Binary const* bin = debug_binary(di, file_number);
     
+    // add bootstrap
+    FILE* f = fopen(image_file, "r+b");
+    uint16_t boot_location = 0;
+    size_t boot_size = 0;
+    if (di->disk_info.fat_type == 16) {
+        boot_location = 0x3e;
+        boot_size = 448;
+    } else if (di->disk_info.fat_type == 32) {
+        boot_location = 0x5a;
+        boot_size = 420;
+    }
+    // initial jump
+    fseek(f, 0, SEEK_SET);
+    char jp[] = { 0xc3, boot_location, 0x00 };  // z80: jp BOOTSECTOR
+    fwrite(jp, sizeof jp, 1, f);
+    // clear boot area
+    char empty[512] = { 0 };
+    fseek(f, boot_location, SEEK_SET);
+    fwrite(empty, boot_size, 1, f);
+    // boot code
+    fseek(f, boot_location, SEEK_SET);
+    if (bin->sz >= boot_size)
+        ERROR("Bootloader is too large (max %zu bytes)", boot_size);
+    fwrite(bin->data, bin->sz, 1, f);
+    // set image as bootable
+    fseek(f, 0x1fe, SEEK_SET);
+    char bootable[] = { 0x55, 0xaa };
+    fwrite(bootable, 2, 1, f);
+    fclose(f);
     
     return 0;
 }
@@ -610,6 +670,7 @@ void debug_free(DebugInformation* di)
     free(di->output);
     free(di->binary);
     free(di->disk_info.name);
+    free(di->disk_info.bootloader);
     free(di);
 }
 

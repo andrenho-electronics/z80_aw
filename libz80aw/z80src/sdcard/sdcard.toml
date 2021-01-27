@@ -1,7 +1,7 @@
 [disk]
 name       = "Z80TEST"
-size_MB    = 64
-FAT        = 32
+size_MB    = 32
+FAT        = 16
 bootloader = "bootloader.z80"
 files      = [
   { source = "kernel.z80", output = "KERNEL.BIN", address = 512 },

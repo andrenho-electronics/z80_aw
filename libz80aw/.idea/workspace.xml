@@ -32,8 +32,6 @@
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/comm/compiler.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/compiler.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/z80src/sdcard/sdcard.toml" beforeDir="false" afterPath="$PROJECT_DIR$/z80src/sdcard/sdcard.toml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/../z80os/make_sd_image.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../z80os/make_sd_image.sh" afterDir="false" />
     </list>
@@ -164,6 +162,11 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="lua.app" factoryName="Lua Application">
       <option name="program" value="/usr/bin/lua" />
       <option name="file" value="" />
@@ -210,7 +213,7 @@
       <workItem from="1611259482176" duration="23085000" />
       <workItem from="1611604318470" duration="8912000" />
       <workItem from="1611687266713" duration="7620000" />
-      <workItem from="1611706053793" duration="870000" />
+      <workItem from="1611706053793" duration="4344000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -471,7 +474,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611692091521</updated>
     </task>
-    <option name="localTasksCounter" value="38" />
+    <task id="LOCAL-00038" summary=".">
+      <created>1611706942572</created>
+      <option name="number" value="00038" />
+      <option name="presentableId" value="LOCAL-00038" />
+      <option name="project" value="LOCAL" />
+      <updated>1611706942572</updated>
+    </task>
+    <option name="localTasksCounter" value="39" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -501,6 +511,11 @@
           <url>file://$PROJECT_DIR$/emu/emulator.c</url>
           <line>404</line>
           <option name="timeStamp" value="132" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/tests/test-comm.c</url>
+          <line>515</line>
+          <option name="timeStamp" value="136" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
