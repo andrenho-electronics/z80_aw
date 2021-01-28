@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-enum DataType { BootSector, Unclassified };
+enum DataType { Unclassified, BootSector };
 
 struct DiskDataType {
     DataType    data_type;

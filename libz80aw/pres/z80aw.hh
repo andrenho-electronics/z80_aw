@@ -78,6 +78,7 @@ std::string last_error();
 bool                 has_disk();
 void                 write_disk_block(uint32_t block, std::vector<uint8_t> const& data);
 std::vector<uint8_t> read_disk_block(uint32_t block);
+void                 update_disk(std::string const& path);
 
 void finalize_emulator();
 
@@ -109,6 +110,8 @@ public:
     
     std::string                     compiler_output() const;
     void                            print() const;
+    
+    void                            generate_image(std::string const& path) const;
     
     DebugInformation(DebugInformation const&) = delete;
     DebugInformation& operator=(DebugInformation const&) = delete;

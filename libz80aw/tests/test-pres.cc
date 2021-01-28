@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <getopt.h>
+#include <unistd.h>
 
 #include <chrono>
 #include <iostream>
@@ -262,16 +263,21 @@ int main(int argc, char* argv[])
     //
     
     {
+        unlink("/tmp/sdcard.img");
+        
         Z80Presentation p(opt.serial_port ? opt.serial_port : ".", !opt.serial_port);
         p.set_logging_to_stdout(opt.log_to_stdout);
         
         p.compile_project(CompilerType::VasmDisk, "z80src/sdcard/sdcard.toml");
-        p.upload_compiled();
+        p.generate_disk_image("/tmp/sdcard.img", true);
+        printf("Disk generated and sent to emulator.\n");
         
         p.diskview().update();
         ASSERT("Check that disk data was loaded", p.diskview().data().at(510) == 0x55);
         ASSERT("Check that the disk data is verified correctly", p.diskview().data_type(480).data_type == BootSector);
         p.diskview().go_to_block(1);
         ASSERT("Check that disk data was loaded after changing blocks", p.diskview().data().at(510) != 0x55);
+    
+        unlink("/tmp/sdcard.img");
     }
 }

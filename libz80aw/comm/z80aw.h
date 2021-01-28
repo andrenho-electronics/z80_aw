@@ -88,5 +88,6 @@ int z80aw_finalize_emulator();
 bool z80aw_has_disk();
 int  z80aw_write_disk_block(uint32_t block, uint8_t const* data);
 int  z80aw_read_disk_block(uint32_t block, uint8_t* data);
+int  z80aw_update_disk(const char* filename);
 
 #endif

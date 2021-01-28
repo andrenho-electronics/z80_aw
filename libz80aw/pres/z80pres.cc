@@ -205,3 +205,12 @@ void Z80Presentation::update_upload_status()
         is_uploaded_ = false;
 }
 
+void Z80Presentation::generate_disk_image(std::string const& path, bool update_emulator)
+{
+    if (debug_information.has_value()) {
+        debug_information.value().generate_image(path);
+        if (update_emulator)
+            z80aw::update_disk(path);
+    }
+}
+

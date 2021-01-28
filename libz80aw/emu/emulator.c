@@ -78,7 +78,7 @@ void get_options(int argc, char* argv[])
                 printf("emulator: Being run from test process on pid %d.\n", test_pid);
                 break;
             case 'd':
-                disk_image_path = optarg;
+                disk_image_path = strdup(optarg);
                 break;
             case 'l':
                 log_to_stdout = true;
@@ -228,6 +228,32 @@ static void send_pins()
     send(cpu_random_pins >> 24);
     send(cpu_random_pins >> 32);
 }
+
+bool update_disk(const char* filename)
+{
+    if (disk_image_file) {
+        fclose(disk_image_file);
+        disk_image_size = 0;
+        free(disk_image_path);
+        disk_image_path = NULL;
+    }
+    
+    if (filename) {
+        disk_image_file = fopen(filename, "r+b");
+        if (!disk_image_file) {
+            perror("fopen");
+            return false;
+        }
+        fread(memory, 512, 1, disk_image_file);
+        fseek(disk_image_file, 0L, SEEK_END);
+        disk_image_size = ftell(disk_image_file);
+        disk_image_path = strdup(filename);
+    }
+ 
+    ResetZ80(&z80);
+    return true;
+}
+
 
 //
 // load registers
@@ -701,6 +727,18 @@ bool command_loop()
                 send(Z_NO_DISK);
             }
             break;
+        case Z_UPDATE_DISK: {
+                char buf[1024];
+                int i = 0;
+                do {
+                    buf[i++] = recv();
+                } while (buf[i-1] != '\0');
+                if (update_disk(buf))
+                    send(Z_OK);
+                else
+                    send(Z_NO_DISK);
+            }
+            break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
             send(Z_INVALID_CMD);
@@ -714,16 +752,8 @@ int main(int argc, char* argv[])
 {
     get_options(argc, argv);
     
-    if (disk_image_path) {
-        disk_image_file = fopen(disk_image_path, "r+b");
-        if (!disk_image_path) {
-            perror("fopen");
-            exit(EXIT_FAILURE);
-        }
-        fread(memory, 512, 1, disk_image_file);
-        fseek(disk_image_file, 0L, SEEK_END);
-        disk_image_size = ftell(disk_image_file);
-    }
+    if (!update_disk(disk_image_path))
+        return EXIT_FAILURE;
     
     open_serial();
     if (test_pid)
@@ -734,6 +764,8 @@ int main(int argc, char* argv[])
     
     while (command_loop());
     
-    if (disk_image_file)
+    if (disk_image_file) {
         fclose(disk_image_file);
+        free(disk_image_path);
+    }
 }

@@ -609,3 +609,19 @@ z80aw_read_disk_block(uint32_t block, uint8_t* data)
         data[i] = zrecv();
     return 0;
 }
+
+int z80aw_update_disk(const char* filename)
+{
+    zsend_noreply(Z_UPDATE_DISK | Z_COMMAND);
+    int i = 0;
+    do {
+        zsend_noreply(filename[i++]);
+    } while (filename[i-1] != 0);
+    int r = zrecv_response();
+    if (r == Z_EMULATOR_ONLY) {
+        ERROR("Disks can only be updated on the emulator.");
+    } else if (r == Z_NO_DISK) {
+        ERROR("Invalid disk.");
+    }
+    return 0;
+}

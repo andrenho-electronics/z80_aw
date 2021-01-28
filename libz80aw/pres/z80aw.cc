@@ -220,6 +220,11 @@ std::vector<uint8_t> read_disk_block(uint32_t block)
     return data;
 }
 
+void update_disk(std::string const& path)
+{
+    CHECKED(z80aw_update_disk(path.c_str()));
+}
+
 //
 // DEBUG INFORMATION
 //
@@ -327,6 +332,11 @@ std::vector<DebugInformation::Symbol> DebugInformation::symbols() const
         ss.push_back({ sym->symbol, sym->addr });
     }
     return ss;
+}
+
+void DebugInformation::generate_image(std::string const& path) const
+{
+    CHECKED(debug_generate_image(raw_ptr_, path.c_str()));
 }
 
 }

@@ -29,6 +29,7 @@ public:
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();
     void upload_compiled(void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
+    void generate_disk_image(std::string const& path, bool update_emulator);
     bool is_uploaded() const { return is_uploaded_; }
     void update();
     
