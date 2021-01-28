@@ -196,6 +196,23 @@ void finalize_emulator()
     CHECKED(z80aw_finalize_emulator());
 }
 
+bool has_disk()
+{
+    return z80aw_has_disk();
+}
+
+void write_disk_block(uint32_t block, std::vector<uint8_t> const& data)
+{
+    CHECKED(z80aw_write_disk_block(block, data.data()));
+}
+
+std::vector<uint8_t> read_disk_block(uint32_t block)
+{
+    std::vector<uint8_t> data(512);
+    CHECKED(z80aw_read_disk_block(block, data.data()));
+    return data;
+}
+
 //
 // DEBUG INFORMATION
 //

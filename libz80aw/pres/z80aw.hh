@@ -74,6 +74,10 @@ void stop();
 Event       last_event();
 std::string last_error();
 
+bool                 has_disk();
+void                 write_disk_block(uint32_t block, std::vector<uint8_t> const& data);
+std::vector<uint8_t> read_disk_block(uint32_t block);
+
 void finalize_emulator();
 
 class DebugInformation {
