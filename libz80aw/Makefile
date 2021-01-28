@@ -1,5 +1,5 @@
-OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o tests/test-disk.o # TODO remove
-OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o pres/terminalview.o
+OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o
+OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o pres/terminalview.o pres/diskview.o
 TEST_COMM_EXE = tests-comm
 TEST_PRES_EXE = tests-pres
 TEST_NMI_EXE  = tests-nmi

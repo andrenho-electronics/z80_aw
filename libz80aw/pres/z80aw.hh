@@ -92,7 +92,7 @@ public:
         uint16_t    addr;
     };
     
-    enum CompilerType { Vasm, VasmCode };
+    enum CompilerType { Vasm, VasmCode, VasmDisk };
     
     DebugInformation(CompilerType compiler_type, std::string const& project_file);
     ~DebugInformation();

@@ -10,6 +10,7 @@
 #include "memoryview.hh"
 #include "terminalview.hh"
 #include "symbol.hh"
+#include "diskview.hh"
 
 using RegisterFetchMode = z80aw::RegisterFetchMode;
 using CompilerType = z80aw::DebugInformation::CompilerType;
@@ -33,6 +34,7 @@ public:
     CodeView& codeview() { return codeview_; }
     MemoryView& memoryview() { return memoryview_; }
     TerminalView const& terminalview() const { return terminalview_; }
+    DiskView& diskview() { return disk_view_; }
     
     bool logging_to_stdout();
     bool assert_empty_buffer();
@@ -76,6 +78,7 @@ private:
     CodeView codeview_;
     MemoryView memoryview_;
     TerminalView terminalview_;
+    DiskView disk_view_;
     std::vector<std::string> file_list_;
     std::vector<Symbol> symbol_list_;
     bool is_uploaded_ = false;
