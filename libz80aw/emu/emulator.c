@@ -39,6 +39,17 @@ bool     last_was_out_during_continue = false;
 char*    disk_image_path = NULL;
 FILE*    disk_image_file = NULL;
 size_t   disk_image_size = 0;
+uint16_t read_disk_register = 0;
+uint16_t write_disk_register = 0;
+
+#define DEVICE_VIDEO          0x0
+#define DEVICE_KEYBOARD       0x1
+#define DEVICE_READ_DISK_LO   0x2
+#define DEVICE_READ_DISK_HI   0x3
+#define DEVICE_WRITE_DISK_LO  0x4
+#define DEVICE_WRITE_DISK_HI  0x5
+#define DEVICE_DEBUGGER_LO   0xfe
+#define DEVICE_DEBUGGER_HI   0xff
 
 typedef enum { NOT_WAITING, SEND_NMI, WAITING_IO, WAITING_RETI } RegisterLoadState;
 RegisterLoadState register_load_state = NOT_WAITING;
@@ -46,6 +57,12 @@ uint16_t          register_stack_location = 0;
 
 typedef enum { REGFETCH_DISABLED = 0, REGFETCH_NMI = 1, REGFETCH_EMULATOR = 2 } RegisterFetchMode;
 RegisterFetchMode register_fetch_mode = REGFETCH_DISABLED;
+
+struct DiskRequest {
+    uint32_t disk_block;
+    uint16_t mem_dest;
+    uint16_t block_count;
+} __attribute__((packed));
 
 //
 // command line options
@@ -415,23 +432,51 @@ byte RdZ80(word Addr)
 
 void OutZ80(word Port,byte Value)
 {
-    if ((Port & 0xff) == 0x0) {  // video
-        last_printed_char = Value;
-        if (continue_mode) {
-            continue_mode = false;
-            last_was_out_during_continue = true;
-        }
-    } else if ((Port & 0xff) == 0xfe) {  // load registers from stack - lower nibble
-        register_stack_location = (register_stack_location & 0xff00) | Value;
-    } else if ((Port & 0xff) == 0xff) {  // load registers from stack - higher nibble
-        register_stack_location = (Value << 8) | (register_stack_location & 0xff);
-        register_load_state = WAITING_RETI;
+    switch (Port & 0xff) {
+        case DEVICE_VIDEO:
+            last_printed_char = Value;
+            if (continue_mode) {
+                continue_mode = false;
+                last_was_out_during_continue = true;
+            }
+            break;
+        case DEVICE_READ_DISK_LO:
+            read_disk_register = (read_disk_register & 0xff00) | Value;
+            break;
+        case DEVICE_READ_DISK_HI:
+            read_disk_register = (Value << 8) | (read_disk_register & 0xff);
+            if (disk_image_file) {
+                struct DiskRequest const* req = (struct DiskRequest const*) &memory[read_disk_register];
+                fseek(disk_image_file, req->disk_block * 512, SEEK_SET);
+                fread(&memory[req->mem_dest], req->block_count * 512, 1, disk_image_file);
+            }
+            break;
+        case DEVICE_WRITE_DISK_LO:
+            write_disk_register = (write_disk_register & 0xff00) | Value;
+            break;
+        case DEVICE_WRITE_DISK_HI:
+            write_disk_register = (Value << 8) | (write_disk_register & 0xff);
+            if (disk_image_file) {
+                struct DiskRequest const* req = (struct DiskRequest const*) &memory[write_disk_register];
+                printf("Writing %d bytes from memory location 0x%x into disk block 0x%x.\n",
+                       req->block_count, req->mem_dest, req->disk_block);
+                fseek(disk_image_file, req->disk_block * 512, SEEK_SET);
+                fwrite(&memory[req->mem_dest], req->block_count * 512, 1, disk_image_file);
+            }
+            break;
+        case DEVICE_DEBUGGER_LO:
+            register_stack_location = (register_stack_location & 0xff00) | Value;
+            break;
+        case DEVICE_DEBUGGER_HI:
+            register_stack_location = (Value << 8) | (register_stack_location & 0xff);
+            register_load_state = WAITING_RETI;
+            break;
     }
 }
 
 byte InZ80(word Port)
 {
-    if ((Port & 0xff) == 0x1)  // keyboard
+    if ((Port & 0xff) == DEVICE_KEYBOARD)  // keyboard
         return last_keypress;
     return 0;
 }

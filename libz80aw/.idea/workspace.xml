@@ -31,8 +31,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-disk.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +109,7 @@
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../common/protocol.h" />
     <property name="nodejs_package_manager_path" value="npm" />
-    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.TOML" />
+    <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunManager" selected="Makefile Application.tests-disk">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
@@ -224,7 +225,7 @@
       <workItem from="1611604318470" duration="8912000" />
       <workItem from="1611687266713" duration="7620000" />
       <workItem from="1611706053793" duration="5011000" />
-      <workItem from="1611751416589" duration="9890000" />
+      <workItem from="1611751416589" duration="14062000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -534,7 +535,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611791464075</updated>
     </task>
-    <option name="localTasksCounter" value="45" />
+    <task id="LOCAL-00045" summary=".">
+      <created>1611795188320</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1611795188320</updated>
+    </task>
+    <option name="localTasksCounter" value="46" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -558,15 +566,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="." />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/tests/test-disk.c</url>
-          <line>89</line>
-          <option name="timeStamp" value="136" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="CLionNativeAppRunConfigurationType">
         <watch expression="R.PC.W" language="ObjectiveC" />

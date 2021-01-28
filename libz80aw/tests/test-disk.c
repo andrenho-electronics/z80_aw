@@ -8,6 +8,15 @@
     printf("%s... ", msg); \
     if (expr) { printf("\e[0;32m✔\e[0m\n"); } else { printf("\e[0;31mX\e[0m\n"); exit(1); }
 
+#define COMPILE(code) {                                                                  \
+    char errbuf_[4096] = "";                                                             \
+    int resp_ = z80aw_simple_compilation(code, errbuf_, sizeof errbuf_); \
+    if (resp_ != 0) {                                                                    \
+        printf("Compilation error: %s\n", errbuf_);                                      \
+        exit(1);                                                                         \
+    }                                                                                    \
+}
+
 bool mlog_to_stdout = false;
 
 static void error_cb(const char* error, void* data)
@@ -91,6 +100,71 @@ int main(int argc, char* argv[])
     uint8_t rblock[512];
     z80aw_read_disk_block(5, rblock);
     ASSERT("Read written block", memcmp(block, rblock, 512) == 0);
+    
+    // run code for reading from disk
+    COMPILE(" ld bc, 0x0        ; disk block 1st and 2nd bytes \n"
+            " ld (0x8000), bc \n"
+            " ld bc, 0x0        ; disk block 3rd and 4th byte \n"
+            " ld (0x8002), a \n"
+            " ld bc, 0xf000     ; memory destination\n"
+            " ld (0x8004), bc \n"
+            " ld bc, 0x2        ; number of blocks\n"
+            " ld (0x8006), bc\n"
+            " ld a, 0x0         ; read structure low address byte\n"
+            " out (0x2), a\n"
+            " ld a, 0x80        ; read structure high address byte\n"
+            " out (0x3), a\n"
+            "hg: jp hg");
+    z80aw_cpu_reset();
+    for (int i = 0; i < 16; ++i)
+        z80aw_cpu_step(NULL, NULL);
+    uint8_t rdata[1024];
+    z80aw_read_block(0xf000, 1024, rdata);
+    ASSERT("OUT command for reading", memcmp(data, rdata, 1024) == 0);
+    
+    // run code for writing to disk
+    uint8_t expected[512];
+    for (int i = 0; i < 512; ++i)
+        expected[i] = i & 0xff;
+    
+    COMPILE(" ld b, 0x0      \n"        // write 512 sequential bytes to 0xE000
+            " ld de, 512   \n"
+            " ld hl, 0xe000\n"
+            "loop:         \n"
+            " ld (hl), b   \n"
+            " inc hl       \n"
+            " inc b        \n"
+            " dec de       \n"
+            " ld a, d      \n"
+            " or e         \n"
+            " jr nz, loop   \n"
+            // write to SD Card
+            " ld bc, 0x8        ; disk block 1st and 2nd bytes \n"
+            " ld (0x8000), bc   \n"
+            " ld bc, 0x0        ; disk block 3rd and 4th byte \n"
+            " ld (0x8002), a    \n"
+            " ld bc, 0xe000     ; memory origin\n"
+            " ld (0x8004), bc    \n"
+            " ld bc, 0x1        ; number of blocks\n"
+            " ld (0x8006), bc   \n"
+            " ld a, 0x0         ; read structure low address byte\n"
+            " out (0x4), a      \n"
+            " ld a, 0x80        ; read structure high address byte\n"
+            " out (0x5), a      \n"
+            "  ld a, 0xff       ; stop condition\n"
+            "  ld (0x3000), a   \n"
+            "hg: jp hg");
+    
+    z80aw_cpu_reset();
+    while (z80aw_read_byte(0x3000) != 0xff)
+        z80aw_cpu_step(NULL, NULL);
+    
+    z80aw_read_block(0xe000, 512, block);
+    ASSERT("Check that our logic is correct", memcmp(expected, block, 512) == 0);
+    
+    uint8_t sdw[512];
+    z80aw_read_disk_block(8, sdw);
+    ASSERT("OUT command for writing", memcmp(expected, sdw, 512) == 0);
     
     // finalize
     z80aw_close();
