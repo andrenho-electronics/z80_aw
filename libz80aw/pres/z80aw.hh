@@ -24,6 +24,7 @@ enum RegisterFetchMode {
 };
 
 std::string initialize_emulator(std::string const& emulator_path);  // return serial port
+std::string initialize_emulator(std::string const& emulator_path, std::string const& disk_image_path);
 
 void init(std::string const& serial_port);
 void close();

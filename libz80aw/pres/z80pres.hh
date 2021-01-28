@@ -18,6 +18,7 @@ using CompilerType = z80aw::DebugInformation::CompilerType;
 class Z80Presentation {
 public:
     Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator);
+    Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator, std::string const& disk_image_path);
     ~Z80Presentation();
     
     Z80Presentation(Z80Presentation const&) = delete;

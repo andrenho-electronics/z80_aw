@@ -3,13 +3,22 @@
 #include <stdexcept>
 
 Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator)
+    : Z80Presentation(serial_port_or_emulator_path, initialize_with_emulator, "")
+{
+}
+
+Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator, std::string const& disk_image_path)
     : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80), disk_view_()
 {
     std::string serial_port;
-    if (initialize_with_emulator)
-        serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
-    else
+    if (initialize_with_emulator) {
+        if (disk_image_path.empty())
+            serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
+        else
+            serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path, disk_image_path);
+    } else {
         serial_port = serial_port_or_emulator_path;
+    }
 
     z80aw::init(serial_port);
     z80aw::reset();
@@ -195,3 +204,4 @@ void Z80Presentation::update_upload_status()
     else
         is_uploaded_ = false;
 }
+

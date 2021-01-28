@@ -9,7 +9,14 @@ namespace z80aw {
 std::string initialize_emulator(std::string const& emulator_path)
 {
     char serial_port_buf[255];
-    CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf));
+    CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf, nullptr));
+    return serial_port_buf;
+}
+
+std::string initialize_emulator(std::string const& emulator_path, std::string const& disk_image_path)
+{
+    char serial_port_buf[255];
+    CHECKED(z80aw_initialize_emulator(emulator_path.c_str(), serial_port_buf, sizeof serial_port_buf, disk_image_path.c_str()));
     return serial_port_buf;
 }
 
