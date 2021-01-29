@@ -216,3 +216,8 @@ void Z80Presentation::delete_disk_image(std::string const& path)
     unlink(path.c_str());
 }
 
+bool Z80Presentation::show_disk_window() const
+{
+    return debug_information.has_value() && debug_information.value().stored_on_disk();
+}
+

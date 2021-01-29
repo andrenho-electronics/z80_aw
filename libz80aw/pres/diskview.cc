@@ -76,3 +76,13 @@ DiskDataType DiskView::data_type(uint16_t pos) const
     return { Unclassified, "Unclassified data" };
 }
 
+void DiskView::go_to_next_block()
+{
+
+}
+
+void DiskView::go_to_previous_block()
+{
+
+}
+

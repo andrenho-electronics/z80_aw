@@ -696,13 +696,11 @@ bool command_loop()
         case Z_READ_DISK:
             if (disk_image_file) {
                 uint32_t addr = recv24() * 512;
-                if (addr >= disk_image_size + 512) {
-                    send(Z_OUT_OF_BOUNDS);
-                    return true;
+                uint8_t buf[512] = { 0 };
+                if (addr < disk_image_size + 512) {
+                    fseek(disk_image_file, addr, SEEK_SET);
+                    fread(buf, 512, 1, disk_image_file);
                 }
-                fseek(disk_image_file, addr, SEEK_SET);
-                uint8_t buf[512];
-                fread(buf, 512, 1, disk_image_file);
                 send(Z_OK);
                 for (int i = 0; i < 512; ++i)
                     send(buf[i]);
@@ -713,15 +711,13 @@ bool command_loop()
         case Z_WRITE_DISK:
             if (disk_image_file) {
                 uint32_t addr = recv24() * 512;
-                if (addr >= disk_image_size + 512) {
-                    send(Z_OUT_OF_BOUNDS);
-                    return true;
-                }
                 uint8_t buf[512];
                 for (int i = 0; i < 512; ++i)
                     buf[i] = recv();
-                fseek(disk_image_file, addr, SEEK_SET);
-                fwrite(buf, 512, 1, disk_image_file);
+                if (addr < disk_image_size + 512) {
+                    fseek(disk_image_file, addr, SEEK_SET);
+                    fwrite(buf, 512, 1, disk_image_file);
+                }
                 send(Z_OK);
             } else {
                 send(Z_NO_DISK);

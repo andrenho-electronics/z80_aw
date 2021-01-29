@@ -58,6 +58,8 @@ void MyUI::draw()
         draw_code();
         if (show_keypress_modal)
             draw_keypress_modal();
+        if (p().show_disk_window())
+            draw_disk_window();
     }
     if (error_message.has_value())
         draw_error_modal();
@@ -297,7 +299,7 @@ void MyUI::draw_memory()
         ImGui::Text("Page: (PgUp)");
         ImGui::SameLine();
         
-        if (ImGui::Button("<") || ImGui::IsKeyPressed(PageUp))
+        if (ImGui::Button("<") || (!io.KeyCtrl && ImGui::IsKeyPressed(PageUp)))
             m.go_to_page(page - 1);
         ImGui::SameLine();
     
@@ -314,7 +316,7 @@ void MyUI::draw_memory()
                          }, &m);
         ImGui::PopItemWidth();
         ImGui::SameLine();
-        if (ImGui::Button(">") || ImGui::IsKeyPressed(PageDown))
+        if (ImGui::Button(">") || (!io.KeyCtrl && ImGui::IsKeyPressed(PageDown)))
             m.go_to_page(page + 1);
         ImGui::SameLine();
         ImGui::Text("(PgDown)");
@@ -535,6 +537,109 @@ void MyUI::draw_terminal()
     ImGui::End();
 }
 
+void MyUI::draw_disk_window()
+{
+    DiskView& d = p().diskview();
+    
+    ImGui::SetNextWindowSize(ImVec2(580, 640));
+    if (ImGui::Begin("Disk", nullptr, ImGuiWindowFlags_NoResize)) {
+        uint32_t block = d.block_number();
+    
+        ImGui::AlignTextToFramePadding();
+        ImGui::Text("Block: (C-PgUp)");
+        ImGui::SameLine();
+    
+        if (ImGui::Button("<") || (io.KeyCtrl && ImGui::IsKeyPressed(PageUp)))
+            d.go_to_block(block - 1);
+        ImGui::SameLine();
+    
+        char buf[9];
+        snprintf(buf, 9, "%08X", block);
+        ImGui::PushItemWidth(64.0);
+        ImGui::InputText("##block", buf, sizeof buf, ImGuiInputTextFlags_CallbackEdit, [](ImGuiInputTextCallbackData* data) {
+            auto* d = reinterpret_cast<DiskView*>(data->UserData);
+            unsigned long new_block = strtoul(data->Buf, nullptr, 16);
+            if (new_block != ULONG_MAX)
+                d->go_to_block(new_block);
+            return 0;
+        }, &d);
+        ImGui::PopItemWidth();
+        ImGui::SameLine();
+        if (ImGui::Button(">") || (io.KeyCtrl && ImGui::IsKeyPressed(PageDown)))
+            d.go_to_block(block + 1);
+        ImGui::SameLine();
+        ImGui::Text("(C-PgDown)");
+        
+        ImGui::SameLine();
+        if (ImGui::Button("Update block"))
+            d.update();
+        
+        draw_disk_table(d);
+    }
+    ImGui::End();
+}
+
+void MyUI::draw_disk_table(DiskView& d) const
+{
+    static int tbl_flags = ImGuiTableFlags_BordersOuter
+                           | ImGuiTableFlags_NoBordersInBody
+                           | ImGuiTableFlags_RowBg
+                           | ImGuiTableFlags_ScrollY;
+    
+    ImVec2 size = ImVec2(-FLT_MIN, 564);
+    if (ImGui::BeginTable("##diskdata", 18, tbl_flags, size)) {
+        
+        // headers
+        ImGui::TableSetupScrollFreeze(0, 1); // Make top row always visible
+        ImGui::TableSetupColumn("Address", ImGuiTableColumnFlags_WidthFixed);
+        for (int i = 0; i < 0x10; ++i) {
+            char buf[3];
+            sprintf(buf, "_%X", i);
+            ImGui::TableSetupColumn(buf, ImGuiTableColumnFlags_WidthFixed);
+        }
+        ImGui::TableSetupColumn("ASCII", ImGuiTableColumnFlags_WidthStretch);
+        ImGui::TableHeadersRow();
+        
+        for (int line = 0; line < 0x20; ++line) {
+            ImGui::TableNextRow();
+            
+            // address
+            uint32_t addr = (d.block_number() * 0x200) + (line * 0x10);
+            ImGui::TableSetColumnIndex(0);
+            ImGui::Text("%08X : ", addr);
+            
+            // data
+            std::string ascii;
+            for (int i = 0; i < 0x10; ++i) {
+                ImGui::TableSetColumnIndex(i + 1);
+                uint8_t byte =  d.data().at((line * 0x10) + i);
+                bool needs_pop = false;
+                /*
+                if (addr + i == p().pc()) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pc_bg_color);
+                } else if (p().registers().has_value() && addr + i == p().registers().value().SP) {
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, sp_bg_color);
+                }
+                 */
+                if (byte == 0) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(128, 128, 128)));
+                    needs_pop = true;
+                }
+                ImGui::Text("%02X", byte);
+                if (needs_pop)
+                    ImGui::PopStyleColor();
+                ascii += (byte >= 32 && byte < 127) ? (char) byte : '.';
+            }
+            
+            // ascii
+            ImGui::TableSetColumnIndex(17);
+            ImGui::Text("%s", ascii.c_str());
+        }
+        
+        ImGui::EndTable();
+    }
+}
+
 void MyUI::draw_keypress_modal()
 {
     if (ImGui::BeginPopupModal("Keypress", &show_keypress_modal, ImGuiWindowFlags_AlwaysAutoResize)) {
@@ -731,6 +836,8 @@ void MyUI::start_execution()
         step = "resetting CPU";
         p().reset();
         p().update();
+        if (p().show_disk_window())
+            p().diskview().update();
         scroll_to_pc = true;
     } catch (std::runtime_error& e) {
         error("Error " + step, e.what());

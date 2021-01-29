@@ -63,6 +63,7 @@ public:
     std::vector<std::string> const& file_list() const { return file_list_; }
     std::vector<Symbol> const& symbol_list() const { return symbol_list_; }
     
+    bool show_disk_window() const;
     void update_upload_status();
 
 private:
