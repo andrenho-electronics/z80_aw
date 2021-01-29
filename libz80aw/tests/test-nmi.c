@@ -31,7 +31,7 @@ int main(int argc, char* argv[])
 
     char serial_port[128];
     if (argc == 1) {
-        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port) != 0) {
+        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, NULL) != 0) {
             fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
             exit(1);
         }

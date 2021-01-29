@@ -71,7 +71,12 @@ void MyUI::draw()
 void MyUI::draw_start()
 {
     ImGui::Begin("Welcome to Z80AW debugger", nullptr);
-
+    
+    ImGui::Text("Select project file"); ImGui::SameLine();
+    ImGui::InputText("##b", config.project_file, sizeof config.project_file);
+    
+    ImGui::Separator();
+    
     ImGui::Text("Execution type");
     ImGui::SameLine();
     if (ImGui::RadioButton("Emulator", config.emulator_mode))
@@ -79,11 +84,6 @@ void MyUI::draw_start()
     ImGui::SameLine();
     if (ImGui::RadioButton("Real hardware", !config.emulator_mode))
         config.emulator_mode = false;
-    
-    ImGui::Separator();
-    
-    ImGui::Text("Select project file"); ImGui::SameLine();
-    ImGui::InputText("##b", config.project_file, sizeof config.project_file);
     
     if (!config.emulator_mode) {
         ImGui::Text("Serial port"); ImGui::SameLine();

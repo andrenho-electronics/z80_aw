@@ -18,7 +18,6 @@ using CompilerType = z80aw::DebugInformation::CompilerType;
 class Z80Presentation {
 public:
     Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator);
-    Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator, std::string const& disk_image_path);
     ~Z80Presentation();
     
     Z80Presentation(Z80Presentation const&) = delete;
@@ -29,7 +28,6 @@ public:
     void compile_project(CompilerType compiler_type, std::string const& text);
     void recompile_project();
     void upload_compiled(void (*upload_callback)(void* data, float perc) = nullptr, void* data = nullptr);
-    void generate_disk_image(std::string const& path, bool update_emulator);
     bool is_uploaded() const { return is_uploaded_; }
     void update();
     
@@ -84,8 +82,12 @@ private:
     std::vector<std::string> file_list_;
     std::vector<Symbol> symbol_list_;
     bool is_uploaded_ = false;
+    bool running_with_emulator_;
+    std::string disk_image_path_;
     
     void create_file_symbol_list();
+    void generate_disk_image(std::string const& path, bool update_emulator);
+    void delete_disk_image(std::string const& path);
 };
 
 #endif //LIBZ80PRES_Z80PRES_HH

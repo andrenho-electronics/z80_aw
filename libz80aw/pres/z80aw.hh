@@ -94,7 +94,7 @@ public:
         uint16_t    addr;
     };
     
-    enum CompilerType { Vasm, VasmCode, VasmDisk };
+    enum CompilerType { Vasm, VasmCode };
     
     DebugInformation(CompilerType compiler_type, std::string const& project_file);
     ~DebugInformation();
@@ -112,6 +112,7 @@ public:
     void                            print() const;
     
     void                            generate_image(std::string const& path) const;
+    bool                            stored_on_disk() const;
     
     DebugInformation(DebugInformation const&) = delete;
     DebugInformation& operator=(DebugInformation const&) = delete;

@@ -33,8 +33,9 @@ int main(int argc, char* argv[])
     //
     // compile SDCARD disk
     //
-    DebugInformation* di = compile_vasm_disk("z80src/sdcard/sdcard.toml");
+    DebugInformation* di = compile_vasm("z80src/sdcard/sdcard.toml");
     ASSERT("DebugInformation is not null", di);
+    ASSERT("Project type is correct", debug_project_type(di) == PT_VASM_DISK);
     ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
     if (mlog_to_stdout) {
         printf("Compiler output:\n\e[0;33m");

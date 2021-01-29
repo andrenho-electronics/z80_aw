@@ -31,18 +31,20 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../common/protocol.h" beforeDir="false" afterPath="$PROJECT_DIR$/../common/protocol.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/.idea/debugger.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/logging.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/logging.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/compiler.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/compiler.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/compiler.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/diskview.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/diskview.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80aw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80aw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.hh" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.cc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pres/z80pres.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80pres.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-comm.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-comm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-disk.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-nmi.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-nmi.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tests/test-pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-pres.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -121,7 +123,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.tests-pres">
+  <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -172,7 +174,7 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration name="tests-nmi" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-nmi" CONFIG_NAME="tests-nmi" version="1">
+    <configuration name="tests-nmi" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="tests-nmi" CONFIG_NAME="tests-nmi" version="1" RUN_PATH="$PROJECT_DIR$/tests-nmi">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -235,7 +237,7 @@
       <workItem from="1611604318470" duration="8912000" />
       <workItem from="1611687266713" duration="7620000" />
       <workItem from="1611706053793" duration="5011000" />
-      <workItem from="1611751416589" duration="25563000" />
+      <workItem from="1611751416589" duration="32631000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>
@@ -573,7 +575,14 @@
       <option name="project" value="LOCAL" />
       <updated>1611845004249</updated>
     </task>
-    <option name="localTasksCounter" value="49" />
+    <task id="LOCAL-00049" summary=".">
+      <created>1611853347448</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1611853347448</updated>
+    </task>
+    <option name="localTasksCounter" value="50" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

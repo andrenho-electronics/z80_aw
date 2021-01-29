@@ -490,6 +490,7 @@ static DebugInformation* compile(DebugProjectType project_type, const char* proj
     map_init(&di->disk_info.filenames);
     di->output = strdup("");
     di->success = true;
+    di->project_type = project_type;
     
     char file_path[512];
     find_project_path(project_file, file_path, sizeof file_path);
@@ -528,12 +529,27 @@ static DebugInformation* compile(DebugProjectType project_type, const char* proj
 
 DebugInformation* compile_vasm(const char* project_file)
 {
-    return compile(PT_VASM, project_file);
-}
-
-DebugInformation* compile_vasm_disk(const char* project_file)
-{
-    return compile(PT_VASM_DISK, project_file);
+    FILE* fp = fopen(project_file, "r");
+    if (!fp)
+        ERROR_N("Project file '%s' could not be opened.", project_file);
+    
+    char errbuf[512];
+    toml_table_t* conf = toml_parse_file(fp, errbuf, sizeof(errbuf));
+    fclose(fp);
+    
+    if (!conf)
+        ERROR_N("Error loading project file '%s': %s", project_file, errbuf);
+    
+    if (toml_table_in(conf, "disk")) {
+        toml_free(conf);
+        return compile(PT_VASM_DISK, project_file);
+    } else if (toml_array_in(conf, "sources")) {
+        toml_free(conf);
+        return compile(PT_VASM, project_file);
+    } else {
+        toml_free(conf);
+        ERROR_N("Invalid project file (key 'disk' or 'sources' was not found)");
+    }
 }
 
 int debug_generate_image(DebugInformation* di, const char* image_file)

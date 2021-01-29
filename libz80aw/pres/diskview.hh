@@ -4,7 +4,13 @@
 #include <string>
 #include <vector>
 
-enum DataType { Unclassified, BootSector };
+enum DataType {
+    Unclassified,
+    BootstrapCode, BootSectorSignature,
+    BytesPerSector, SectorsPerCluster, ReservedSectors, NumberOfFats, MaxNumberOfRootEntries, NumberOfSectors,
+    MediaDescriptor, SectorsPerFat, SectorsPerTrack, NumberOfHeads, HiddenSectors,
+    DriveNumber, VolumeSerialNumber, VolumeLabel, FileSystemType,
+};
 
 struct DiskDataType {
     DataType    data_type;

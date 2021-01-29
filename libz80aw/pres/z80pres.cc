@@ -1,21 +1,15 @@
 #include "z80pres.hh"
 
 #include <stdexcept>
+#include <unistd.h>
 
 Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator)
-    : Z80Presentation(serial_port_or_emulator_path, initialize_with_emulator, "")
-{
-}
-
-Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path, bool initialize_with_emulator, std::string const& disk_image_path)
-    : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80), disk_view_()
+    : codeview_(z80_state_), memoryview_(z80_state_), terminalview_(25, 80), disk_view_(),
+      running_with_emulator_(initialize_with_emulator), disk_image_path_(tmpnam(nullptr))
 {
     std::string serial_port;
     if (initialize_with_emulator) {
-        if (disk_image_path.empty())
-            serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
-        else
-            serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path, disk_image_path);
+        serial_port = z80aw::initialize_emulator(serial_port_or_emulator_path);
     } else {
         serial_port = serial_port_or_emulator_path;
     }
@@ -27,6 +21,7 @@ Z80Presentation::Z80Presentation(std::string const& serial_port_or_emulator_path
 
 Z80Presentation::~Z80Presentation()
 {
+    delete_disk_image(disk_image_path_);
     z80aw::finalize_emulator();
     z80aw::close();
 }
@@ -39,15 +34,8 @@ void Z80Presentation::compile_project(CompilerType compiler_type, std::string co
     create_file_symbol_list();
     is_uploaded_ = false;
     update();
-}
-
-void Z80Presentation::upload_compiled(void (* upload_callback)(void*, float), void* data)
-{
-    if (!debug_information.has_value())
-        throw std::runtime_error("There's no compiled project to upload.");
-    z80aw::upload_compiled(debug_information.value(), upload_callback, data);
-    is_uploaded_ = true;
-    memoryview().update();
+    if (running_with_emulator_ && debug_information->stored_on_disk())
+        generate_disk_image(disk_image_path_, true);
 }
 
 void Z80Presentation::recompile_project()
@@ -57,6 +45,15 @@ void Z80Presentation::recompile_project()
         create_file_symbol_list();
         is_uploaded_ = false;
     }
+}
+
+void Z80Presentation::upload_compiled(void (* upload_callback)(void*, float), void* data)
+{
+    if (!debug_information.has_value())
+        throw std::runtime_error("There's no compiled project to upload.");
+    z80aw::upload_compiled(debug_information.value(), upload_callback, data);
+    is_uploaded_ = true;
+    memoryview().update();
 }
 
 void Z80Presentation::update()
@@ -212,5 +209,10 @@ void Z80Presentation::generate_disk_image(std::string const& path, bool update_e
         if (update_emulator)
             z80aw::update_disk(path);
     }
+}
+
+void Z80Presentation::delete_disk_image(std::string const& path)
+{
+    unlink(path.c_str());
 }
 

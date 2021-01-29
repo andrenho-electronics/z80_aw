@@ -268,13 +268,12 @@ int main(int argc, char* argv[])
         Z80Presentation p(opt.serial_port ? opt.serial_port : ".", !opt.serial_port);
         p.set_logging_to_stdout(opt.log_to_stdout);
         
-        p.compile_project(CompilerType::VasmDisk, "z80src/sdcard/sdcard.toml");
-        p.generate_disk_image("/tmp/sdcard.img", true);
+        p.compile_project(CompilerType::Vasm, "z80src/sdcard/sdcard.toml");
         printf("Disk generated and sent to emulator.\n");
         
         p.diskview().update();
         ASSERT("Check that disk data was loaded", p.diskview().data().at(510) == 0x55);
-        ASSERT("Check that the disk data is verified correctly", p.diskview().data_type(480).data_type == BootSector);
+        ASSERT("Check that the disk data is verified correctly", p.diskview().data_type(480).data_type == BootstrapCode);
         p.diskview().go_to_block(1);
         ASSERT("Check that disk data was loaded after changing blocks", p.diskview().data().at(510) != 0x55);
     

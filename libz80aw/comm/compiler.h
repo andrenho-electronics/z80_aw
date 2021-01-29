@@ -28,7 +28,6 @@ typedef struct {
 typedef enum { PT_VASM, PT_VASM_DISK } DebugProjectType;
 
 DebugInformation* compile_vasm(const char* project_file);
-DebugInformation* compile_vasm_disk(const char* project_file);
 void              debug_free(DebugInformation* di);
 
 // all queries below are null terminated

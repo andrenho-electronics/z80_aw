@@ -190,6 +190,7 @@ int main(int argc, char* argv[])
     
     DebugInformation* di = compile_vasm("z80src/project.toml");
     ASSERT("DebugInformation is not null", di);
+    ASSERT("Project type is correct", debug_project_type(di) == PT_VASM);
     ASSERT("Compiler output is successful", debug_output(di, NULL, 0));
     if (config.log_to_stdout) {
         printf("Compiler output:\n\e[0;33m");

@@ -235,11 +235,7 @@ DebugInformation::DebugInformation(CompilerType compiler_type, std::string const
     
     switch (compiler_type) {
         case Vasm:
-        case VasmDisk:
-            if (compiler_type == Vasm)
-                raw_ptr_ = ::compile_vasm(project_file.c_str());
-            else if (compiler_type == VasmDisk)
-                raw_ptr_ = ::compile_vasm_disk(project_file.c_str());
+            raw_ptr_ = ::compile_vasm(project_file.c_str());
             if (raw_ptr_ == nullptr)
                 throw std::runtime_error(std::string("Compilation error:\n") + z80aw_last_error());
             if (!debug_output(raw_ptr_, error_msg, sizeof error_msg)) {
@@ -337,6 +333,11 @@ std::vector<DebugInformation::Symbol> DebugInformation::symbols() const
 void DebugInformation::generate_image(std::string const& path) const
 {
     CHECKED(debug_generate_image(raw_ptr_, path.c_str()));
+}
+
+bool DebugInformation::stored_on_disk() const
+{
+    return debug_project_type(raw_ptr_) == PT_VASM_DISK;
 }
 
 }
