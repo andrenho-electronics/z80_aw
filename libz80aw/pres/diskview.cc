@@ -27,14 +27,18 @@ DiskDataType DiskView::data_type(uint16_t pos) const
         return { Unclassified, "Unclassified data" };
     
     if (block_number_ == 0) {
-        if (pos < 3 || (pos > 0x3e && pos < 0x1fe))
+        if (pos < 3 || (pos >= 0x3e && pos < 0x1fe))
             return { BootstrapCode, "Bootstrap code" };
-        else if (pos >= 0xb && pos < 0xd)
+        else if (pos >= 0x3 && pos < 0xb) {
+            char buf[9] = { 0 };
+            strncpy(buf, reinterpret_cast<char const*>(&data_[0x3]), 8);
+            return { VolumeLabel, std::string("Formatting OS: ") + buf };
+        } else if (pos >= 0xb && pos < 0xd)
             return { BytesPerSector, std::to_string(data_.at(0xb) | (data_.at(0xc) << 8)) + " bytes per sector" };
         else if (pos == 0xd)
             return { SectorsPerCluster, std::to_string(data_.at(0xd)) + " sectors per cluster" };
         else if (pos >= 0xe && pos < 0x10)
-            return { ReservedSectors, std::to_string(data_.at(0xb) | (data_.at(0xc) << 8)) + " reserved sectors" };
+            return { ReservedSectors, std::to_string(data_.at(0xe) | (data_.at(0xf) << 8)) + " reserved sectors" };
         else if (pos == 0x10)
             return { NumberOfFats, std::to_string(data_.at(0x10)) + " FAT copies" };
         else if (pos >= 0x11 && pos < 0x13)
@@ -43,7 +47,7 @@ DiskDataType DiskView::data_type(uint16_t pos) const
             return { NumberOfSectors, std::to_string(data_.at(0x13) | (data_.at(0x14) << 8)) + " sectors (if size < 32 MB)" };
         else if (pos == 0x15) {
             std::stringstream ss;
-            ss << std::hex << "Media type: 0x" << data_.at(0x10);
+            ss << "Media type: 0x" << std::hex << (int) data_.at(0x15);
             return { MediaDescriptor, ss.str() };
         } else if (pos >= 0x16 && pos < 0x18)
             return { SectorsPerFat, std::to_string(data_.at(0x16) | (data_.at(0x17) << 8)) + " sectors per FAT" };
@@ -56,19 +60,19 @@ DiskDataType DiskView::data_type(uint16_t pos) const
         else if (pos >= 0x20 && pos < 0x24)
             return { NumberOfSectors, std::to_string(data_.at(0x20) | (data_.at(0x21) << 8) | (data_.at(0x22) << 16) | (data_.at(0x23) << 24)) + " sectors (if size > 32 MB)" };
         else if (pos == 0x24)
-            return { DriveNumber, "Drive number " + std::to_string(data_.at(0x10)) };
+            return { DriveNumber, "Drive number " + std::to_string(data_.at(0x24)) };
         else if (pos >= 0x27 && pos < 0x2b) {
             std::stringstream ss;
-            ss << std::hex << "Media type: 0x" << (data_.at(0x27) | (data_.at(0x28) << 8) | (data_.at(0x29) << 16) | (data_.at(0x2a) << 24));
+            ss << std::hex << "Volume serial number: 0x" << (data_.at(0x27) | (data_.at(0x28) << 8) | (data_.at(0x29) << 16) | (data_.at(0x2a) << 24));
             return { VolumeSerialNumber, ss.str() };
         } else if (pos >= 0x2b && pos < 0x36) {
             char buf[12] = { 0 };
             strncpy(buf, reinterpret_cast<char const*>(&data_[0x2b]), 11);
-            return { VolumeLabel, buf };
+            return { VolumeLabel, std::string("Volume label: ") + buf };
         } else if (pos >= 0x36 && pos < 0x3e) {
             char buf[9] = { 0 };
             strncpy(buf, reinterpret_cast<char const*>(&data_[0x36]), 8);
-            return { FileSystemType, buf };
+            return { FileSystemType, std::string("Filesystem type: ") + buf };
         } else if (pos >= 0x1fe) {
             return { BootSectorSignature, "Boot sector signature" };
         }

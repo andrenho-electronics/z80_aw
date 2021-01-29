@@ -9,7 +9,7 @@ enum DataType {
     BootstrapCode, BootSectorSignature,
     BytesPerSector, SectorsPerCluster, ReservedSectors, NumberOfFats, MaxNumberOfRootEntries, NumberOfSectors,
     MediaDescriptor, SectorsPerFat, SectorsPerTrack, NumberOfHeads, HiddenSectors,
-    DriveNumber, VolumeSerialNumber, VolumeLabel, FileSystemType,
+    DriveNumber, VolumeSerialNumber, VolumeLabel, FileSystemType, FormattingOS,
 };
 
 struct DiskDataType {

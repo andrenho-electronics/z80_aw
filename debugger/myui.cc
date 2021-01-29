@@ -574,13 +574,17 @@ void MyUI::draw_disk_window()
         if (ImGui::Button("Update block"))
             d.update();
         
-        draw_disk_table(d);
+        auto hovered = draw_disk_table(d);
+        if (hovered.has_value())
+            ImGui::Text("%s", hovered->c_str());
     }
     ImGui::End();
 }
 
-void MyUI::draw_disk_table(DiskView& d) const
+std::optional<std::string> MyUI::draw_disk_table(DiskView& d) const
 {
+    std::optional<std::string> hovered = {};
+    
     static int tbl_flags = ImGuiTableFlags_BordersOuter
                            | ImGuiTableFlags_NoBordersInBody
                            | ImGuiTableFlags_RowBg
@@ -612,23 +616,23 @@ void MyUI::draw_disk_table(DiskView& d) const
             std::string ascii;
             for (int i = 0; i < 0x10; ++i) {
                 ImGui::TableSetColumnIndex(i + 1);
-                uint8_t byte =  d.data().at((line * 0x10) + i);
-                bool needs_pop = false;
-                /*
-                if (addr + i == p().pc()) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, pc_bg_color);
-                } else if (p().registers().has_value() && addr + i == p().registers().value().SP) {
-                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, sp_bg_color);
-                }
-                 */
-                if (byte == 0) {
+                uint8_t byte = d.data().at((line * 0x10) + i);
+                int pops = 0;
+                DiskDataType ddt = d.data_type(addr + i);
+                if (ddt.data_type != Unclassified) {
+                    ImVec4 color = ImColor::HSV((static_cast<int>(ddt.data_type) % 10) / 10.0f, 0.6f, 0.7f, 0.65f);
+                    ImGui::TableSetBgColor(ImGuiTableBgTarget_CellBg, ImGui::GetColorU32((ImVec4) color));
+                } else if (byte == 0) {
                     ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(ImColor(128, 128, 128)));
-                    needs_pop = true;
+                    ++pops;
                 }
                 ImGui::Text("%02X", byte);
-                if (needs_pop)
+                while (pops--)
                     ImGui::PopStyleColor();
                 ascii += (byte >= 32 && byte < 127) ? (char) byte : '.';
+                
+                if (ImGui::IsItemHovered())
+                    hovered = ddt.description;
             }
             
             // ascii
@@ -638,6 +642,8 @@ void MyUI::draw_disk_table(DiskView& d) const
         
         ImGui::EndTable();
     }
+    
+    return hovered;
 }
 
 void MyUI::draw_keypress_modal()

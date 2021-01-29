@@ -56,7 +56,7 @@ private:
     void draw_cpu();
     void draw_terminal();
     void draw_disk_window();
-    void draw_disk_table(DiskView& d) const;
+    std::optional<std::string> draw_disk_table(DiskView& d) const;
     void draw_keypress_modal();
     void draw_advanced();
     void draw_code_view();
