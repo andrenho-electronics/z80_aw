@@ -60,29 +60,4 @@ serial_recv_noblock()
         return 0;
 }
 
-/*
-void
-serial_print(char* buf)
-{
-    while (*buf != '\0')
-        serial_send(*buf++);
-}
-
-int
-serial_printf(const char* fmt, ...)
-{
-    va_list ap;
-    va_start(ap, fmt);
-
-    int sz = vsprintf(NULL, fmt, ap);
-    char* buf = malloc(sz + 1);
-    vsnprintf(buf, sz, fmt, ap);
-    serial_print(buf);
-    free(buf);
-
-    va_end(ap);
-    return 0;
-}
-*/
-
 // vim:ts=4:sts=4:sw=4:expandtab

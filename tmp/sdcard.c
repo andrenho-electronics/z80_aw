@@ -49,16 +49,6 @@ static uint8_t spi_send(uint8_t data)
     return r;
 }
 
-static void sd_send(uint8_t cmd, uint32_t arg, uint8_t crc)
-{
-    spi_send(cmd | 0x40);
-    spi_send((uint8_t)(arg >> 24));
-    spi_send((uint8_t)(arg >> 16));
-    spi_send((uint8_t)(arg >> 8));
-    spi_send((uint8_t)arg);
-    spi_send(crc | 0x1);
-}
-
 static uint8_t sd_recv()
 {
     uint8_t i = 0, r;
@@ -68,6 +58,39 @@ static uint8_t sd_recv()
             break;  // timeout
     }
     return r;
+}
+
+static uint8_t sd_send(uint8_t cmd, uint32_t arg, uint8_t crc)
+{
+    // enable card
+    spi_send(0xff);
+    CS_ENABLE();
+    spi_send(0xff);
+
+    // send command
+    spi_send(cmd | 0x40);
+    spi_send((uint8_t)(arg >> 24));
+    spi_send((uint8_t)(arg >> 16));
+    spi_send((uint8_t)(arg >> 8));
+    spi_send((uint8_t)arg);
+    spi_send(crc | 0x1);
+
+    // read response
+    uint8_t r = sd_recv();
+
+    // disable card
+    spi_send(0xff);
+    CS_DISABLE();
+    spi_send(0xff);
+
+    return r;
+}
+
+
+static uint8_t sd_send_app(uint8_t cmd, uint32_t arg, uint8_t crc)
+{
+    uint8_t r = sd_send(55, 0, 0);  // CMD55
+    return sd_send(cmd, arg, crc);
 }
 
 void sdcard_initialize()
@@ -85,21 +108,10 @@ void sdcard_initialize()
 
 uint8_t sdcard_set_spi_mode()
 {
-    // enable card
-    spi_send(0xff);
-    CS_ENABLE();
-    spi_send(0xff);
+    return sd_send(0, 0, 0x94);  // CMD0
+}
 
-    // send CMD0
-    sd_send(0x0, 0, 0x94);
-
-    // read response
-    uint8_t r = sd_recv();
-
-    // disable card
-    spi_send(0xff);
-    CS_DISABLE();
-    spi_send(0xff);
-
-    return r;
+uint8_t sdcard_init_process()
+{
+    return sd_send_app(41, 0x40000000, 0);
 }

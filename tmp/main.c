@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <avr/pgmspace.h>
+#include <util/delay.h>
 
 #include "serial.h"
 #include "sdcard.h"
@@ -19,6 +20,16 @@ int main()
     printf_P(PSTR("\r\nSD card set SPI mode (expected 1): "));
     uint8_t r = sdcard_set_spi_mode();
     printf_P(PSTR("%d\n\r"), r);
+
+    /*
+    r = 0xff;
+    // while (r != 0) {
+        printf_P(PSTR("\r\nSD card initialization process: "));
+        r = sdcard_init_process();
+        printf_P(PSTR("%d\n\r"), r);
+        _delay_ms(200);
+    // }
+    */
 
     for (;;);
 }

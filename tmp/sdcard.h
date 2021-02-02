@@ -6,5 +6,6 @@
 void    sdcard_setup();
 void    sdcard_initialize();
 uint8_t sdcard_set_spi_mode();
+uint8_t sdcard_init_process();
 
 #endif
