@@ -95,3 +95,42 @@ R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc)
     R1* rr = (R1*) &r;
     return *rr;
 }
+
+R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc)
+{
+    // enable card
+    sd_send_spi_byte(0xff);
+    sd_cs(true);
+    sd_send_spi_byte(0xff);
+
+    // send command
+    sd_send_spi_byte(cmd | 0x40);
+    sd_send_spi_byte((uint8_t)(args >> 24));
+    sd_send_spi_byte((uint8_t)(args >> 16));
+    sd_send_spi_byte((uint8_t)(args >> 8));
+    sd_send_spi_byte((uint8_t)args);
+    sd_send_spi_byte(crc | 0x1);
+
+    // read response
+    uint8_t r1 = sd_recv_spi_byte();
+    R1* rr1 = (R1*)&r1;
+    if (r1 > 1) {
+        R7 r7 = { 0 };
+        r7.r1 = *rr1;
+        return r7;
+    }
+    uint32_t ocr = 0;
+    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 24;
+    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 16;
+    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 8;
+    ocr |= sd_send_spi_byte(0xff);
+
+    // disable card
+    sd_send_spi_byte(0xff);
+    sd_cs(false);
+    sd_send_spi_byte(0xff);
+
+    R7 r7 = { *rr1, ocr };
+    R7* rr = (R7*) &r7;
+    return *rr;
+}

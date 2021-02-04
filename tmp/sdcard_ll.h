@@ -16,10 +16,7 @@ typedef struct __attribute__((packed)) {
 
 typedef struct __attribute__((packed)) {
     R1       r1;
-    uint8_t  cmd_version : 4;
-    uint16_t reserved    : 16;
-    uint8_t  voltage     : 4;
-    uint8_t  check       : 8;
+    uint32_t ocr;
 } R7;
 
 void    sd_setup();

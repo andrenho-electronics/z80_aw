@@ -8,8 +8,7 @@
 void    sdcard_setup();
 void    sdcard_initialize();
 R1      sdcard_set_spi_mode();
-/*
-uint8_t sdcard_init_process();
-*/
+R7      sdcard_if_cond();
+R1      sdcard_init_process();
 
 #endif
