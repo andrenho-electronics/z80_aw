@@ -1,5 +1,5 @@
 PROJECT=sdcard
-OBJECTS=main.o serial.o sdcard.o
+OBJECTS=main.o serial.o sdcard.o sdcard_ll.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -B 0.5 -V
 #FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal
@@ -7,7 +7,7 @@ MCU=atmega16
 F_CPU=16500000UL   # running at 16.5 Mhz
 
 CC=avr-gcc
-CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections
+CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections -DLOG=1
 
 all: ${PROJECT}.hex
 

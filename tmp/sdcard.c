@@ -1,9 +1,36 @@
 #include "sdcard.h"
 
-#define LOG_OUTPUT 1
+#include <util/delay.h>
+
+#define CMD0 0
+
+void sdcard_setup()
+{
+    sd_setup();
+}
+
+void sdcard_initialize()
+{
+    // power up card
+    sd_cs(false);
+    _delay_ms(1);
+    for (uint8_t i = 0; i < 10; ++i)
+        sd_send_spi_byte(0xff);
+    
+    // deselect SD card
+    sd_cs(false);
+    sd_send_spi_byte(0xff);
+}
+
+R1 sdcard_set_spi_mode()
+{
+    return sd_command_r1(CMD0, 0, 0x94);
+}
+
+/*
+// #define LOG_OUTPUT 1
 
 #include <avr/io.h>
-#include <util/delay.h>
 #ifdef LOG_OUTPUT
 #  include <stdio.h>
 #endif
@@ -90,6 +117,8 @@ static uint8_t sd_send(uint8_t cmd, uint32_t arg, uint8_t crc)
 static uint8_t sd_send_app(uint8_t cmd, uint32_t arg, uint8_t crc)
 {
     uint8_t r = sd_send(55, 0, 0);  // CMD55
+    if (r > 1)
+        return r;
     return sd_send(cmd, arg, crc);
 }
 
@@ -115,3 +144,4 @@ uint8_t sdcard_init_process()
 {
     return sd_send_app(41, 0x40000000, 0);
 }
+*/
