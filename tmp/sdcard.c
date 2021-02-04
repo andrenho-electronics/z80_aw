@@ -4,7 +4,9 @@
 
 #define CMD0   0
 #define CMD8   8
+#define CMD17  17
 #define CMD55  55
+#define CMD58  58
 #define ACMD41 41
 
 void sdcard_setup()
@@ -43,4 +45,14 @@ R1 sdcard_init_process()
         return r;
 
     return sd_command_r1(ACMD41, 0x40000000, 0);
+}
+
+R3 sdcard_get_info()
+{
+    return sd_command_r3(CMD58, 0, 0);
+}
+
+R1 sdcard_read_block(uint32_t block, uint8_t* data)
+{
+    return sd_command_read_block(CMD17, block, data);
 }

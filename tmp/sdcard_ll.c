@@ -5,11 +5,14 @@
 #  include <avr/pgmspace.h>
 #endif
 #include <avr/io.h>
+#include <util/delay.h>
 
 #define CS   PINB4
 #define MOSI PINB5
 #define MISO PINB6
 #define SCK  PINB7
+
+#define MAX_READ_ATTEMPTS 20
 
 void sd_setup()
 {
@@ -95,6 +98,41 @@ R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc)
     return r;
 }
 
+R3 sd_command_r3(uint8_t cmd, uint32_t args, uint8_t crc)
+{
+    // enable card
+    sd_send_spi_byte(0xff);
+    sd_cs(true);
+    sd_send_spi_byte(0xff);
+
+    // send command
+    sd_send_spi_byte(cmd | 0x40);
+    sd_send_spi_byte((uint8_t)(args >> 24));
+    sd_send_spi_byte((uint8_t)(args >> 16));
+    sd_send_spi_byte((uint8_t)(args >> 8));
+    sd_send_spi_byte((uint8_t)args);
+    sd_send_spi_byte(crc | 0x1);
+
+    // read response
+    R3 r3 = { .value = 0 };
+    r3.bytes[0] = sd_recv_spi_byte();
+    if (r3.bytes[0] > 1) {
+        return r3;
+    }
+
+    r3.bytes[1] = sd_send_spi_byte(0xff);
+    r3.bytes[2] = sd_send_spi_byte(0xff);
+    r3.bytes[3] = sd_send_spi_byte(0xff);
+    r3.bytes[4] = sd_send_spi_byte(0xff);
+
+    // disable card
+    sd_send_spi_byte(0xff);
+    sd_cs(false);
+    sd_send_spi_byte(0xff);
+
+    return r3;
+}
+
 R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc)
 {
     // enable card
@@ -128,4 +166,50 @@ R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc)
     sd_send_spi_byte(0xff);
 
     return r7;
+}
+
+R1 sd_command_read_block(uint8_t cmd, uint32_t block, uint8_t* data)
+{
+    // enable card
+    sd_send_spi_byte(0xff);
+    sd_cs(true);
+    sd_send_spi_byte(0xff);
+
+    // send command
+    sd_send_spi_byte(cmd | 0x40);
+    sd_send_spi_byte((uint8_t)(block >> 24));
+    sd_send_spi_byte((uint8_t)(block >> 16));
+    sd_send_spi_byte((uint8_t)(block >> 8));
+    sd_send_spi_byte((uint8_t)block);
+    sd_send_spi_byte(0x1);
+
+    // read response
+    R1 r = { .value = sd_recv_spi_byte() };
+    if (r.value != 0xff) {
+        uint8_t rr = 0;
+        for (int i = 0; i < MAX_READ_ATTEMPTS; ++i) {
+            rr = sd_send_spi_byte(0xff);
+            if (rr == 0xfe)
+                goto received;
+            _delay_ms(10);
+        }
+        return (R1) { .value = rr };
+    } else {
+        return r;
+    }
+
+received:
+    for (int i = 0; i < 512; ++i)
+        *data++ = sd_send_spi_byte(0xff);
+
+    // crc
+    sd_send_spi_byte(0xff);
+    sd_send_spi_byte(0xff);
+
+    // disable card
+    sd_send_spi_byte(0xff);
+    sd_cs(false);
+    sd_send_spi_byte(0xff);
+
+    return r;
 }

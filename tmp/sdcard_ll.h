@@ -51,6 +51,8 @@ uint8_t sd_send_spi_byte(uint8_t byte);
 uint8_t sd_recv_spi_byte();
 
 R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc);
+R3 sd_command_r3(uint8_t cmd, uint32_t args, uint8_t crc);
 R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc);
+R1 sd_command_read_block(uint8_t cmd, uint32_t block, uint8_t* data);
 
 #endif

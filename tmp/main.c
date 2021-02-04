@@ -5,6 +5,8 @@
 #include "serial.h"
 #include "sdcard.h"
 
+#define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
+
 static void print_r1(R1 r1)
 {
     printf("(%02X) ", r1.value);
@@ -41,20 +43,21 @@ static void print_r3(R3 r3)
 {
     print_r1((R1) { r3.r3.r1 });
     printf_P(PSTR(", "));
-    printf_P(PSTR("(%lX) "), r3.r3.ocr);
-#define BIT(n, text) if (r3.r3.ocr & ((uint32_t) 1 << n)) printf_P(PSTR(text));
+    uint32_t ocr = reverse_bytes_32(r3.r3.ocr);
+    printf_P(PSTR("(%lX) "), ocr);
+#define BIT(n, text) if (ocr & ((uint32_t) 1 << n)) printf_P(PSTR(text));
     BIT(31, "card_busy ");
-    BIT(30, "card_capacity_status ");
+    BIT(30, "high_capacity_card ");
     BIT(29, "uhs_ii_card_status ");
     BIT(24, "can_switch_to_1.8v ");
-    BIT(23, "3.5_3.6v ");
-    BIT(22, "3.4_3.5v ");
-    BIT(21, "3.3_3.4v ");
-    BIT(19, "3.2_3.3v ");
-    BIT(18, "3.1_3.2v ");
-    BIT(17, "3.0_3.1v ");
-    BIT(16, "2.9_3.0v ");
     BIT(15, "2.8_2.9v ");
+    BIT(16, "2.9_3.0v ");
+    BIT(17, "3.0_3.1v ");
+    BIT(18, "3.1_3.2v ");
+    BIT(19, "3.2_3.3v ");
+    BIT(21, "3.3_3.4v ");
+    BIT(22, "3.4_3.5v ");
+    BIT(23, "3.5_3.6v ");
 #undef BIT
 }
 
@@ -96,5 +99,21 @@ int main()
     for (;;);
 done:
     printf_P(PSTR("Card initialized.\n\r"));
+
+    printf_P(PSTR("SD card information: "));
+    print_r3(sdcard_get_info());
+    printf_P(PSTR(".\n\r"));
+
+    printf_P(PSTR("Reading SD card block: "));
+    uint8_t data[512] = { 0xff };
+    print_r1(sdcard_read_block(0, data));
+    printf_P(PSTR(".\n\r"));
+    for (int i = 0; i < 0x20; ++i) {
+        for (int j = 0; j < 0x10; ++j) {
+            printf_P(PSTR("%02X "), data[i * 0x10 + j]);
+        }
+        printf_P(PSTR("\r\n"));
+    }
+
     for (;;);
 }
