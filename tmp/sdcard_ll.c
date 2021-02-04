@@ -13,6 +13,7 @@
 #define SCK  PINB7
 
 #define MAX_READ_ATTEMPTS 20
+#define MAX_WRITE_ATTEMPTS 100
 
 void sd_setup()
 {
@@ -231,6 +232,21 @@ R1 sd_command_write_block(uint8_t cmd, uint32_t block, uint8_t* data)
 
     // read response
     R1 r = { .value = sd_recv_spi_byte() };
+    if (r.value == 0x0) {
+        spi_send_spi_byte(0xfe);  // start block
+        for (int i = 0; i < 512; ++i)
+            spi_send_spi_byte(data[i]);
+        uint8_t rr;
+        for (int i = 0; i < MAX_WRITE_ATTEMPTS; ++i)
+            if ((rr = spi_send_spi_byte(0xff)) != 0xff)
+                goto ok;
+        return { .value = 0xff };
+ok:
+        if (rr & 0x1f == 0x05) {  // data accepted
+            // wait for write to finish           
+            
+        }
+    }
 
     // disable card
     sd_send_spi_byte(0xff);

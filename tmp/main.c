@@ -104,12 +104,14 @@ done:
     print_r3(sdcard_get_info());
     printf_P(PSTR(".\n\r"));
 
+    /*
     uint8_t data[512];
     for (int i = 0; i < 512; ++i)
         data[i] = i & 0xff;
     printf_P(PSTR("Writing SD card block: "));
     print_r1(sdcard_write_block(0, data));
     printf_P(PSTR(".\n\r"));
+    */
 
     printf_P(PSTR("Reading SD card block: "));
     for (int i = 0; i < 512; ++i)
