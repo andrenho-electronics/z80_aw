@@ -7,37 +7,42 @@
 
 static void print_r1(R1 r1)
 {
-    uint8_t value = *(uint8_t*)&r1;
-    printf("(%02X) ", value);
-    if (value == 0xff) {
+    printf("(%02X) ", r1.value);
+    if (r1.value == 0xff) {
         printf_P(PSTR("general error "));
         return;
     }
-    if (r1.idle)
+    if (r1.r1.idle)
         printf_P(PSTR("idle "));
-    if (r1.erase_reset)
+    if (r1.r1.erase_reset)
         printf_P(PSTR("erase_reset_err "));
-    if (r1.illegal_cmd)
+    if (r1.r1.illegal_cmd)
         printf_P(PSTR("illegal_cmd "));
-    if (r1.crc_error)
+    if (r1.r1.crc_error)
         printf_P(PSTR("crc_error "));
-    if (r1.erase_seq)
+    if (r1.r1.erase_seq)
         printf_P(PSTR("erase_seq_err "));
-    if (r1.address_err)
+    if (r1.r1.address_err)
         printf_P(PSTR("address_err "));
-    if (r1.param_err)
+    if (r1.r1.param_err)
         printf_P(PSTR("param_err "));
-    if (value == 0)
+    if (r1.value == 0)
         printf_P(PSTR("ok "));
     printf("\b");
 }
 
 static void print_r7(R7 r7)
 {
-    print_r1(r7.r1);
+    print_r1((R1) { r7.r7.r1 });
+    printf_P(PSTR(" cmd_ver: %X, voltage: %X, check: %X "), r7.r7.cmd_version, r7.r7.voltage, r7.r7.check);
+}
+
+static void print_r3(R3 r3)
+{
+    print_r1((R1) { r3.r3.r1 });
     printf_P(PSTR(", "));
-    printf_P(PSTR("(%lX) "), r7.ocr);
-#define BIT(n, text) if (r7.ocr & ((uint32_t) 1 << n)) printf_P(PSTR(text));
+    printf_P(PSTR("(%lX) "), r3.r3.ocr);
+#define BIT(n, text) if (r3.r3.ocr & ((uint32_t) 1 << n)) printf_P(PSTR(text));
     BIT(31, "card_busy ");
     BIT(30, "card_capacity_status ");
     BIT(29, "uhs_ii_card_status ");

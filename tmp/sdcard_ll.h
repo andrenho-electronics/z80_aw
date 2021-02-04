@@ -12,11 +12,36 @@ typedef struct __attribute__((packed)) {
     bool erase_seq   : 1;
     bool address_err : 1;
     bool param_err   : 1;
-} R1;
+} R1_Reg;
 
 typedef struct __attribute__((packed)) {
-    R1       r1;
+    R1_Reg   r1;
     uint32_t ocr;
+} R3_Reg;
+
+typedef struct __attribute__((packed)) {
+    R1_Reg   r1;
+    uint8_t  cmd_version : 4;
+    uint16_t reserved    : 16;
+    uint8_t  voltage     : 4;
+    uint8_t  check       : 8;
+} R7_Reg;
+
+typedef union {
+    R1_Reg  r1;
+    uint8_t value;
+} R1;
+
+typedef union {
+    R3_Reg   r3;
+    uint8_t  bytes[5];
+    uint64_t value;
+} R3;
+
+typedef union {
+    R7_Reg   r7;
+    uint8_t  bytes[5];
+    uint64_t value;
 } R7;
 
 void    sd_setup();

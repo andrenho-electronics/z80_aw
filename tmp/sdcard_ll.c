@@ -85,15 +85,14 @@ R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc)
     sd_send_spi_byte(crc | 0x1);
 
     // read response
-    uint8_t r = sd_recv_spi_byte();
+    R1 r = { .value = sd_recv_spi_byte() };
 
     // disable card
     sd_send_spi_byte(0xff);
     sd_cs(false);
     sd_send_spi_byte(0xff);
 
-    R1* rr = (R1*) &r;
-    return *rr;
+    return r;
 }
 
 R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc)
@@ -112,25 +111,21 @@ R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc)
     sd_send_spi_byte(crc | 0x1);
 
     // read response
-    uint8_t r1 = sd_recv_spi_byte();
-    R1* rr1 = (R1*)&r1;
-    if (r1 > 1) {
-        R7 r7 = { 0 };
-        r7.r1 = *rr1;
+    R7 r7 = { .value = 0 };
+    r7.bytes[0] = sd_recv_spi_byte();
+    if (r7.bytes[0] > 1) {
         return r7;
     }
-    uint32_t ocr = 0;
-    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 24;
-    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 16;
-    ocr |= (uint32_t) sd_send_spi_byte(0xff) << 8;
-    ocr |= sd_send_spi_byte(0xff);
+
+    r7.bytes[1] = sd_send_spi_byte(0xff);
+    r7.bytes[2] = sd_send_spi_byte(0xff);
+    r7.bytes[3] = sd_send_spi_byte(0xff);
+    r7.bytes[4] = sd_send_spi_byte(0xff);
 
     // disable card
     sd_send_spi_byte(0xff);
     sd_cs(false);
     sd_send_spi_byte(0xff);
 
-    R7 r7 = { *rr1, ocr };
-    R7* rr = (R7*) &r7;
-    return *rr;
+    return r7;
 }
