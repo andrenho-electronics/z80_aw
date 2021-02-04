@@ -5,6 +5,7 @@
 #define CMD0   0
 #define CMD8   8
 #define CMD17  17
+#define CMD24  24
 #define CMD55  55
 #define CMD58  58
 #define ACMD41 41
@@ -55,4 +56,9 @@ R3 sdcard_get_info()
 R1 sdcard_read_block(uint32_t block, uint8_t* data)
 {
     return sd_command_read_block(CMD17, block, data);
+}
+
+R1 sdcard_write_block(uint32_t block, uint8_t* data)
+{
+    return sd_command_write_block(CMD24, block, data);
 }

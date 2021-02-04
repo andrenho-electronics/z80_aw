@@ -213,3 +213,29 @@ received:
 
     return r;
 }
+
+R1 sd_command_write_block(uint8_t cmd, uint32_t block, uint8_t* data)
+{
+    // enable card
+    sd_send_spi_byte(0xff);
+    sd_cs(true);
+    sd_send_spi_byte(0xff);
+
+    // send command
+    sd_send_spi_byte(cmd | 0x40);
+    sd_send_spi_byte((uint8_t)(block >> 24));
+    sd_send_spi_byte((uint8_t)(block >> 16));
+    sd_send_spi_byte((uint8_t)(block >> 8));
+    sd_send_spi_byte((uint8_t)block);
+    sd_send_spi_byte(0x1);
+
+    // read response
+    R1 r = { .value = sd_recv_spi_byte() };
+
+    // disable card
+    sd_send_spi_byte(0xff);
+    sd_cs(false);
+    sd_send_spi_byte(0xff);
+
+    return r;
+}

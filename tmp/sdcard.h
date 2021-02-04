@@ -12,5 +12,6 @@ R7      sdcard_if_cond();
 R1      sdcard_init_process();
 R3      sdcard_get_info();
 R1      sdcard_read_block(uint32_t block, uint8_t* data);
+R1      sdcard_write_block(uint32_t block, uint8_t* data);
 
 #endif

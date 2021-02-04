@@ -54,5 +54,6 @@ R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc);
 R3 sd_command_r3(uint8_t cmd, uint32_t args, uint8_t crc);
 R7 sd_command_r7(uint8_t cmd, uint32_t args, uint8_t crc);
 R1 sd_command_read_block(uint8_t cmd, uint32_t block, uint8_t* data);
+R1 sd_command_write_block(uint8_t cmd, uint32_t block, uint8_t* data);
 
 #endif
