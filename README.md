@@ -7,7 +7,7 @@ This project is a homemade Z80 computer. It consist of 4 boards:
 3. Motherboard
 4. Peripherals (I/O)
 
-## Computer
+# Hardware
 
 The computer is a Z80 processor linked to a 32k ROM memory IC, and a 32k RAM memory IC.
 
@@ -87,3 +87,33 @@ Pinout:
 ## Architecture
 
 ![Architecture](images/architecture.png)
+
+# Programming
+
+- The CPU is a **Z80 processor** running at 6 Mhz.
+- There **64 kB of RAM** that can be fully used.
+  - There is no memory map. All communication with other devices happens through IN/OUT operations in Z80.
+- **IN** operations:
+  - *0x1*: returns last key pressed
+  - *0x2*: returns last SD card stage (see `enum SDCardStage` in sdcard.h)
+  - *0x3*: returns last SD card response (see ![R1 response](http://elm-chan.org/docs/mmc/i/cresp.png))
+- **OUT** operations:
+  - *0x0*: write character on screen
+  - *0x1*: set register SDRD (low byte)
+  - *0x2*: set register SDRD (high byte) and perform a 512 byte read on the SD card
+  - *0x3*: set register SDWR (low byte)
+  - *0x4*: set register SDWR (high byte) and perform a 512 byte write on the SD card
+
+## SD Card operations
+
+The registers **SDRD** and **SDWR** can be set by using IN/OUT operations in Z80. They are used to read from/write to
+the SD Card, respectively.
+
+They will point to a position in the RAM with the following structure:
+
+| Byte | |
+| `0..3` | Disk block where data will be read/written      |
+| `4..5` | RAM address where the data will be written/read |
+| `6..7` | Number of blocks to be read/written             |
+
+IN operations *0x2* and *0x3* can be used to read the last card status and errors.
