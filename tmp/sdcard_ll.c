@@ -29,6 +29,7 @@ void sd_setup()
 
 void sd_cs(bool enabled)
 {
+    sd_send_spi_byte(0xff);
     if (enabled) {
 #ifdef LOG
         printf_P(PSTR("\e[0;32m^\e[0m"));
@@ -40,6 +41,7 @@ void sd_cs(bool enabled)
 #endif
         PORTB |= (1 << CS);
     }
+    sd_send_spi_byte(0xff);
 }
 
 uint8_t sd_send_spi_byte(uint8_t byte)
@@ -73,6 +75,17 @@ uint8_t sd_recv_spi_byte()
     return r;
 }
 
+void sd_command(uint8_t cmd, uint32_t args, uint8_t crc)
+{
+    sd_send_spi_byte(cmd | 0x40);
+    sd_send_spi_byte((uint8_t)(args >> 24));
+    sd_send_spi_byte((uint8_t)(args >> 16));
+    sd_send_spi_byte((uint8_t)(args >> 8));
+    sd_send_spi_byte((uint8_t)args);
+    sd_send_spi_byte(crc | 0x1);
+}
+
+/*
 R1 sd_command_r1(uint8_t cmd, uint32_t args, uint8_t crc)
 {
     // enable card
@@ -244,7 +257,9 @@ R1 sd_command_write_block(uint8_t cmd, uint32_t block, uint8_t* data)
 ok:
         if (rr & 0x1f == 0x05) {  // data accepted
             // wait for write to finish           
-            
+            for (int i = 0; i < MAX_WRITE_ATTEMPTS; ++i)
+                if ((rr = spi_send_spi_byte(0xff)) != 0xff)
+                    goto ok;
         }
     }
 
@@ -255,3 +270,4 @@ ok:
 
     return r;
 }
+*/

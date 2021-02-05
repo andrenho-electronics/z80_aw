@@ -5,6 +5,27 @@
 #include "serial.h"
 #include "sdcard.h"
 
+static void print_last_response()
+{
+    printf_P(PSTR("%02X %02X\n"), sdcard_last_stage(), sdcard_last_response().value);
+}
+
+int main()
+{
+    serial_init();
+
+    printf_P(PSTR("\e[1;1H\e[2J"));  // clear screen
+
+    printf_P(PSTR("Initializing SD card... "));
+    bool ok = sdcard_init();
+    print_last_response();
+    if (!ok)
+        for(;;);
+
+    for(;;);
+}
+
+/*
 #define reverse_bytes_32(num) ( ((num & 0xFF000000) >> 24) | ((num & 0x00FF0000) >> 8) | ((num & 0x0000FF00) << 8) | ((num & 0x000000FF) << 24) )
 
 static void print_r1(R1 r1)
@@ -104,14 +125,12 @@ done:
     print_r3(sdcard_get_info());
     printf_P(PSTR(".\n\r"));
 
-    /*
     uint8_t data[512];
     for (int i = 0; i < 512; ++i)
         data[i] = i & 0xff;
     printf_P(PSTR("Writing SD card block: "));
     print_r1(sdcard_write_block(0, data));
     printf_P(PSTR(".\n\r"));
-    */
 
     printf_P(PSTR("Reading SD card block: "));
     for (int i = 0; i < 512; ++i)
@@ -127,3 +146,4 @@ done:
 
     for (;;);
 }
+*/
