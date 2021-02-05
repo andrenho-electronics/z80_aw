@@ -12,9 +12,6 @@
 #define MISO PINB6
 #define SCK  PINB7
 
-#define MAX_READ_ATTEMPTS 20
-#define MAX_WRITE_ATTEMPTS 100
-
 void sd_setup()
 {
     // output pins

@@ -7,7 +7,7 @@ MCU=atmega16
 F_CPU=16500000UL   # running at 16.5 Mhz
 
 CC=avr-gcc
-CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections -DLOG=1
+CPPFLAGS=-std=c11 -Wall -Wextra -Os -DF_CPU=${F_CPU} -mmcu=${MCU} -ffunction-sections -fdata-sections
 
 all: ${PROJECT}.hex
 

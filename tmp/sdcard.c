@@ -10,6 +10,9 @@
 #define CMD58  58
 #define ACMD41 41
 
+#define MAX_READ_ATTEMPTS 20
+#define MAX_WRITE_ATTEMPTS 100
+
 static SDCardStage last_stage = SD_NOT_INITIALIZED;
 static R1          last_response = { .value = 0xff };
 
@@ -118,6 +121,46 @@ bool sdcard_init()
         _delay_ms(50);
     }
     return false;
+}
+
+bool sdcard_read_block(uint32_t block, void(*rd)(uint16_t idx, uint8_t byte, void* data), void* data)
+{
+    sd_cs(true);
+       
+    // send read command
+    sd_command(CMD17, block, 0);
+    R1 r = { .value = sd_recv_spi_byte() };
+    if (r.value != 0) {
+        sd_cs(false);
+        sdcard_set_last_status(SD_READ_REJECTED, r);
+        return false;
+    }
+
+    // read data
+    uint8_t rr = 0;
+    for (int i = 0; i < MAX_READ_ATTEMPTS; ++i) {
+        rr = sd_send_spi_byte(0xff);
+        if (rr == 0xfe)
+            goto read_data;
+        _delay_ms(10);
+    }
+
+    // read timeout
+    sd_cs(false);
+    sdcard_set_last_status(SD_READ_TIMEOUT, r);
+    return false;
+
+read_data:
+    for (int i = 0; i < 512; ++i)
+        rd(i, sd_send_spi_byte(0xff), data);
+
+    // crc
+    sd_send_spi_byte(0xff);
+    sd_send_spi_byte(0xff);
+
+    sdcard_set_last_status(SD_READ_OK, r);
+    sd_cs(false);
+    return true;
 }
 
 /*

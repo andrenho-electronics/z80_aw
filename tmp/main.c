@@ -5,9 +5,15 @@
 #include "serial.h"
 #include "sdcard.h"
 
+static void print_byte(uint16_t idx, uint8_t byte, void* data)
+{
+    (void) idx; (void) data;
+    printf_P(PSTR("%02X "), byte);
+}
+
 static void print_last_response()
 {
-    printf_P(PSTR("%02X %02X\n"), sdcard_last_stage(), sdcard_last_response().value);
+    printf_P(PSTR("%02X %02X\r\n"), sdcard_last_stage(), sdcard_last_response().value);
 }
 
 int main()
@@ -21,6 +27,15 @@ int main()
     print_last_response();
     if (!ok)
         for(;;);
+
+    for (int i = 0; i < 2; ++i) {
+        printf_P(PSTR("Reading from SD card (block %d)... "), i);
+        ok = sdcard_read_block(i, print_byte, NULL);
+        printf_P(PSTR("\r\nResponse: "));
+        print_last_response();
+        if (!ok)
+            for (;;);
+    }
 
     for(;;);
 }

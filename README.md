@@ -98,7 +98,7 @@ Pinout:
 - **IN** operations:
   - **0x1**: returns last key pressed
   - **0x2**: returns last SD card stage (see `enum SDCardStage` in sdcard.h)
-  - **0x3**: returns last SD card response 
+  - **0x3**: returns last SD card response (R1)
 
 ![R1 response](http://elm-chan.org/docs/mmc/i/cresp.png)
 
