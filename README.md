@@ -96,17 +96,18 @@ Pinout:
   - There is no memory map. All communication with other devices happens through IN/OUT operations in Z80.
 
 - **IN** operations:
-  - *0x1*: returns last key pressed
-  - *0x2*: returns last SD card stage (see `enum SDCardStage` in sdcard.h)
-  - *0x3*: returns last SD card response 
+  - **0x1**: returns last key pressed
+  - **0x2**: returns last SD card stage (see `enum SDCardStage` in sdcard.h)
+  - **0x3**: returns last SD card response 
+
 ![R1 response](http://elm-chan.org/docs/mmc/i/cresp.png)
 
 - **OUT** operations:
-  - *0x0*: write character on screen
-  - *0x1*: set register SDRD (low byte)
-  - *0x2*: set register SDRD (high byte) and perform a 512 byte read on the SD card
-  - *0x3*: set register SDWR (low byte)
-  - *0x4*: set register SDWR (high byte) and perform a 512 byte write on the SD card
+  - **0x0**: write character on screen
+  - **0x1**: set register SDRD (low byte)
+  - **0x2**: set register SDRD (high byte) and perform a 512 byte read on the SD card
+  - **0x3**: set register SDWR (low byte)
+  - **0x4**: set register SDWR (high byte) and perform a 512 byte write on the SD card
 
 ## SD Card operations
 
@@ -121,4 +122,4 @@ They will point to a position in the RAM with the following structure:
 | `4..5` | RAM address where the data will be written/read |
 | `6..7` | Number of blocks to be read/written             |
 
-IN operations *0x2* and *0x3* can be used to read the last card status and errors.
+IN operations **0x2** and **0x3** can be used to read the last card status and errors.
