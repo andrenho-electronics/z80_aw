@@ -91,12 +91,16 @@ Pinout:
 # Programming
 
 - The CPU is a **Z80 processor** running at 6 Mhz.
+
 - There **64 kB of RAM** that can be fully used.
   - There is no memory map. All communication with other devices happens through IN/OUT operations in Z80.
+
 - **IN** operations:
   - *0x1*: returns last key pressed
   - *0x2*: returns last SD card stage (see `enum SDCardStage` in sdcard.h)
-  - *0x3*: returns last SD card response (see ![R1 response](http://elm-chan.org/docs/mmc/i/cresp.png))
+  - *0x3*: returns last SD card response 
+![R1 response](http://elm-chan.org/docs/mmc/i/cresp.png)
+
 - **OUT** operations:
   - *0x0*: write character on screen
   - *0x1*: set register SDRD (low byte)
@@ -112,6 +116,7 @@ the SD Card, respectively.
 They will point to a position in the RAM with the following structure:
 
 | Byte | |
+|------|-|
 | `0..3` | Disk block where data will be read/written      |
 | `4..5` | RAM address where the data will be written/read |
 | `6..7` | Number of blocks to be read/written             |
