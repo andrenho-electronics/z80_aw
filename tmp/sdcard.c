@@ -130,9 +130,10 @@ bool sdcard_read_block(uint32_t block, void(*rd)(uint16_t idx, uint8_t byte, voi
     // send read command
     sd_command(CMD17, block, 0);
     R1 r = { .value = sd_recv_spi_byte() };
+    last_response = r;
     if (r.value != 0) {
         sd_cs(false);
-        sdcard_set_last_status(SD_READ_REJECTED, r);
+        last_stage = SD_READ_REJECTED;
         return false;
     }
 
@@ -147,7 +148,7 @@ bool sdcard_read_block(uint32_t block, void(*rd)(uint16_t idx, uint8_t byte, voi
 
     // read timeout
     sd_cs(false);
-    sdcard_set_last_status(SD_READ_TIMEOUT, r);
+    last_stage = SD_READ_TIMEOUT;
     return false;
 
 read_data:
@@ -158,7 +159,66 @@ read_data:
     sd_send_spi_byte(0xff);
     sd_send_spi_byte(0xff);
 
-    sdcard_set_last_status(SD_READ_OK, r);
+    last_stage = SD_READ_OK;
+    sd_cs(false);
+    return true;
+}
+
+bool sdcard_write_block(uint32_t block, uint8_t(*wd)(uint16_t idx, void* data), void* data)
+{
+    sd_cs(true);
+       
+    // send read command
+    sd_command(CMD24, block, 0);
+    R1 r = { .value = sd_recv_spi_byte() };
+    last_response = r;
+    if (r.value != 0) {
+        sd_cs(false);
+        last_stage = SD_WRITE_REJECTED;
+        return false;
+    }
+
+    // write data to card
+    sd_send_spi_byte(0xfe);
+    for (uint16_t i = 0; i < 512; ++i)
+        sd_send_spi_byte(wd(i, data));
+
+    // wait for a response
+    uint8_t rr = 0;
+    for (int i = 0; i < MAX_WRITE_ATTEMPTS; ++i) {
+        rr = sd_send_spi_byte(0xff);
+        if (rr != 0xff)
+            goto response_received;
+        _delay_ms(10);
+    }
+
+    // response timeout
+    sd_cs(false);
+    last_stage = SD_WRITE_TIMEOUT;
+    return false;
+
+response_received:
+    if ((rr & 0x1f) != 0x5) {
+        sd_cs(false);
+        last_stage = SD_WRITE_DATA_REJECTED;
+        return false;
+    }
+
+    // wait for write to finish
+    for (int i = 0; i < MAX_WRITE_ATTEMPTS; ++i) {
+        rr = sd_send_spi_byte(0xff);
+        if (rr != 0x0)
+            goto response_data_received;
+        _delay_ms(10);
+    }
+
+    // response timeout
+    sd_cs(false);
+    last_stage = SD_WRITE_DATA_TIMEOUT;
+    return false;
+
+response_data_received:
+    last_stage = SD_WRITE_OK;
     sd_cs(false);
     return true;
 }

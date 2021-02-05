@@ -11,6 +11,12 @@ static void print_byte(uint16_t idx, uint8_t byte, void* data)
     printf_P(PSTR("%02X "), byte);
 }
 
+static uint8_t data_to_write(uint16_t idx, void* data)
+{
+    (void) data;
+    return (idx + 5) & 0xff;
+}
+
 static void print_last_response()
 {
     printf_P(PSTR("%02X %02X\r\n"), sdcard_last_stage(), sdcard_last_response().value);
@@ -27,6 +33,13 @@ int main()
     print_last_response();
     if (!ok)
         for(;;);
+
+    printf_P(PSTR("Writing to SD card (block 1)... "));
+    ok = sdcard_write_block(1, data_to_write, NULL);
+    printf_P(PSTR("\r\nResponse: "));
+    print_last_response();
+    if (!ok)
+        for (;;);
 
     for (int i = 0; i < 2; ++i) {
         printf_P(PSTR("Reading from SD card (block %d)... "), i);
