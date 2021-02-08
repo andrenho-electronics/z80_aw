@@ -1,22 +1,23 @@
 # z80_aw
 
-This project is a homemade Z80 computer. It consist of 4 boards:
+This project is a homemade Z80 computer. It consist of 5 boards:
 
 1. Computer
 2. Controller / debugger
 3. Motherboard
-4. Peripherals (I/O)
+4. Storage controller
+5. Video/audio card (not built yet)
 
 # Computer
 
-The computer is a Z80 processor linked to a 32k ROM memory IC, and a 32k RAM memory IC.
+The computer is a Z80 processor linked to two 32k RAM memory ICs.
 
 ![Computer schematic](images/Computer.png)
 ![Computer](images/z80.jpg)
 
 ## Controller
 
-The controller allows provides a serial interface that allows the circuit to be controlled by a modern computer. It also allows a modern computer to server as a terminal (video and keyboard).
+The controller allows provides a serial interface that allows the circuit to be debugged by a modern computer. It also allows a modern computer to server as a terminal (video and keyboard).
 
 ![Controller schematic](images/Controller.png)
 ![Controller](images/z80_controller.jpg)
@@ -62,7 +63,7 @@ Pinout:
 25 - D6
 26 - D7
 27 - X0 (unused for now)
-28 - X1 (unused for now)
+28 - SD_CS (activate SD card)
 29 - BUSACK
 30 - BUSREQ
 31 - NMI
