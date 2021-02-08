@@ -7,11 +7,12 @@ This project is a homemade Z80 computer. It consist of 4 boards:
 3. Motherboard
 4. Peripherals (I/O)
 
-# Hardware
+# Computer
 
 The computer is a Z80 processor linked to a 32k ROM memory IC, and a 32k RAM memory IC.
 
-![Controller](images/Computer.png)
+![Computer schematic](images/Computer.png)
+![Computer](images/z80.jpg)
 
 ## Controller
 
