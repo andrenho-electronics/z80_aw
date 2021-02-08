@@ -8,6 +8,8 @@ This project is a homemade Z80 computer. It consist of 5 boards:
 4. Storage controller
 5. Video/audio card (not built yet)
 
+![Z80AW](images/z80aw.jpg)
+
 # Computer
 
 The computer is a Z80 processor linked to two 32k RAM memory ICs.
