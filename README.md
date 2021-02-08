@@ -30,6 +30,8 @@ Connecting to the debugger: FTDI driver must be installed
 
 The motherboard simply connects rows of pins.
 
+![Motherboard](images/motherboard.jpg)
+
 Pinout:
 
 ```
@@ -84,6 +86,11 @@ Pinout:
 ```
 
 ![Controller](images/Motherboard.png)
+
+## Storage controller
+
+![SD card schematic](images/sdcard.png)
+![SD card](images/sdcard.jpg)
 
 ## Architecture
 
