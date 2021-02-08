@@ -36,6 +36,7 @@
 #define Z_WRITE_DISK        0xf9   // [b0] [b1] [b2] [bytes..] -> [Status]   (b = block number)
 #define Z_HAS_DISK          0xfa   // -> [Z_OK / Z_NO_DISK]
 #define Z_UPDATE_DISK       0xfb   // [path (zero terminated)] -> [Z_OK / Z_NO_DISK / Z_EMULATOR_ONLY]
+#define Z_DISK_LAST_STATUS  0xfc   // -> Z_OK STAGE LAST_RESPONSE
 
 // responses
 

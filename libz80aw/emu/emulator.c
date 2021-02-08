@@ -41,6 +41,7 @@ FILE*    disk_image_file = NULL;
 size_t   disk_image_size = 0;
 uint16_t read_disk_register = 0;
 uint16_t write_disk_register = 0;
+uint8_t  disk_last_stage = 0xff;
 
 #define DEVICE_VIDEO          0x0
 #define DEVICE_KEYBOARD       0x1
@@ -704,8 +705,10 @@ bool command_loop()
                 send(Z_OK);
                 for (int i = 0; i < 512; ++i)
                     send(buf[i]);
+                disk_last_stage = 0x20;
             } else {
                 send(Z_NO_DISK);
+                disk_last_stage = 0xff;
             }
             break;
         case Z_WRITE_DISK:
@@ -719,8 +722,10 @@ bool command_loop()
                     fwrite(buf, 512, 1, disk_image_file);
                 }
                 send(Z_OK);
+                disk_last_stage = 0x30;
             } else {
                 send(Z_NO_DISK);
+                disk_last_stage = 0xff;
             }
             break;
         case Z_UPDATE_DISK: {
@@ -729,11 +734,19 @@ bool command_loop()
                 do {
                     buf[i++] = recv();
                 } while (buf[i-1] != '\0');
-                if (update_disk(buf))
+                if (update_disk(buf)) {
                     send(Z_OK);
-                else
+                    disk_last_stage = 0x0;
+                } else {
                     send(Z_NO_DISK);
+                    disk_last_stage = 0xff;
+                }
             }
+            break;
+        case Z_DISK_LAST_STATUS:
+            send(Z_OK);
+            send(disk_last_stage);
+            send(0x0);
             break;
         default:
             fprintf(stderr, "emulator: Invalid command 0x%02X\n", c);
