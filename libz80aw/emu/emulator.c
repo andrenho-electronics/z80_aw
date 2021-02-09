@@ -250,7 +250,7 @@ bool update_disk(const char* filename)
         fseek(disk_image_file, 0L, SEEK_END);
         disk_image_size = ftell(disk_image_file);
         disk_image_path = strdup(filename);
-        disk_last_stage = SD_INIT;
+        disk_last_stage = SD_WRITE_OK;
     }
  
     ResetZ80(&z80);
@@ -740,7 +740,6 @@ bool command_loop()
                 } while (buf[i-1] != '\0');
                 if (update_disk(buf)) {
                     send(Z_OK);
-                    disk_last_stage = SD_INIT;
                 } else {
                     send(Z_NO_DISK);
                     disk_last_stage = SD_NOT_INITIALIZED;

@@ -225,6 +225,13 @@ void update_disk(std::string const& path)
     CHECKED(z80aw_update_disk(path.c_str()));
 }
 
+SDCardStatus disk_status()
+{
+    SDCardStatus status;
+    CHECKED(z80aw_disk_status(&status.stage, &status.status));
+    return status;
+}
+
 //
 // DEBUG INFORMATION
 //

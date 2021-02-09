@@ -13,6 +13,7 @@ bool DiskView::is_connected() const
 void DiskView::update()
 {
     data_ = z80aw::read_disk_block(block_number_);
+    last_status_ = z80aw::disk_status();
 }
 
 void DiskView::go_to_block(uint32_t block)

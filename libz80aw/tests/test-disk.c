@@ -73,7 +73,7 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
     ASSERT("Get disk status", z80aw_disk_status(&disk_stage, &disk_status) == 0);
-    ASSERT("Disk stage == SD_INIT", disk_stage == SD_INIT);
+    ASSERT("Disk stage == SD_WRITE_OK (from writing to boot sector)", disk_stage == SD_WRITE_OK);
     ASSERT("Disk status == 0x0", disk_status == 0x0);
     
     // read first 1k

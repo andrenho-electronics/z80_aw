@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "z80aw.hh"
 
 enum DataType {
     Unclassified,
@@ -17,6 +18,8 @@ struct DiskDataType {
     std::string description;
 };
 
+using SDCardStatus = z80aw::SDCardStatus;
+
 class DiskView {
 public:
     bool is_connected() const;
@@ -30,10 +33,12 @@ public:
     std::vector<uint8_t> const& data() const { return data_; }
     
     DiskDataType data_type(uint16_t pos) const;
+    SDCardStatus last_status() const { return last_status_; }
 
 private:
     uint32_t block_number_ = 0;
     std::vector<uint8_t> data_;
+    SDCardStatus last_status_ { SD_NOT_INITIALIZED, 0xff };
 };
 
 #endif

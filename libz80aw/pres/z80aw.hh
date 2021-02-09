@@ -23,6 +23,11 @@ enum RegisterFetchMode {
     Emulator = Z80AW_REGFETCH_EMULATOR,
 };
 
+struct SDCardStatus {
+    SDCardStage stage;
+    uint8_t     status;
+};
+
 std::string initialize_emulator(std::string const& emulator_path);  // return serial port
 std::string initialize_emulator(std::string const& emulator_path, std::string const& disk_image_path);
 
@@ -79,6 +84,7 @@ bool                 has_disk();
 void                 write_disk_block(uint32_t block, std::vector<uint8_t> const& data);
 std::vector<uint8_t> read_disk_block(uint32_t block);
 void                 update_disk(std::string const& path);
+SDCardStatus         disk_status();
 
 void finalize_emulator();
 

@@ -276,6 +276,7 @@ int main(int argc, char* argv[])
         ASSERT("Check that the disk data is verified correctly", p.diskview().data_type(480).data_type == BootstrapCode);
         p.diskview().go_to_block(1);
         ASSERT("Check that disk data was loaded after changing blocks", p.diskview().data().at(510) != 0x55);
+        ASSERT("SD last status == SD_WRITE_OK", p.diskview().last_status().stage == SD_WRITE_OK);
     
         unlink("/tmp/sdcard.img");
     }
