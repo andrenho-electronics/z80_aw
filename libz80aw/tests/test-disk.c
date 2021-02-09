@@ -30,6 +30,9 @@ int main(int argc, char* argv[])
     if (argc == 2 && strcmp(argv[1], "-l") == 0)
         mlog_to_stdout = true;
     
+    SDCardStage disk_stage;
+    uint8_t disk_status;
+    
     //
     // compile SDCARD disk
     //
@@ -69,6 +72,9 @@ int main(int argc, char* argv[])
         fprintf(stderr, "%s\n", z80aw_last_error());
         return EXIT_FAILURE;
     }
+    ASSERT("Get disk status", z80aw_disk_status(&disk_stage, &disk_status) == 0);
+    ASSERT("Disk stage == SD_INIT", disk_stage == SD_INIT);
+    ASSERT("Disk status == 0x0", disk_status == 0x0);
     
     // read first 1k
     uint8_t data[1024];
@@ -123,6 +129,10 @@ int main(int argc, char* argv[])
     z80aw_read_block(0xf000, 1024, rdata);
     ASSERT("OUT command for reading", memcmp(data, rdata, 1024) == 0);
     
+    ASSERT("Get disk status", z80aw_disk_status(&disk_stage, &disk_status) == 0);
+    ASSERT("Disk stage == SD_READ_OK", disk_stage == SD_READ_OK);
+    ASSERT("Disk status == 0x0", disk_status == 0x0);
+    
     // run code for writing to disk
     uint8_t expected[512];
     for (int i = 0; i < 512; ++i)
@@ -166,6 +176,10 @@ int main(int argc, char* argv[])
     uint8_t sdw[512];
     z80aw_read_disk_block(8, sdw);
     ASSERT("OUT command for writing", memcmp(expected, sdw, 512) == 0);
+    
+    ASSERT("Get disk status", z80aw_disk_status(&disk_stage, &disk_status) == 0);
+    ASSERT("Disk stage == SD_READ_OK", disk_stage == SD_WRITE_OK);
+    ASSERT("Disk status == 0x0", disk_status == 0x0);
     
     // finalize
     z80aw_close();

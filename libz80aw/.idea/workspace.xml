@@ -31,11 +31,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
-      <change beforePath="$PROJECT_DIR$/../debugger/myui.cc" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../debugger/myui.hh" beforeDir="false" afterPath="$PROJECT_DIR$/../debugger/myui.hh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../common/sdcardstage.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/diskview.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/diskview.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.hh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.c" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/comm/z80aw.h" beforeDir="false" afterPath="$PROJECT_DIR$/comm/z80aw.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-disk.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tmp/sdcard.c" beforeDir="false" afterPath="$PROJECT_DIR$/../tmp/sdcard.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tmp/sdcard.h" beforeDir="false" afterPath="$PROJECT_DIR$/../tmp/sdcard.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tmp/sdcard_ll.c" beforeDir="false" afterPath="$PROJECT_DIR$/../tmp/sdcard_ll.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../tmp/sdcard_ll.h" beforeDir="false" afterPath="$PROJECT_DIR$/../tmp/sdcard_ll.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../z80os/make_sd_image.sh" beforeDir="false" afterPath="$PROJECT_DIR$/../z80os/make_sd_image.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -113,7 +120,12 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.all">
+  <component name="RunManager" selected="Makefile Application.tests-disk">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
@@ -225,7 +237,11 @@
       <workItem from="1611751416589" duration="34476000" />
       <workItem from="1611929684329" duration="61000" />
       <workItem from="1611929832398" duration="1998000" />
-      <workItem from="1611932061395" duration="1599000" />
+      <workItem from="1611932061395" duration="2857000" />
+      <workItem from="1612522734619" duration="1119000" />
+      <workItem from="1612791973059" duration="6000" />
+      <workItem from="1612809269279" duration="996000" />
+      <workItem from="1612868002599" duration="1457000" />
     </task>
     <task id="LOCAL-00001" summary="Reorganized project.">
       <created>1610705502744</created>

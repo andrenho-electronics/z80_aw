@@ -6,6 +6,7 @@
 #include <stddef.h>
 
 #include "compiler.h"
+#include "../common/sdcardstage.h"
 
 typedef struct {
     uint16_t free_memory;
@@ -89,5 +90,6 @@ bool z80aw_has_disk();
 int  z80aw_write_disk_block(uint32_t block, uint8_t const* data);
 int  z80aw_read_disk_block(uint32_t block, uint8_t* data);
 int  z80aw_update_disk(const char* filename);
+int  z80aw_disk_status(SDCardStage* stage, uint8_t* status);
 
 #endif

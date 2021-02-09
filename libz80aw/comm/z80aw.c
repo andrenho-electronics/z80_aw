@@ -625,3 +625,16 @@ int z80aw_update_disk(const char* filename)
     }
     return 0;
 }
+
+int z80aw_disk_status(SDCardStage* stage, uint8_t* status)
+{
+    int r = zsend_expect(Z_DISK_LAST_STATUS, Z_OK);
+    SDCardStage stage_ = zrecv();
+    uint8_t status_ = zrecv();
+    z_assert_empty_buffer();
+    if (stage)
+        *stage = stage_;
+    if (status)
+        *status = status_;
+    return r;
+}

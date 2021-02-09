@@ -10,6 +10,7 @@
 #include <signal.h>
 #include <string.h>
 
+#include "sdcardstage.h"
 #include "protocol.h"
 #include "z80/Z80.h"
 
@@ -249,6 +250,7 @@ bool update_disk(const char* filename)
         fseek(disk_image_file, 0L, SEEK_END);
         disk_image_size = ftell(disk_image_file);
         disk_image_path = strdup(filename);
+        disk_last_stage = SD_INIT;
     }
  
     ResetZ80(&z80);
@@ -476,6 +478,9 @@ void OutZ80(word Port,byte Value)
                 struct DiskRequest const* req = (struct DiskRequest const*) &memory[read_disk_register];
                 fseek(disk_image_file, req->disk_block * 512, SEEK_SET);
                 fread(&memory[req->mem_dest], req->block_count * 512, 1, disk_image_file);
+                disk_last_stage = SD_READ_OK;
+            } else {
+                disk_last_stage = SD_NOT_INITIALIZED;
             }
             break;
         case DEVICE_WRITE_DISK_LO:
@@ -489,6 +494,9 @@ void OutZ80(word Port,byte Value)
                        req->block_count, req->mem_dest, req->disk_block);
                 fseek(disk_image_file, req->disk_block * 512, SEEK_SET);
                 fwrite(&memory[req->mem_dest], req->block_count * 512, 1, disk_image_file);
+                disk_last_stage = SD_WRITE_OK;
+            } else {
+                disk_last_stage = SD_NOT_INITIALIZED;
             }
             break;
         case DEVICE_DEBUGGER_LO:
@@ -705,10 +713,8 @@ bool command_loop()
                 send(Z_OK);
                 for (int i = 0; i < 512; ++i)
                     send(buf[i]);
-                disk_last_stage = 0x20;
             } else {
                 send(Z_NO_DISK);
-                disk_last_stage = 0xff;
             }
             break;
         case Z_WRITE_DISK:
@@ -722,10 +728,8 @@ bool command_loop()
                     fwrite(buf, 512, 1, disk_image_file);
                 }
                 send(Z_OK);
-                disk_last_stage = 0x30;
             } else {
                 send(Z_NO_DISK);
-                disk_last_stage = 0xff;
             }
             break;
         case Z_UPDATE_DISK: {
@@ -736,10 +740,10 @@ bool command_loop()
                 } while (buf[i-1] != '\0');
                 if (update_disk(buf)) {
                     send(Z_OK);
-                    disk_last_stage = 0x0;
+                    disk_last_stage = SD_INIT;
                 } else {
                     send(Z_NO_DISK);
-                    disk_last_stage = 0xff;
+                    disk_last_stage = SD_NOT_INITIALIZED;
                 }
             }
             break;
