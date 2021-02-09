@@ -32,13 +32,6 @@
   <component name="ChangeListManager">
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/emu/emulator.c" beforeDir="false" afterPath="$PROJECT_DIR$/emu/emulator.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/diskview.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/diskview.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/diskview.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.cc" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.cc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pres/z80aw.hh" beforeDir="false" afterPath="$PROJECT_DIR$/pres/z80aw.hh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-disk.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test-pres.cc" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-pres.cc" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,7 +109,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
-  <component name="RunManager" selected="Makefile Application.tests-disk">
+  <component name="RunManager" selected="Makefile Application.all">
     <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="CLION.EXTERNAL.BUILD" enabled="true" />
@@ -237,14 +230,7 @@
       <workItem from="1612522734619" duration="1119000" />
       <workItem from="1612791973059" duration="6000" />
       <workItem from="1612809269279" duration="996000" />
-      <workItem from="1612868002599" duration="2408000" />
-    </task>
-    <task id="LOCAL-00002" summary="Reorganized project.">
-      <created>1610709594046</created>
-      <option name="number" value="00002" />
-      <option name="presentableId" value="LOCAL-00002" />
-      <option name="project" value="LOCAL" />
-      <updated>1610709594046</updated>
+      <workItem from="1612868002599" duration="3392000" />
     </task>
     <task id="LOCAL-00003" summary=".">
       <created>1610709682248</created>
@@ -582,7 +568,14 @@
       <option name="project" value="LOCAL" />
       <updated>1612869585128</updated>
     </task>
-    <option name="localTasksCounter" value="51" />
+    <task id="LOCAL-00051" summary=".">
+      <created>1612870509670</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1612870509671</updated>
+    </task>
+    <option name="localTasksCounter" value="52" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

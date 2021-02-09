@@ -577,6 +577,8 @@ void MyUI::draw_disk_window()
         auto hovered = draw_disk_table(d);
         if (hovered.has_value())
             ImGui::Text("%s", hovered->c_str());
+        else
+            ImGui::Text("Last SD card stage: 0x%X, status: 0x%X", d.last_status().stage, d.last_status().status);
     }
     ImGui::End();
 }
