@@ -5,6 +5,7 @@
 #include "io.h"
 #include "memory.h"
 #include "serial.h"
+#include "sdcard.h"
 #include "z80.h"
 
 int main()
@@ -13,6 +14,9 @@ int main()
 
     // setup RX interrupt
     serial_init();
+
+    // load boot sector from SD card
+    sdcard_load_boot();
 
     // main loop
     for (;;) {

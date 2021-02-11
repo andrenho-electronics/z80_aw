@@ -6,6 +6,7 @@
 #include "breakpoints.h"
 #include "memory.h"
 #include "run.h"
+#include "sdcard.h"
 #include "serial.h"
 #include "util.h"
 #include "z80.h"
@@ -175,6 +176,26 @@ void debugger_cycle()
         case Z_STOP:
             z80_stop();
             serial_send(Z_OK);
+            break;
+
+        //
+        // SD card
+        //
+        case Z_HAS_DISK:
+            serial_send(sdcard_last_response().value != 0xff ? Z_OK : Z_NO_DISK);
+            break;
+        case Z_UPDATE_DISK:
+            serial_send(Z_EMULATOR_ONLY);
+            break;
+        case Z_DISK_LAST_STATUS:
+            serial_send(Z_OK);
+            serial_send(sdcard_last_stage());
+            serial_send(sdcard_last_response().value);
+            break;
+        case Z_READ_DISK:
+            break;
+        case Z_WRITE_DISK:
+            serial_send(Z_EMULATOR_ONLY);
             break;
 
         // 

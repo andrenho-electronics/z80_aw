@@ -102,7 +102,7 @@ memory_read_page(uint16_t addr, uint8_t* data, int count)
     return true;
 }
 
-static void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
+void memory_write(uint16_t addr, uint8_t data, bool wait_for_completion)
 {
     memory_set_addr(addr);
     memory_set_data(data);
