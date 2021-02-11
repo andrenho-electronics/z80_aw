@@ -16,6 +16,12 @@ RegisterFetchMode register_fetch_mode = REGFETCH_DISABLED;
 
 static void send_registers(Z80_Registers const* r);
 
+static void send_byte(uint16_t idx, uint8_t byte, void* data)
+{
+    (void) idx; (void) data;
+    serial_send(byte);
+}
+
 void debugger_cycle()
 {
     uint8_t data[513] = { 0 };
@@ -192,7 +198,11 @@ void debugger_cycle()
             serial_send(sdcard_last_stage());
             serial_send(sdcard_last_response().value);
             break;
-        case Z_READ_DISK:
+        case Z_READ_DISK: {
+                uint32_t block = serial_recv24();
+                serial_send(Z_OK);
+                sdcard_read_block(block, send_byte, NULL);
+            }
             break;
         case Z_WRITE_DISK:
             serial_send(Z_EMULATOR_ONLY);

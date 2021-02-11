@@ -1,5 +1,7 @@
 #include "sdcard_ll.h"
 
+#define LOG
+
 #ifdef LOG
 #  include <stdio.h>
 #  include <avr/pgmspace.h>
@@ -7,7 +9,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 
-#define CS   PINB4
+#define CS   PIND6
 #define MOSI PINB5
 #define MISO PINB6
 #define SCK  PINB7
@@ -15,7 +17,8 @@
 void sd_setup()
 {
     // output pins
-    DDRB |= (1 << CS) | (1 << MOSI) | (1 << SCK);
+    DDRB |= (1 << MOSI) | (1 << SCK);
+    DDRD |= (1 << CS);
 
     // input pull up on MISO
     DDRB |= (1 << MISO);
@@ -31,12 +34,12 @@ void sd_cs(bool enabled)
 #ifdef LOG
         printf_P(PSTR("\e[0;32m^\e[0m"));
 #endif
-        PORTB &= ~(1 << CS);
+        PORTD &= ~(1 << CS);
     } else {
 #ifdef LOG
         printf_P(PSTR("\e[0;32m_\e[0m"));
 #endif
-        PORTB |= (1 << CS);
+        PORTD |= (1 << CS);
     }
     sd_send_spi_byte(0xff);
 }

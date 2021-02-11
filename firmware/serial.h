@@ -11,6 +11,7 @@ void     serial_send16(uint16_t word);
 uint8_t  serial_recv();
 uint8_t  serial_recv_noblock();
 uint16_t serial_recv16();
+uint32_t serial_recv24();
 
 #endif
 

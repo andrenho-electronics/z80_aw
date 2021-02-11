@@ -54,4 +54,12 @@ uint16_t serial_recv16()
     return r;
 }
 
+uint32_t serial_recv24()
+{
+    uint32_t r = serial_recv();
+    r |= ((uint32_t) serial_recv()) << 8;
+    r |= ((uint32_t) serial_recv()) << 16;
+    return r;
+}
+
 // vim:ts=4:sts=4:sw=4:expandtab
