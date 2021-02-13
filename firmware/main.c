@@ -10,13 +10,13 @@
 
 int main()
 {
-    io_init();
-
     // setup RX interrupt
     serial_init();
 
     // load boot sector from SD card
     sdcard_load_boot();
+
+    io_init();
 
     // main loop
     for (;;) {
