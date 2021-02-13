@@ -1,5 +1,5 @@
 PROJECT=z80_controller
-OBJECTS=main.o serial.o dbg.o util.o io.o memory.o wait.o z80.o breakpoints.o run.o sdcard.o sdcard_ll.o
+OBJECTS=main.o serial.o dbg.o util.o io.o memory.o wait.o z80.o breakpoints.o run.o sdcard.o sdcard_ll.o buffer.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -B 0.5 -V
 #FUSES=-U lfuse:w:0xe4:m -U hfuse:w:0xd9:m   # internal 8 Mhz
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal

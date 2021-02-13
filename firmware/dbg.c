@@ -3,6 +3,7 @@
 #include <stddef.h>
 
 #include "../common/protocol.h"
+#include "buffer.h"
 #include "breakpoints.h"
 #include "memory.h"
 #include "run.h"
@@ -24,7 +25,6 @@ static void send_byte(uint16_t idx, uint8_t byte, void* data)
 
 void debugger_cycle()
 {
-    uint8_t data[513] = { 0 };
     uint8_t c = serial_recv_noblock();
 
     switch (c) {
@@ -71,9 +71,9 @@ void debugger_cycle()
                 uint16_t addr = serial_recv16();
                 uint16_t sz = serial_recv16();
                 for (size_t i = 0; i < sz; ++i)
-                    data[i] = serial_recv();
+                    buffer[i] = serial_recv();
                 uint16_t checksum;
-                if (memory_write_page(addr, data, sz, &checksum))
+                if (memory_write_page(addr, buffer, sz, &checksum))
                     serial_send(Z_OK);
                 else
                     serial_send(Z_INCORRECT_BUS);
@@ -83,12 +83,12 @@ void debugger_cycle()
         case Z_READ_BLOCK: {
                 uint16_t addr = serial_recv16();
                 uint16_t sz = serial_recv16();
-                if (memory_read_page(addr, data, sz))
+                if (memory_read_page(addr, buffer, sz))
                     serial_send(Z_OK);
                 else
                     serial_send(Z_INCORRECT_BUS);
                 for (size_t i = 0; i < sz; ++i)
-                    serial_send(data[i]);
+                    serial_send(buffer[i]);
             }
             break;
 
