@@ -2,6 +2,7 @@
 
 #include <util/delay.h>
 
+#include "buffer.h"
 #include "memory.h"
 
 #define CMD0   0
@@ -125,21 +126,19 @@ bool sdcard_init()
     return false;
 }
 
-static void write_byte(uint16_t addr, uint8_t byte, void* data)
+static void write_byte(uint16_t idx, uint8_t byte, void* data)
 {
+    buffer[idx] = byte;
     (void) data;
-    memory_write(addr, byte, true);
 }
 
 bool sdcard_load_boot()
 {
-    sdcard_init();
-    /*
     if (sdcard_init()) {
         sdcard_read_block(0, write_byte, NULL);
+        memory_write_page(0, buffer, 512, NULL);
         return true;
     }
-    */
     return false;
 }
 

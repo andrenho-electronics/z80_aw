@@ -16,7 +16,7 @@ int main()
     serial_init();
 
     // load boot sector from SD card
-    sdcard_load_boot();
+    // sdcard_load_boot();
 
     // main loop
     for (;;) {
