@@ -1,3 +1,4 @@
+#include <getopt.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -18,6 +19,36 @@
 }
 
 bool mlog_to_stdout = false;
+char* serial = NULL;
+
+static void print_help()
+{
+    printf("Usage:\n");
+    printf("   -h               This help.\n");
+    printf("   -l               Log to stdout.\n");
+    printf("   -r SERIAL_PORT   Use real hardware.\n");
+}
+
+static void get_options(int argc, char* argv[])
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "hlr:") != -1)) {
+        switch (opt) {
+            case 'h':
+                print_help();
+                exit(EXIT_SUCCESS);
+            case 'l':
+                mlog_to_stdout = true;
+                break;
+            case 'r':
+                serial = optarg;
+                break;
+            default:
+                print_help();
+                exit(EXIT_FAILURE);
+        }
+    }
+}
 
 static void error_cb(const char* error, void* data)
 {
@@ -27,8 +58,7 @@ static void error_cb(const char* error, void* data)
 
 int main(int argc, char* argv[])
 {
-    if (argc == 2 && strcmp(argv[1], "-l") == 0)
-        mlog_to_stdout = true;
+    get_options(argc, argv);
     
     SDCardStage disk_stage;
     uint8_t disk_status;
@@ -47,12 +77,14 @@ int main(int argc, char* argv[])
     }
     
     // generate image
-    unlink("/tmp/sdcard.img");
-    ASSERT("Generate image", debug_generate_image(di, "/tmp/sdcard.img") == 0);
-    if (mlog_to_stdout) {
-        printf("Image files:\n\e[0;33m");
-        system("mdir -i /tmp/sdcard.img ::");
-        printf("\e[0m\n");
+    if (!serial) {
+        unlink("/tmp/sdcard.img");
+        ASSERT("Generate image", debug_generate_image(di, "/tmp/sdcard.img") == 0);
+        if (mlog_to_stdout) {
+            printf("Image files:\n\e[0;33m");
+            system("mdir -i /tmp/sdcard.img ::");
+            printf("\e[0m\n");
+        }
     }
     
     //
@@ -64,10 +96,15 @@ int main(int argc, char* argv[])
     z80aw_set_logging_to_stdout(mlog_to_stdout);
     
     char serial_port[128];
-    if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, "/tmp/sdcard.img") != 0) {
-        fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
-        exit(1);
+    if (!serial) {
+        if (z80aw_initialize_emulator(".", serial_port, sizeof serial_port, "/tmp/sdcard.img") != 0) {
+            fprintf(stderr, "Error initializing emulator: %s", z80aw_last_error());
+            exit(1);
+        }
+    } else {
+        strcpy(serial_port, serial);
     }
+    
     if (z80aw_init(serial_port) < 0) {
         fprintf(stderr, "%s\n", z80aw_last_error());
         return EXIT_FAILURE;
@@ -85,9 +122,13 @@ int main(int argc, char* argv[])
     // read SD data through protocol
     uint8_t block[512];
     ASSERT("Read first block", z80aw_read_disk_block(0, block) == 0);
-    ASSERT("Check that first block is correct", memcmp(block, data, 512) == 0);
+    if (!serial) {
+        ASSERT("Check that first block is correct", memcmp(block, data, 512) == 0);
+    }
     ASSERT("Read second block", z80aw_read_disk_block(1, block) == 0);
-    ASSERT("Check that second block is correct", memcmp(block, &data[512], 512) == 0);
+    if (!serial) {
+        ASSERT("Check that second block is correct", memcmp(block, &data[512], 512) == 0);
+    }
     
     // check memory
     ASSERT("Bootloader was added to the memory", z80aw_read_byte(0x0) == 0xc3);  // JP

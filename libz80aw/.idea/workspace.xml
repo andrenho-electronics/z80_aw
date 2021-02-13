@@ -15,12 +15,14 @@
       <config projectName="libz80aw" targetName="check-nmi" />
       <config projectName="libz80aw" targetName="tests-comm" />
       <config projectName="libz80aw" targetName="emulator" />
+      <config projectName="libz80aw" targetName="check-disk" />
       <config projectName="libz80aw" targetName="check-comm-real" />
       <config projectName="libz80aw" targetName="tools" />
       <config projectName="libz80aw" targetName="check-comm-leaks" />
       <config projectName="libz80aw" targetName="check-pres-leaks" />
       <config projectName="libz80aw" targetName="check" />
       <config projectName="libz80aw" targetName="tests-pres" />
+      <config projectName="libz80aw" targetName="check-disk-real" />
       <config projectName="libz80aw" targetName="check-nmi-real" />
     </generated>
   </component>
@@ -33,6 +35,8 @@
     <list default="true" id="2cb30caf-0082-4b5e-9288-2497575736ac" name="Default Changelist" comment=".">
       <change beforePath="$PROJECT_DIR$/.idea/libz80aw.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/libz80aw.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test-disk.c" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test-disk.c" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -111,7 +115,22 @@
     <property name="settings.editor.selected.configurable" value="editor.preferences.fonts.default" />
   </component>
   <component name="RunManager" selected="Makefile Application.tests-disk">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="all" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="all" CONFIG_NAME="all" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="check-disk-real" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="check-disk-real" CONFIG_NAME="check-disk-real" version="1">
+      <method v="2">
+        <option name="CLION.COMPOUND.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="check-disk" type="CLionNativeAppRunConfigurationType" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="libz80aw" TARGET_NAME="check-disk" CONFIG_NAME="check-disk" version="1">
       <method v="2">
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
@@ -166,6 +185,11 @@
         <option name="CLION.COMPOUND.BUILD" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration default="true" type="lua.app" factoryName="Lua Application">
       <option name="program" value="/usr/bin/lua" />
       <option name="file" value="" />
@@ -182,6 +206,8 @@
       <item itemvalue="Makefile Application.check-nmi-real" />
       <item itemvalue="Makefile Application.check-nmi" />
       <item itemvalue="Makefile Application.check" />
+      <item itemvalue="Makefile Application.check-disk" />
+      <item itemvalue="Makefile Application.check-disk-real" />
       <item itemvalue="Makefile Application.dump_mem_page" />
       <item itemvalue="Makefile Application.emulator" />
       <item itemvalue="Makefile Application.tests-comm-headless" />
@@ -223,13 +249,7 @@
       <workItem from="1612809269279" duration="996000" />
       <workItem from="1612868002599" duration="3404000" />
       <workItem from="1613006785824" duration="3833000" />
-    </task>
-    <task id="LOCAL-00004" summary=".">
-      <created>1610713498085</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1610713498085</updated>
+      <workItem from="1613233789367" duration="1012000" />
     </task>
     <task id="LOCAL-00005" summary=".">
       <created>1610714539966</created>
@@ -567,7 +587,14 @@
       <option name="project" value="LOCAL" />
       <updated>1612890570687</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary=".">
+      <created>1613233880278</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1613233880279</updated>
+    </task>
+    <option name="localTasksCounter" value="54" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

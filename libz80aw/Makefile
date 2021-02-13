@@ -1,4 +1,4 @@
-OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o
+OBJ_COMM      = comm/z80aw.o comm/comm.o comm/compiler.o comm/logging.o contrib/map.o tests/test-disk.o
 OBJ_PRES      = pres/z80aw.o pres/z80pres.o pres/codeview.o pres/memoryview.o pres/terminalview.o pres/diskview.o
 TEST_COMM_EXE = tests-comm
 TEST_PRES_EXE = tests-pres
@@ -57,7 +57,7 @@ check-disk: $(TEST_DISK_EXE) $(EMULATOR_EXE)
 	./$< -l
 
 check-disk-real: $(TEST_DISK_EXE)
-	./$< -l /dev/ttyUSB0
+	./$< -l -r /dev/ttyUSB0
 
 check-pres: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$<
