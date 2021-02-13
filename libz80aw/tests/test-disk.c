@@ -32,7 +32,7 @@ static void print_help()
 static void get_options(int argc, char* argv[])
 {
     int opt;
-    while ((opt = getopt(argc, argv, "hlr:") != -1)) {
+    while ((opt = getopt(argc, argv, "hlr:")) != -1) {
         switch (opt) {
             case 'h':
                 print_help();
