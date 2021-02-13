@@ -53,6 +53,12 @@ check-comm: $(TEST_COMM_EXE) $(EMULATOR_EXE)
 check-comm-real: $(TEST_COMM_EXE)
 	./$< -l -r /dev/ttyUSB0
 
+check-disk: $(TEST_DISK_EXE) $(EMULATOR_EXE)
+	./$< -l
+
+check-disk-real: $(TEST_DISK_EXE)
+	./$< -l /dev/ttyUSB0
+
 check-pres: $(TEST_PRES_EXE) $(EMULATOR_EXE)
 	./$<
 
