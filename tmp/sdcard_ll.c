@@ -1,6 +1,6 @@
 #include "sdcard_ll.h"
 
-#define LOG
+// #define LOG
 
 #ifdef LOG
 #  include <stdio.h>
@@ -19,9 +19,13 @@ void sd_setup()
     // output pins
     DDRB |= (1 << MOSI) | (1 << SCK);
     DDRD |= (1 << CS);
+    PORTB |= ~(1 << MOSI);
+    PORTB |= ~(1 << SCK);
+    PORTD |= ~(1 << CS);
 
     // input pull up on MISO
     DDRB |= (1 << MISO);
+    PORTB |= ~(1 << MISO);
 
     // enable SPI, set as MASTER, clock to fosc/128
     SPCR = (1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0);

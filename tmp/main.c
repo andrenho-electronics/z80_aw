@@ -50,6 +50,7 @@ int main()
             for (;;);
     }
 
+    printf_P(PSTR("OK"));
     for(;;);
 }
 

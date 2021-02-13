@@ -200,6 +200,7 @@ bool sdcard_write_block(uint32_t block, uint8_t(*wd)(uint16_t idx, void* data), 
 response_received:
     if ((rr & 0x1f) != 0x5) {
         sd_cs(false);
+        last_response.value = rr;
         last_stage = SD_WRITE_DATA_REJECTED;
         return false;
     }
