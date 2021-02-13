@@ -34,6 +34,7 @@ int main()
     if (!ok)
         for(;;);
 
+    /*
     printf_P(PSTR("Writing to SD card (block 1)... "));
     ok = sdcard_write_block(1, data_to_write, NULL);
     printf_P(PSTR("\r\nResponse: "));
@@ -49,6 +50,7 @@ int main()
         if (!ok)
             for (;;);
     }
+    */
 
     printf_P(PSTR("OK"));
     for(;;);

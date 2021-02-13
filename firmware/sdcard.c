@@ -133,10 +133,13 @@ static void write_byte(uint16_t addr, uint8_t byte, void* data)
 
 bool sdcard_load_boot()
 {
+    sdcard_init();
+    /*
     if (sdcard_init()) {
         sdcard_read_block(0, write_byte, NULL);
         return true;
     }
+    */
     return false;
 }
 
