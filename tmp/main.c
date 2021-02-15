@@ -42,7 +42,8 @@ int main()
     if (!ok)
         for (;;);
 
-    for (int i = 0; i < 2; ++i) {
+    */
+    for (int i = 0; i < 1; ++i) {
         printf_P(PSTR("Reading from SD card (block %d)... "), i);
         ok = sdcard_read_block(i, print_byte, NULL);
         printf_P(PSTR("\r\nResponse: "));
@@ -50,7 +51,6 @@ int main()
         if (!ok)
             for (;;);
     }
-    */
 
     printf_P(PSTR("OK"));
     for(;;);

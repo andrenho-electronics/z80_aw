@@ -15,9 +15,6 @@ int main()
     // setup RX interrupt
     serial_init();
 
-    // load boot sector from SD card
-    // sdcard_load_boot();
-
     // main loop
     for (;;) {
         if (z80_mode() == M_CONTINUE)

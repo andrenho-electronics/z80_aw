@@ -1,6 +1,6 @@
 #include "sdcard_ll.h"
 
-// #define LOG
+#define LOG
 
 #ifdef LOG
 #  include <stdio.h>

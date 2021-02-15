@@ -19,14 +19,13 @@ void data_bus_release();
     P(ZCLK,   B, 3)     \
     P(ZRST,   D, 5)     \
     P(SER_CLK,D, 7)     \
-    P(WAIT,   A, 4)     \
     P(INT,    A, 5)     \
     P(NMI,    A, 6)     \
     P(BUSREQ, A, 7)
 
 // ports only read by the microcontroller (get_XXX)
 #define INPUT_PORTS     \
-    P(MISO,   B, 6)     \
+    P(MISO,   A, 4)     \
     P(M1,     D, 4)     \
     P(X1,     D, 6)     \
     P(BUSACK, D, 3)     \

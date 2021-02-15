@@ -66,7 +66,6 @@ void io_init()
     set_ZCLK(0);      // Z80 clock waiting to begin transmitting
     set_BUSREQ(1);
     set_NMI(1);
-    set_WAIT(1);
     set_INT(1);
 }
 

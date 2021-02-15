@@ -178,7 +178,6 @@ void z80_reset()
 
     set_BUSREQ(1);
     set_NMI(1);
-    set_WAIT(1);
     set_INT(1);
     memory_bus_release();
 

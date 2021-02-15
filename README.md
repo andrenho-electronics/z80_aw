@@ -70,7 +70,7 @@ Pinout:
 30 - BUSREQ
 31 - NMI
 32 - INT
-33 - WAIT
+33 - NC
 34 - HALT
 35 - WE
 36 - RD
