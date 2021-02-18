@@ -5,6 +5,7 @@
 #include "breakpoints.h"
 #include "memory.h"
 #include "io.h"
+#include "sdcard.h"
 
 static uint16_t      pc = 0;
 static uint8_t       last_printed_char = 0;
@@ -185,7 +186,7 @@ void z80_reset()
 
     for (int i = 0; i < 50; ++i)
         z80_clock();
-
+    
     set_ZRST(1);
     z80_step();
 }

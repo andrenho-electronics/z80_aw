@@ -27,7 +27,7 @@ SDCardStage sdcard_last_stage();
 R1          sdcard_last_response();
 
 bool sdcard_init();
-bool sdcard_load_boot();
+void sdcard_load_boot();
 bool sdcard_read_block(uint32_t block, void(*rd)(uint16_t idx, uint8_t byte, void* data), void* data);
 bool sdcard_write_block(uint32_t block, uint8_t(*wd)(uint16_t idx, void* data), void* data);
 

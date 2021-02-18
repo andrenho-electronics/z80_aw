@@ -15,6 +15,8 @@ int main()
     // setup RX interrupt
     serial_init();
 
+    sdcard_init();
+
     // main loop
     for (;;) {
         if (z80_mode() == M_CONTINUE)

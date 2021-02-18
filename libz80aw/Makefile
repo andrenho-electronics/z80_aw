@@ -15,6 +15,14 @@ CXX           = g++
 
 all: $(LIB) $(EMULATOR_EXE)
 
+tools: dump_mem_page
+	
+dump_mem_page: tools/dump_mem_page.o $(LIB)
+	$(CC) $^ -o $@
+
+dump_sdcard: tools/dump_sdcard.o $(LIB)
+	$(CC) $^ -o $@
+
 $(EMULATOR_EXE): emu/emulator.c emu/z80/Z80.c
 	$(CC) $^ -o $@ $(CFLAGS) $(CPPFLAGS) -DLSB_FIRST -lutil
 
@@ -31,11 +39,6 @@ $(TEST_PRES_EXE): tests/test-pres.o $(OBJ_COMM) $(OBJ_PRES) $(TOML_LIB)
 	$(CXX) $^ -o $@
 
 $(TEST_DISK_EXE): tests/test-disk.o $(OBJ_COMM) $(TOML_LIB)
-	$(CC) $^ -o $@
-
-tools: dump_mem_page
-	
-dump_mem_page: tools/dump_mem_page.o $(LIB)
 	$(CC) $^ -o $@
 
 check: $(TEST_COMM_EXE) $(TEST_PRES_EXE) $(EMULATOR_EXE)
