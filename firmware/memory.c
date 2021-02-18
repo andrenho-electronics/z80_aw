@@ -16,7 +16,7 @@ uint16_t memory_read_addr()
     uint16_t addr = 0;
     for (int i = 15; i >= 0; --i) {
         addr <<= 1;
-        addr |= get_MISO(); // retrieve bit
+        addr |= get_SER_IN(); // retrieve bit
         set_SER_CLK(0);     // clock cycle
         set_SER_CLK(1);
     }

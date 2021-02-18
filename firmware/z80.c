@@ -18,7 +18,6 @@ static Z80_Registers registers = { 0 };
 static bool          bkp_hit = false;
 
 static inline void z80_clock();
-static inline void z80_busreq();
 
 // 
 // GETTERS/SETTERS
@@ -202,7 +201,7 @@ static inline void z80_clock()
     ++cycle_number;
 }
 
-inline static void z80_busreq()
+void z80_busreq()
 {
     bool busack = 1;
 

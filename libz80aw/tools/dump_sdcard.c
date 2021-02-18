@@ -18,7 +18,7 @@ int main(int argc, char* argv[])
     }
 
     uint8_t page[0x200] = { 0 };
-    uint8_t npage = strtoul(argv[2], NULL, 16);
+    uint32_t npage = strtoull(argv[2], NULL, 16);
     SDCardStage stage;
     uint8_t status;
 
@@ -32,9 +32,9 @@ int main(int argc, char* argv[])
     z80aw_close();
 
     printf("Last stage: %02X,  last status: %02X\n", stage, status);
-    printf("        _0 _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _E _F\n");
+    printf("            _0 _1 _2 _3 _4 _5 _6 _7 _8 _9 _A _B _C _D _E _F\n");
     for (uint16_t a = 0; a < 0x200; a += 0x10) {
-        printf("%04X : ", (npage * 0x200) + a);
+        printf("%08X : ", (npage * 0x200) + a);
         for (uint16_t b = 0; b < 0x10; ++b)
             printf("%02X ", page[a + b]);
         printf("   ");

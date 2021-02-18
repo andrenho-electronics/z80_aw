@@ -37,6 +37,7 @@
 #define Z_HAS_DISK          0xfa   // -> [Z_OK / Z_NO_DISK]
 #define Z_UPDATE_DISK       0xfb   // [path (zero terminated)] -> [Z_OK / Z_NO_DISK / Z_EMULATOR_ONLY]
 #define Z_DISK_LAST_STATUS  0xfc   // -> Z_OK STAGE LAST_RESPONSE
+#define Z_LOAD_BOOT         0xfd   // -> Z_OK / Z_NO_DISK / Z_INCORRECT_BUS
 
 // responses
 

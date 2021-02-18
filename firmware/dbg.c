@@ -5,6 +5,7 @@
 #include "../common/protocol.h"
 #include "buffer.h"
 #include "breakpoints.h"
+#include "io.h"
 #include "memory.h"
 #include "run.h"
 #include "sdcard.h"
@@ -206,6 +207,11 @@ void debugger_cycle()
             break;
         case Z_WRITE_DISK:
             serial_send(Z_EMULATOR_ONLY);
+            break;
+        case Z_LOAD_BOOT:
+            if (get_BUSACK() == 1)
+                z80_busreq();
+            sdcard_load_boot();
             break;
 
         // 

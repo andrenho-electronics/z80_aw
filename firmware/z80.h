@@ -36,6 +36,7 @@ void    z80_reset();
 // step
 uint8_t z80_step();
 void    z80_step_debug();
+void    z80_busreq();
 
 // continue
 void    z80_next();
