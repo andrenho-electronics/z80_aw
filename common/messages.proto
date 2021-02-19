@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+message Request {
+    enum RequestType {
+        FREE_MEM = 0;
+    }
+    RequestType type = 1;
+}
+
+message Reply {
+    bool            success = 1;
+    repeated string info    = 2;
+    string          error   = 3;
+    oneof payload {
+        uint32 free_mem = 4;
+    }
+}

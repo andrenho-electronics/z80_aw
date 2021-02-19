@@ -1,5 +1,5 @@
 PROJECT=firmware-controller
-OBJECTS=main.o serial.o repl.o
+OBJECTS=main.o serial.o repl.o pb_common.o pb_encode.o pb_decode.o messages.pb.o
 AVRDUDE_FLAGS=-p atmega16 -C ./avrdude_gpio.conf -c pi_1 -B 0.5 -V
 FUSES=-U lfuse:w:0xff:m -U hfuse:w:0xd9:m    # external crystal
 MCU=atmega16
@@ -20,11 +20,16 @@ ${PROJECT}.elf: ${OBJECTS}
 	$(CC) -mmcu=${MCU} -o $@ $^ -Wl,--gc-sections
 	avr-size -C --mcu=${MCU} ${PROJECT}.elf	
 
+messsages.pb.o: messages.pb.c
+
+messages.pb.c: messages.proto
+	python3 ../contrib/nanopb/generator/nanopb_generator.py $^
+
 test-connection:
 	sudo avrdude ${AVRDUDE_FLAGS}
 
 clean:
-	rm -f *.elf *.o *.hex test-disasm test-simulator
+	rm -f *.elf *.o *.hex test-disasm test-simulator *.pb.h *.pb.c
 
 upload: ${PROJECT}.hex
 	sudo avrdude ${AVRDUDE_FLAGS} -U flash:w:$<:i

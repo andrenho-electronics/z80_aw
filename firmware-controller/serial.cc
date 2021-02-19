@@ -11,8 +11,8 @@ Serial::init()
     // set baud rate - http://ruemohr.org/~ircjunk/avr/baudcalc/avrbaudcalc-1.0.8.php?postbitrate=38400&postclock=8
     // int ubrr = 12;     // 38400 at 8 Mhz
     // int ubrr = 25;     // 38400 at 16 Mhz
-    int ubrr = 8;     // 115200 at 16 Mhz
-    // int ubrr = 26;       // 38400 at 16.5 Mhz
+    // int ubrr = 8;     // 115200 at 16 Mhz
+    int ubrr = 26;       // 38400 at 16.5 Mhz
     UBRRH = (ubrr>>8);
     UBRRL = (ubrr);
 

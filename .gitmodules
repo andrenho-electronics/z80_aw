@@ -1,3 +1,6 @@
 [submodule "contrib/tomlc99"]
 	path = contrib/tomlc99
 	url = https://github.com/cktan/tomlc99.git
+[submodule "contrib/nanopb"]
+	path = contrib/nanopb
+	url = https://github.com/nanopb/nanopb.git
