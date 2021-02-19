@@ -3,6 +3,9 @@
 #include <avr/pgmspace.h>
 #include <stdio.h>
 
+#include <pb_encode.h>
+#include "messages.pb.h"
+
 static unsigned int free_ram()
 {
     extern int __heap_start, *__brkval;
