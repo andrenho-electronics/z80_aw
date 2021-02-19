@@ -209,9 +209,9 @@ void debugger_cycle()
             serial_send(Z_EMULATOR_ONLY);
             break;
         case Z_LOAD_BOOT:
-            if (get_BUSACK() == 1)
-                z80_busreq();
+            z80_powerdown();
             sdcard_load_boot();
+            serial_send(Z_OK);
             break;
 
         // 

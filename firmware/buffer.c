@@ -1,3 +1,3 @@
 #include "buffer.h"
 
-uint8_t buffer[512] = { 0 };
+uint8_t buffer[513] = { 0 };

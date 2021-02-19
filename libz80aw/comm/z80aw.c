@@ -607,6 +607,7 @@ z80aw_read_disk_block(uint32_t block, uint8_t* data)
         return -1;
     for (int i = 0; i < 512; ++i)
         data[i] = zrecv();
+    z_assert_empty_buffer();
     return 0;
 }
 
@@ -618,6 +619,7 @@ int z80aw_update_disk(const char* filename)
         zsend_noreply(filename[i++]);
     } while (filename[i-1] != 0);
     int r = zrecv_response();
+    z_assert_empty_buffer();
     if (r == Z_EMULATOR_ONLY) {
         ERROR("Disks can only be updated on the emulator.");
     } else if (r == Z_NO_DISK) {
@@ -636,5 +638,12 @@ int z80aw_disk_status(SDCardStage* stage, uint8_t* status)
         *stage = stage_;
     if (status)
         *status = status_;
+    return r;
+}
+
+int z80aw_disk_load_boot()
+{
+    int r = zsend_expect(Z_LOAD_BOOT, Z_OK);
+    z_assert_empty_buffer();
     return r;
 }

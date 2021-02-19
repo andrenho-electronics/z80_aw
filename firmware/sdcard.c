@@ -135,7 +135,8 @@ static void write_byte(uint16_t idx, uint8_t byte, void* data)
 void sdcard_load_boot()
 {
     sdcard_read_block(0, write_byte, NULL);
-    memory_write_page(0, buffer, 512, NULL);
+    memory_write_page(0, buffer, 256, NULL);
+    memory_write_page(0, &buffer[256], 256, NULL);
 }
 
 bool sdcard_read_block(uint32_t block, void(*rd)(uint16_t idx, uint8_t byte, void* data), void* data)
