@@ -3,9 +3,15 @@
 
 #include <stdint.h>
 
-void    serial_init();
-void    serial_send(uint8_t byte);
-uint8_t serial_recv();
-uint8_t serial_recv_noblock();
+class Serial {
+public:
+    static Serial init();
+
+    void    send(uint8_t byte) const;
+    uint8_t recv() const;
+    uint8_t recv_noblock() const;
+
+    void    clrscr() const;
+};
 
 #endif

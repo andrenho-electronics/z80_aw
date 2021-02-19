@@ -3,5 +3,5 @@
 echo 'Press Ctrl+A and then Shift+K to exit.'
 echo "Type 'h' for help."
 sleep 1
-# screen -S z80 /dev/ttyUSB0 115200
-screen -S z80 /dev/ttyUSB0 38400
+screen -S z80 /dev/ttyUSB0 115200
+# screen -S z80 /dev/ttyUSB0 38400
