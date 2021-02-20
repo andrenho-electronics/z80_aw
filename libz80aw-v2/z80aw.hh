@@ -7,13 +7,11 @@
 
 class Z80AW {
 public:
-    Z80AW(const char* port);
-    ~Z80AW();
-
-    uint16_t free_mem() const;
-
-private:
-    Serial serial_;
+    virtual ~Z80AW() = default;
+    virtual uint16_t free_mem() const = 0;
+    
+    virtual void set_log_bytes(bool) {}
+    virtual void set_log_messages(bool) {}
 };
 
 #endif

@@ -1,7 +1,9 @@
-#include "z80aw.hh"
+#include "realhardware.hh"
 
 int main()
 {
-    Z80AW z("/dev/ttyUSB0");
-    z.free_mem();
+    RealHardware r("/dev/ttyUSB0");
+    r.set_log_bytes(true);
+    r.set_log_messages(true);
+    r.free_mem();
 }

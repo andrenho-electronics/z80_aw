@@ -1,6 +1,13 @@
 #ifndef LIBZ80AW_PROTOCOL_H
 #define LIBZ80AW_PROTOCOL_H
 
+#define Z_FOLLOWS_PROTOBUF_REQ    0xf0  // [this] [szB] [szA] [contents...] [chksumA] [chksumB]
+#define Z_FOLLOWS_PROTOBUF_RESP   0xf1  // [this] [szB] [szA] [contents...] [chksumA] [chksumB]
+#define Z_CHECKSUM_NO_MATCH       0xf2
+#define Z_MESSAGE_TOO_LARGE       0xf3
+
+/*
+
 // requests                            parameters -> response
 
 #define Z_EXIT_EMULATOR     0xe0   //  -> Z_OK
@@ -51,5 +58,7 @@
 #define Z_EMULATOR_ONLY     0xd7
 #define Z_NO_DISK           0xd8
 #define Z_OUT_OF_BOUNDS     0xd9
+
+*/
 
 #endif //LIBZ80AW_PROTOCOL_H

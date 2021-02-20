@@ -1,4 +1,4 @@
-OBJECTS       = serial.o z80aw.o proto/messages.pb.o
+OBJECTS       = serial.o z80aw.o realhardware.o proto/messages.pb.o
 LIB           = libz80aw.a
 CPPFLAGS      = -Wall -Wextra -g -O0 -I../common -I. -DTEST_CPU `pkg-config --cflags protobuf`
 CFLAGS        = -std=c11 -D_DEFAULT_SOURCE
@@ -25,6 +25,6 @@ check-z80aw-real: test-z80aw
 
 .PHONY: clean
 clean:
-	$(RM) -f *.o **/*.o $(LIB) test-z80aw
+	$(RM) -f *.o **/*.o $(LIB) test-z80aw proto/*.pb.*
 
 # vim: set ts=8 sts=8 sw=8 noexpandtab:
