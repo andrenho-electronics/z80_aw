@@ -47,3 +47,29 @@ Serial::~Serial()
 {
     close(fd);
 }
+
+Reply
+Serial::request(Request const& request) const
+{
+    std::string data;
+    request.SerializeToString(&data);
+
+    Reply reply;
+    reply.ParseFromString(talk(data));
+    return reply;
+}
+
+std::string
+Serial::talk(std::string const& data) const
+{
+    if (log_bytes_) {
+        printf("\e[0;32m");
+        for (uint8_t c: data)
+            printf("%02X ", c);
+        printf("\n");
+    }
+    if (log_bytes_) {
+        printf("\e[0m");
+    }
+    return "";
+}

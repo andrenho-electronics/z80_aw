@@ -3,4 +3,5 @@
 int main()
 {
     Z80AW z("/dev/ttyUSB0");
+    z.free_mem();
 }
