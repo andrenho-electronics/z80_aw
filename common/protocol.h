@@ -4,7 +4,8 @@
 #define Z_FOLLOWS_PROTOBUF_REQ    0xf0  // [this] [szB] [szA] [contents...] [chksumA] [chksumB]
 #define Z_FOLLOWS_PROTOBUF_RESP   0xf1  // [this] [szB] [szA] [contents...] [chksumA] [chksumB]
 #define Z_CHECKSUM_NO_MATCH       0xf2
-#define Z_MESSAGE_TOO_LARGE       0xf3
+#define Z_REQUEST_TOO_LARGE       0xf3
+#define Z_RESPONSE_TOO_LARGE      0xf4
 
 /*
 

@@ -111,8 +111,10 @@ Reply Serial::receive_reply() const
         printf("%02X ", resp);
     if (resp == Z_CHECKSUM_NO_MATCH)
         throw std::runtime_error("Controller informed that checksum sent does not match.");
-    else if (resp == Z_MESSAGE_TOO_LARGE)
+    else if (resp == Z_REQUEST_TOO_LARGE)
         throw std::runtime_error("Controller informed that message sent is too large.");
+    else if (resp == Z_RESPONSE_TOO_LARGE)
+        throw std::runtime_error("Controller informed that the response would be too large to create.");
     else if (resp != Z_FOLLOWS_PROTOBUF_RESP) {
         char buf[3]; sprintf(buf, "%02X", resp);
         throw std::runtime_error("Unexpected response from controller: "s + buf);
